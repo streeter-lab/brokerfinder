@@ -119,6 +119,12 @@ function calculate() {
   drawChart();
 }
 
+function formatAxisLabel(val) {
+  if (val >= 1000000) return '\u00a3' + (val / 1000000).toFixed(1) + 'M';
+  if (val >= 1000) return '\u00a3' + (val / 1000).toFixed(0) + 'k';
+  return '\u00a3' + val;
+}
+
 function drawChart() {
   if (!chartData) return;
 
@@ -159,7 +165,12 @@ function drawChart() {
 
   const w = rect.width;
   const h = rect.height;
-  const padding = { top: 30, right: 20, bottom: 40, left: 65 };
+
+  // Dynamically calculate left padding based on the widest Y-axis label
+  ctx.font = '11px "DM Sans", sans-serif';
+  const maxLabel = formatAxisLabel(Math.round(maxVal));
+  const maxLabelWidth = ctx.measureText(maxLabel).width;
+  const padding = { top: 30, right: 20, bottom: 40, left: Math.max(65, maxLabelWidth + 16) };
   const chartW = w - padding.left - padding.right;
   const chartH = h - padding.top - padding.bottom;
 
@@ -189,7 +200,7 @@ function drawChart() {
     ctx.fillStyle = labelColor;
     ctx.font = '11px "DM Sans", sans-serif';
     ctx.textAlign = 'right';
-    ctx.fillText(formatCurrency(Math.round(val)), padding.left - 8, y + 4);
+    ctx.fillText(formatAxisLabel(Math.round(val)), padding.left - 8, y + 4);
   }
 
   // X labels
