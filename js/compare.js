@@ -13,7 +13,11 @@ async function loadBrokers() {
     BROKERS = await response.json();
   } catch (err) {
     console.error('Failed to load broker data:', err);
-    document.getElementById('hero').innerHTML = '<p style="color:var(--red);padding:2rem">Failed to load broker data. Please refresh the page.</p>';
+    const hero = document.getElementById('hero');
+    if (hero) {
+      hero.querySelector('p').textContent = 'Failed to load broker data. Please refresh the page.';
+      hero.querySelector('p').style.color = 'var(--red)';
+    }
   }
 }
 
@@ -1118,6 +1122,10 @@ document.addEventListener('keydown', (e) => {
 // ═══════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', async () => {
   await loadBrokers();
+
+  // Enable start button now data is loaded
+  const startBtn = document.getElementById('btnStart');
+  if (startBtn) startBtn.disabled = false;
 
   // Observe broker list for cost bar animation
   const brokerList = document.getElementById('brokerList');
