@@ -2,16 +2,29 @@
   {
     "name": "InvestEngine",
     "category": "flat",
-    "accounts": ["isa", "gia", "jisa", "sipp"],
-    "investmentTypes": ["etf"],
-    "platformFee": { "type": "fixed", "amount": 0 },
-    "sippFee": { "type": "fixed", "amount": 0 },
+    "accounts": [
+      "isa",
+      "gia",
+      "jisa",
+      "sipp"
+    ],
+    "investmentTypes": [
+      "etf"
+    ],
+    "platformFee": {
+      "type": "fixed",
+      "amount": 0
+    },
+    "sippFee": {
+      "type": "fixed",
+      "amount": 0
+    },
     "fundTrade": null,
     "etfTrade": 0,
     "shareTrade": null,
     "regularInvesting": 0,
     "fxRate": 0,
-    "entryExit": "\u00a30",
+    "entryExit": "£0",
     "sippDrawdownFee": null,
     "hasSIPP": true,
     "hasDrawdown": false,
@@ -19,29 +32,55 @@
     "cashInterest": "No",
     "fscsGroup": null,
     "notes": "ETFs only. Zero fees. SIPP available (no drawdown). No in-specie transfers out.",
-    "warnings": ["ETFs only \u2014 cannot hold funds or individual shares", "No in-specie transfers out (must sell holdings to leave)", "No SIPP drawdown available", "No salary sacrifice support"],
-    "pros": ["Zero platform, trading, and FX fees", "Good range of ETFs", "Free ISA, GIA, JISA, SIPP"],
-    "tags": { "zeroFees": true, "bestETF": true },
+    "warnings": [
+      "ETFs only — cannot hold funds or individual shares",
+      "No in-specie transfers out (must sell holdings to leave)",
+      "No SIPP drawdown available",
+      "No salary sacrifice support"
+    ],
+    "pros": [
+      "Zero platform, trading, and FX fees",
+      "Good range of ETFs",
+      "Free ISA, GIA, JISA, SIPP"
+    ],
+    "tags": {
+      "zeroFees": true,
+      "bestETF": true
+    },
     "ratings": {
       "customerService": 3,
       "easeOfUse": 4,
       "investmentRange": 2,
       "established": 2
-    }
+    },
+    "lastVerified": "2026-02"
   },
   {
     "name": "Prosper",
     "category": "flat",
-    "accounts": ["isa", "gia", "sipp"],
-    "investmentTypes": ["fund", "etf"],
-    "platformFee": { "type": "fixed", "amount": 0 },
-    "sippFee": { "type": "fixed", "amount": 0 },
+    "accounts": [
+      "isa",
+      "gia",
+      "sipp"
+    ],
+    "investmentTypes": [
+      "fund",
+      "etf"
+    ],
+    "platformFee": {
+      "type": "fixed",
+      "amount": 0
+    },
+    "sippFee": {
+      "type": "fixed",
+      "amount": 0
+    },
     "fundTrade": 0,
     "etfTrade": 0,
     "shareTrade": null,
     "regularInvesting": 0,
     "fxRate": 0,
-    "entryExit": "\u00a30",
+    "entryExit": "£0",
     "sippDrawdownFee": null,
     "hasSIPP": true,
     "hasDrawdown": false,
@@ -49,22 +88,43 @@
     "cashInterest": "Check with provider",
     "fscsGroup": null,
     "notes": "Restricted fund list. Some 0% OCF funds available. No SIPP drawdown.",
-    "warnings": ["Restricted fund list", "No SIPP drawdown", "No individual shares"],
-    "pros": ["Zero fees for funds and ETFs", "SIPP available at no extra cost", "Some 0% OCF funds"],
-    "tags": { "zeroFees": true },
+    "warnings": [
+      "Restricted fund list",
+      "No SIPP drawdown",
+      "No individual shares"
+    ],
+    "pros": [
+      "Zero fees for funds and ETFs",
+      "SIPP available at no extra cost",
+      "Some 0% OCF funds"
+    ],
+    "tags": {
+      "zeroFees": true
+    },
     "ratings": {
       "customerService": 2,
       "easeOfUse": 3,
       "investmentRange": 2,
       "established": 1
-    }
+    },
+    "lastVerified": "2026-02"
   },
   {
     "name": "Lightyear",
     "category": "flat",
-    "accounts": ["isa", "gia"],
-    "investmentTypes": ["etf", "shareUK", "shareIntl"],
-    "platformFee": { "type": "fixed", "amount": 0 },
+    "accounts": [
+      "isa",
+      "gia"
+    ],
+    "investmentTypes": [
+      "etf",
+      "shareUK",
+      "shareIntl"
+    ],
+    "platformFee": {
+      "type": "fixed",
+      "amount": 0
+    },
     "sippFee": null,
     "fundTrade": null,
     "etfTrade": 0,
@@ -73,138 +133,249 @@
     "shareTradeGIA_US": 0.001,
     "regularInvesting": 0,
     "fxRate": 0.0035,
-    "entryExit": "\u00a30",
+    "entryExit": "£0",
     "sippDrawdownFee": null,
     "hasSIPP": false,
     "hasDrawdown": false,
     "restricted": false,
     "cashInterest": "Check with provider",
     "fscsGroup": null,
-    "notes": "No SIPP. Free trades in ISA. GIA: \u00a31 per UK share trade, 0.1% US.",
-    "warnings": ["No SIPP available", "GIA share trades not free (\u00a31 UK, 0.1% US)"],
-    "pros": ["Zero platform fee", "Free ISA trading", "Low FX fee at 0.35%"],
-    "tags": { "zeroFees": true },
+    "notes": "No SIPP. Free trades in ISA. GIA: £1 per UK share trade, 0.1% US.",
+    "warnings": [
+      "No SIPP available",
+      "GIA share trades not free (£1 UK, 0.1% US)"
+    ],
+    "pros": [
+      "Zero platform fee",
+      "Free ISA trading",
+      "Low FX fee at 0.35%"
+    ],
+    "tags": {
+      "zeroFees": true
+    },
     "ratings": {
       "customerService": 2,
       "easeOfUse": 4,
       "investmentRange": 3,
       "established": 1
-    }
+    },
+    "lastVerified": "2026-02"
   },
   {
     "name": "Freetrade",
     "category": "flat",
-    "accounts": ["isa", "gia", "sipp"],
-    "investmentTypes": ["etf", "shareUK", "shareIntl"],
-    "platformFee": { "type": "fixed", "amount": 0 },
-    "sippFee": { "type": "fixed", "amount": 119.88 },
+    "accounts": [
+      "isa",
+      "gia",
+      "sipp"
+    ],
+    "investmentTypes": [
+      "etf",
+      "shareUK",
+      "shareIntl"
+    ],
+    "platformFee": {
+      "type": "fixed",
+      "amount": 0
+    },
+    "sippFee": {
+      "type": "fixed",
+      "amount": 119.88
+    },
     "fundTrade": 0,
     "etfTrade": 0,
     "shareTrade": 0,
     "regularInvesting": 0,
     "fxRate": 0.0099,
-    "fxRates": { "basic": 0.0099, "standard": 0.0059, "plus": 0.0039 },
-    "entryExit": "\u00a30",
+    "fxRates": {
+      "basic": 0.0099,
+      "standard": 0.0059,
+      "plus": 0.0039
+    },
+    "entryExit": "£0",
     "sippDrawdownFee": 240,
     "hasSIPP": true,
     "hasDrawdown": true,
     "restricted": false,
     "cashInterest": "Check with provider",
     "fscsGroup": null,
-    "notes": "ISA now free on all plans. SIPP on Plus plan only. \u00a3240 per UFPLS withdrawal.",
-    "warnings": ["SIPP only on Plus plan", "\u00a3240 per UFPLS withdrawal", "FX fee varies by plan: 0.99% Basic, 0.59% Standard, 0.39% Plus"],
-    "pros": ["Zero platform and trading fees on all plans", "Free ISA on all plans", "SIPP available (Plus plan)"],
-    "tags": { "zeroFees": true },
+    "notes": "ISA now free on all plans. SIPP on Plus plan only. £240 per UFPLS withdrawal.",
+    "warnings": [
+      "SIPP only on Plus plan",
+      "£240 per UFPLS withdrawal",
+      "FX fee varies by plan: 0.99% Basic, 0.59% Standard, 0.39% Plus"
+    ],
+    "pros": [
+      "Zero platform and trading fees on all plans",
+      "Free ISA on all plans",
+      "SIPP available (Plus plan)"
+    ],
+    "tags": {
+      "zeroFees": true
+    },
     "ratings": {
       "customerService": 3,
       "easeOfUse": 4,
       "investmentRange": 3,
       "established": 2
-    }
+    },
+    "lastVerified": "2026-02"
   },
   {
     "name": "Interactive Investor",
     "category": "flat",
-    "accounts": ["isa", "gia", "sipp", "jisa"],
-    "investmentTypes": ["fund", "etf", "shareUK", "shareIntl", "bond"],
-    "platformFee": { "type": "fixed", "amount": 71.88 },
-    "plans": { "core": 71.88, "plus": 179.88 },
+    "accounts": [
+      "isa",
+      "gia",
+      "sipp",
+      "jisa"
+    ],
+    "investmentTypes": [
+      "fund",
+      "etf",
+      "shareUK",
+      "shareIntl",
+      "bond"
+    ],
+    "platformFee": {
+      "type": "fixed",
+      "amount": 71.88
+    },
+    "plans": {
+      "core": 71.88,
+      "plus": 179.88
+    },
     "fundTradeCore": 3.99,
     "fundTradePlus": 1.49,
     "etfTradeCore": 3.99,
     "etfTradePlus": 2.99,
-    "sippFee": { "type": "fixed", "amount": 0 },
+    "sippFee": {
+      "type": "fixed",
+      "amount": 0
+    },
     "fundTrade": 3.99,
     "etfTrade": 3.99,
     "shareTrade": 3.99,
     "shareTradePlus": 2.99,
     "regularInvesting": 0,
     "fxRate": 0.0075,
-    "entryExit": "\u00a30",
+    "entryExit": "£0",
     "sippDrawdownFee": 0,
     "hasSIPP": true,
     "hasDrawdown": true,
     "restricted": false,
     "cashInterest": "Yes (variable rate)",
     "fscsGroup": null,
-    "notes": "Includes ISA + GIA + SIPP on one plan. Family accounts on Plus. Core \u00a371.88/yr, Plus \u00a3179.88/yr.",
-    "warnings": ["Per-trade fees apply (\u00a33.99 Core, lower on Plus)"],
-    "pros": ["ISA, GIA, and SIPP included in one flat fee", "Family accounts on Plus plan", "Broad investment range including bonds"],
-    "tags": { "established": true, "bestFlat": true },
+    "notes": "Includes ISA + GIA + SIPP on one plan. Family accounts on Plus. Core £71.88/yr, Plus £179.88/yr.",
+    "warnings": [
+      "Per-trade fees apply (£3.99 Core, lower on Plus)"
+    ],
+    "pros": [
+      "ISA, GIA, and SIPP included in one flat fee",
+      "Family accounts on Plus plan",
+      "Broad investment range including bonds"
+    ],
+    "tags": {
+      "established": true,
+      "bestFlat": true
+    },
     "ratings": {
       "customerService": 4,
       "easeOfUse": 3,
       "investmentRange": 5,
       "established": 5
-    }
+    },
+    "lastVerified": "2026-02"
   },
   {
     "name": "Lloyds Bank",
     "category": "flat",
-    "accounts": ["isa", "gia", "sipp"],
-    "investmentTypes": ["fund", "etf", "shareUK", "shareIntl"],
-    "platformFee": { "type": "fixed", "amount": 36 },
-    "sippFee": { "type": "percentage", "rate": 0.0025, "cap": 198 },
-    "fundTrade": 1.50,
-    "etfTrade": 9.50,
+    "accounts": [
+      "isa",
+      "gia",
+      "sipp"
+    ],
+    "investmentTypes": [
+      "fund",
+      "etf",
+      "shareUK",
+      "shareIntl"
+    ],
+    "platformFee": {
+      "type": "fixed",
+      "amount": 36
+    },
+    "sippFee": {
+      "type": "percentage",
+      "rate": 0.0025,
+      "cap": 198
+    },
+    "fundTrade": 1.5,
+    "etfTrade": 9.5,
     "etfTradeIntl": 0,
-    "shareTrade": 9.50,
+    "shareTrade": 9.5,
     "shareTradeIntl": 0,
     "regularInvesting": 0,
     "fxRate": 0.01,
-    "entryExit": "\u00a30",
+    "entryExit": "£0",
     "sippDrawdownFee": null,
     "hasSIPP": true,
     "hasDrawdown": true,
     "restricted": false,
     "cashInterest": "Check with provider",
     "fscsGroup": "lloyds",
-    "notes": "Free for 18-25 or private banking. SIPP is 0.25% up to max \u00a3198. Same FSCS entity as Halifax, BoS, Scottish Widows.",
-    "warnings": ["High ETF/share trading fee (\u00a39.50 UK)", "Same FSCS entity as Halifax, BoS, and Scottish Widows"],
-    "pros": ["Low platform fee at \u00a336/year", "Cheap fund trades at \u00a31.50", "Well-established high street bank"],
-    "tags": { "established": true },
+    "notes": "Free for 18-25 or private banking. SIPP is 0.25% up to max £198. Same FSCS entity as Halifax, BoS, Scottish Widows.",
+    "warnings": [
+      "High ETF/share trading fee (£9.50 UK)",
+      "Same FSCS entity as Halifax, BoS, and Scottish Widows"
+    ],
+    "pros": [
+      "Low platform fee at £36/year",
+      "Cheap fund trades at £1.50",
+      "Well-established high street bank"
+    ],
+    "tags": {
+      "established": true
+    },
     "ratings": {
       "customerService": 3,
       "easeOfUse": 3,
       "investmentRange": 4,
       "established": 5
-    }
+    },
+    "lastVerified": "2026-02"
   },
   {
     "name": "Halifax / BoS",
     "category": "flat",
-    "accounts": ["isa", "gia", "sipp"],
-    "investmentTypes": ["fund", "etf", "shareUK", "shareIntl"],
-    "platformFee": { "type": "fixed", "amount": 36 },
-    "sippFee": { "type": "percentage", "rate": 0.0025, "cap": 198 },
-    "fundTrade": 9.50,
-    "etfTrade": 9.50,
+    "accounts": [
+      "isa",
+      "gia",
+      "sipp"
+    ],
+    "investmentTypes": [
+      "fund",
+      "etf",
+      "shareUK",
+      "shareIntl"
+    ],
+    "platformFee": {
+      "type": "fixed",
+      "amount": 36
+    },
+    "sippFee": {
+      "type": "percentage",
+      "rate": 0.0025,
+      "cap": 198
+    },
+    "fundTrade": 9.5,
+    "etfTrade": 9.5,
     "etfTradeIntl": 0,
-    "shareTrade": 9.50,
+    "shareTrade": 9.5,
     "shareTradeIntl": 0,
     "regularInvesting": 0,
     "fxRate": 0.0125,
-    "entryExit": "\u00a30",
+    "entryExit": "£0",
     "sippDrawdownFee": null,
     "hasSIPP": true,
     "hasDrawdown": true,
@@ -212,23 +383,49 @@
     "cashInterest": "Check with provider",
     "fscsGroup": "lloyds",
     "notes": "Same FSCS entity as Lloyds and Scottish Widows for investments.",
-    "warnings": ["High trading fees (\u00a39.50 per trade)", "Same FSCS entity as Lloyds, BoS, and Scottish Widows", "Higher FX at 1.25%"],
-    "pros": ["Low flat platform fee at \u00a336/year", "Established high street bank"],
-    "tags": { "established": true },
+    "warnings": [
+      "High trading fees (£9.50 per trade)",
+      "Same FSCS entity as Lloyds, BoS, and Scottish Widows",
+      "Higher FX at 1.25%"
+    ],
+    "pros": [
+      "Low flat platform fee at £36/year",
+      "Established high street bank"
+    ],
+    "tags": {
+      "established": true
+    },
     "ratings": {
       "customerService": 3,
       "easeOfUse": 3,
       "investmentRange": 4,
       "established": 5
-    }
+    },
+    "lastVerified": "2026-02"
   },
   {
     "name": "Scottish Widows",
     "category": "flat",
-    "accounts": ["isa", "gia", "sipp"],
-    "investmentTypes": ["fund", "etf", "shareUK", "shareIntl"],
-    "platformFee": { "type": "fixed", "amount": 0 },
-    "sippFee": { "type": "percentage", "rate": 0.0025, "cap": 198 },
+    "accounts": [
+      "isa",
+      "gia",
+      "sipp"
+    ],
+    "investmentTypes": [
+      "fund",
+      "etf",
+      "shareUK",
+      "shareIntl"
+    ],
+    "platformFee": {
+      "type": "fixed",
+      "amount": 0
+    },
+    "sippFee": {
+      "type": "percentage",
+      "rate": 0.0025,
+      "cap": 198
+    },
     "fundTrade": 5,
     "etfTrade": 5,
     "etfTradeIntl": 0,
@@ -236,30 +433,49 @@
     "shareTradeIntl": 0,
     "regularInvesting": 0,
     "fxRate": 0.015,
-    "entryExit": "\u00a30",
+    "entryExit": "£0",
     "sippDrawdownFee": null,
     "hasSIPP": true,
     "hasDrawdown": true,
     "restricted": false,
     "cashInterest": "No",
     "fscsGroup": "lloyds",
-    "notes": "Formerly iWeb. SIPP 0.25% up to max \u00a3198. Browser accessible.",
-    "warnings": ["Higher FX fee at 1.5%", "Same FSCS entity as Lloyds, Halifax, BoS", "\u00a35 per trade"],
-    "pros": ["Zero platform fee", "SIPP available", "Formerly iWeb \u2014 straightforward platform"],
+    "notes": "Formerly iWeb. SIPP 0.25% up to max £198. Browser accessible.",
+    "warnings": [
+      "Higher FX fee at 1.5%",
+      "Same FSCS entity as Lloyds, Halifax, BoS",
+      "£5 per trade"
+    ],
+    "pros": [
+      "Zero platform fee",
+      "SIPP available",
+      "Formerly iWeb — straightforward platform"
+    ],
     "tags": {},
     "ratings": {
       "customerService": 2,
       "easeOfUse": 2,
       "investmentRange": 4,
       "established": 4
-    }
+    },
+    "lastVerified": "2026-02"
   },
   {
     "name": "Revolut",
     "category": "flat",
-    "accounts": ["isa", "gia"],
-    "investmentTypes": ["etf", "shareUK", "shareIntl"],
-    "platformFee": { "type": "fixed", "amount": 0 },
+    "accounts": [
+      "isa",
+      "gia"
+    ],
+    "investmentTypes": [
+      "etf",
+      "shareUK",
+      "shareIntl"
+    ],
+    "platformFee": {
+      "type": "fixed",
+      "amount": 0
+    },
     "sippFee": null,
     "fundTrade": null,
     "etfTrade": 0,
@@ -269,61 +485,103 @@
     "regularInvesting": null,
     "fxRate": 0.01,
     "fxRatePlus": 0.005,
-    "entryExit": "\u00a30",
+    "entryExit": "£0",
     "sippDrawdownFee": null,
     "hasSIPP": false,
     "hasDrawdown": false,
     "restricted": false,
     "cashInterest": "Check with provider",
     "fscsGroup": null,
-    "notes": "Standard: 1 free trade/month then 0.25%. Plus: \u00a347.88/yr. No SIPP. No funds.",
-    "warnings": ["No SIPP", "No funds \u2014 shares and ETFs only", "0.25% per trade after 1 free/month (Standard)"],
-    "pros": ["Zero platform fee", "Familiar banking app", "Plus plan reduces FX to 0.5%"],
+    "notes": "Standard: 1 free trade/month then 0.25%. Plus: £47.88/yr. No SIPP. No funds.",
+    "warnings": [
+      "No SIPP",
+      "No funds — shares and ETFs only",
+      "0.25% per trade after 1 free/month (Standard)"
+    ],
+    "pros": [
+      "Zero platform fee",
+      "Familiar banking app",
+      "Plus plan reduces FX to 0.5%"
+    ],
     "tags": {},
     "ratings": {
       "customerService": 2,
       "easeOfUse": 5,
       "investmentRange": 2,
       "established": 2
-    }
+    },
+    "lastVerified": "2026-02"
   },
   {
     "name": "HSBC Invest Direct",
     "category": "flat",
-    "accounts": ["isa", "gia"],
-    "investmentTypes": ["etf", "shareUK"],
-    "platformFee": { "type": "fixed", "amount": 42 },
+    "accounts": [
+      "isa",
+      "gia"
+    ],
+    "investmentTypes": [
+      "etf",
+      "shareUK"
+    ],
+    "platformFee": {
+      "type": "fixed",
+      "amount": 42
+    },
     "sippFee": null,
     "fundTrade": null,
-    "etfTrade": 10.50,
-    "shareTrade": 10.50,
+    "etfTrade": 10.5,
+    "shareTrade": 10.5,
     "regularInvesting": null,
     "fxRate": 0,
-    "entryExit": "Exit: \u00a315/holding",
+    "entryExit": "Exit: £15/holding",
     "sippDrawdownFee": null,
     "hasSIPP": false,
     "hasDrawdown": false,
     "restricted": false,
     "cashInterest": "Check with provider",
     "fscsGroup": null,
-    "notes": "No SIPP. No funds. Exit fee \u00a315 per holding.",
-    "warnings": ["No SIPP", "No funds available", "Exit fee \u00a315 per holding", "High trading fee (\u00a310.50)"],
-    "pros": ["HSBC brand \u2014 well established"],
-    "tags": { "established": true },
+    "notes": "No SIPP. No funds. Exit fee £15 per holding.",
+    "warnings": [
+      "No SIPP",
+      "No funds available",
+      "Exit fee £15 per holding",
+      "High trading fee (£10.50)"
+    ],
+    "pros": [
+      "HSBC brand — well established"
+    ],
+    "tags": {
+      "established": true
+    },
     "ratings": {
       "customerService": 3,
       "easeOfUse": 2,
       "investmentRange": 2,
       "established": 5
-    }
+    },
+    "lastVerified": "2026-02"
   },
   {
     "name": "Moneyfarm Share Investing",
     "category": "flat",
-    "accounts": ["isa", "gia"],
-    "investmentTypes": ["etf", "shareUK", "bond"],
-    "platformFee": { "type": "fixed", "amount": 0 },
-    "platformFeeISA": { "type": "percentage", "rate": 0.0035, "cap": 45 },
+    "accounts": [
+      "isa",
+      "gia"
+    ],
+    "investmentTypes": [
+      "etf",
+      "shareUK",
+      "bond"
+    ],
+    "platformFee": {
+      "type": "fixed",
+      "amount": 0
+    },
+    "platformFeeISA": {
+      "type": "percentage",
+      "rate": 0.0035,
+      "cap": 45
+    },
     "sippFee": null,
     "fundTrade": 3.95,
     "etfTrade": 3.95,
@@ -331,99 +589,171 @@
     "bondTrade": 5.95,
     "regularInvesting": null,
     "fxRate": 0.007,
-    "entryExit": "\u00a30",
+    "entryExit": "£0",
     "sippDrawdownFee": null,
     "hasSIPP": false,
     "hasDrawdown": false,
     "restricted": false,
     "cashInterest": "Check with provider",
     "fscsGroup": null,
-    "notes": "GIA free, ISA 0.35% capped at \u00a345. No SIPP.",
-    "warnings": ["No SIPP", "ISA fee 0.35% (capped at \u00a345)", "\u00a33.95 per trade"],
-    "pros": ["Low ISA fee cap of \u00a345", "GIA is free", "Bonds available (\u00a35.95 per trade)"],
+    "notes": "GIA free, ISA 0.35% capped at £45. No SIPP.",
+    "warnings": [
+      "No SIPP",
+      "ISA fee 0.35% (capped at £45)",
+      "£3.95 per trade"
+    ],
+    "pros": [
+      "Low ISA fee cap of £45",
+      "GIA is free",
+      "Bonds available (£5.95 per trade)"
+    ],
     "tags": {},
     "ratings": {
       "customerService": 3,
       "easeOfUse": 3,
       "investmentRange": 3,
       "established": 2
-    }
+    },
+    "lastVerified": "2026-02"
   },
   {
     "name": "Dodl by AJ Bell",
     "category": "percentage",
-    "accounts": ["isa", "gia", "sipp", "lisa"],
-    "investmentTypes": ["fund", "etf"],
-    "platformFee": { "type": "percentage", "rate": 0.0015, "minimum": 12 },
+    "accounts": [
+      "isa",
+      "gia",
+      "sipp",
+      "lisa"
+    ],
+    "investmentTypes": [
+      "fund",
+      "etf"
+    ],
+    "platformFee": {
+      "type": "percentage",
+      "rate": 0.0015,
+      "minimum": 12
+    },
     "platformFeePerAccount": true,
-    "sippFee": { "type": "fixed", "amount": 0 },
+    "sippFee": {
+      "type": "fixed",
+      "amount": 0
+    },
     "fundTrade": 0,
     "etfTrade": 0,
     "shareTrade": null,
     "regularInvesting": 0,
     "fxRate": 0.0075,
-    "fxTiers": [{ "max": 10000, "rate": 0.0075 }],
-    "entryExit": "\u00a30",
+    "fxTiers": [
+      {
+        "max": 10000,
+        "rate": 0.0075
+      }
+    ],
+    "entryExit": "£0",
     "sippDrawdownFee": null,
     "hasSIPP": true,
     "hasDrawdown": false,
     "restricted": true,
     "cashInterest": "Check with provider",
     "fscsGroup": null,
-    "notes": "Restricted list. Simple investing. No SIPP drawdown. Min \u00a312/account.",
-    "warnings": ["Restricted fund/ETF list", "No SIPP drawdown", "No individual shares", "Min \u00a312/account fee"],
-    "pros": ["Very low 0.15% fee", "Free fund and ETF trading", "Simple, beginner-friendly app", "LISA available"],
-    "tags": { "bestSmall": true, "easyToUse": true },
+    "notes": "Restricted list. Simple investing. No SIPP drawdown. Min £12/account.",
+    "warnings": [
+      "Restricted fund/ETF list",
+      "No SIPP drawdown",
+      "No individual shares",
+      "Min £12/account fee"
+    ],
+    "pros": [
+      "Very low 0.15% fee",
+      "Free fund and ETF trading",
+      "Simple, beginner-friendly app",
+      "LISA available"
+    ],
+    "tags": {
+      "bestSmall": true,
+      "easyToUse": true
+    },
     "ratings": {
       "customerService": 3,
       "easeOfUse": 5,
       "investmentRange": 2,
       "established": 3
-    }
+    },
+    "lastVerified": "2026-02"
   },
   {
     "name": "Chip",
     "category": "percentage",
-    "accounts": ["isa", "gia", "lisa"],
-    "investmentTypes": ["fund", "etf"],
-    "platformFee": { "type": "percentage", "rate": 0.0025, "flat_extra": 12 },
+    "accounts": [
+      "isa",
+      "gia",
+      "lisa"
+    ],
+    "investmentTypes": [
+      "fund",
+      "etf"
+    ],
+    "platformFee": {
+      "type": "percentage",
+      "rate": 0.0025,
+      "flat_extra": 12
+    },
     "sippFee": null,
     "fundTrade": null,
     "etfTrade": 0,
     "shareTrade": null,
     "regularInvesting": 0,
     "fxRate": 0,
-    "entryExit": "\u00a30",
+    "entryExit": "£0",
     "sippDrawdownFee": null,
     "hasSIPP": false,
     "hasDrawdown": false,
     "restricted": true,
     "cashInterest": "Check with provider",
     "fscsGroup": null,
-    "notes": "Restricted list. No SIPP. Chip X plan \u00a365.05/yr.",
-    "warnings": ["No SIPP", "Restricted fund/ETF list", "No individual shares"],
-    "pros": ["LISA available", "Easy saving app"],
+    "notes": "Restricted list. No SIPP. Chip X plan £65.05/yr.",
+    "warnings": [
+      "No SIPP",
+      "Restricted fund/ETF list",
+      "No individual shares"
+    ],
+    "pros": [
+      "LISA available",
+      "Easy saving app"
+    ],
     "tags": {},
     "ratings": {
       "customerService": 2,
       "easeOfUse": 4,
       "investmentRange": 2,
       "established": 1
-    }
+    },
+    "lastVerified": "2026-02"
   },
   {
     "name": "Quilter Invest",
     "category": "percentage",
-    "accounts": ["isa", "gia"],
-    "investmentTypes": ["fund", "etf"],
-    "platformFee": { "type": "percentage", "rate": 0.0025, "flat_extra": 24 },
+    "accounts": [
+      "isa",
+      "gia"
+    ],
+    "investmentTypes": [
+      "fund",
+      "etf"
+    ],
+    "platformFee": {
+      "type": "percentage",
+      "rate": 0.0025,
+      "flat_extra": 24
+    },
     "sippFee": null,
     "fundTrade": null,
     "etfTrade": 0,
     "shareTrade": null,
     "regularInvesting": 0,
     "fxRate": 0.004,
-    "entryExit": "\u00a30",
+    "entryExit": "£0",
     "sippDrawdownFee": null,
     "hasSIPP": false,
     "hasDrawdown": false,
@@ -431,158 +761,290 @@
     "cashInterest": "Check with provider",
     "fscsGroup": null,
     "notes": "Restricted list. No SIPP. Free ETF trades at fixed times.",
-    "warnings": ["No SIPP", "Restricted list", "No individual shares", "\u00a324 base fee plus 0.25%"],
-    "pros": ["Free ETF trading at fixed times"],
+    "warnings": [
+      "No SIPP",
+      "Restricted list",
+      "No individual shares",
+      "£24 base fee plus 0.25%"
+    ],
+    "pros": [
+      "Free ETF trading at fixed times"
+    ],
     "tags": {},
     "ratings": {
       "customerService": 2,
       "easeOfUse": 3,
       "investmentRange": 2,
       "established": 3
-    }
+    },
+    "lastVerified": "2026-02"
   },
   {
     "name": "AJ Bell",
     "category": "percentage",
-    "accounts": ["isa", "gia", "sipp", "lisa", "jisa"],
-    "investmentTypes": ["fund", "etf", "shareUK", "shareIntl", "bond"],
+    "accounts": [
+      "isa",
+      "gia",
+      "sipp",
+      "lisa",
+      "jisa"
+    ],
+    "investmentTypes": [
+      "fund",
+      "etf",
+      "shareUK",
+      "shareIntl",
+      "bond"
+    ],
     "platformFee": {
       "type": "tiered",
       "tiers": [
-        { "upTo": 250000, "rate": 0.0025 },
-        { "upTo": 500000, "rate": 0.001 },
-        { "above": 500000, "rate": 0 }
+        {
+          "upTo": 250000,
+          "rate": 0.0025
+        },
+        {
+          "upTo": 500000,
+          "rate": 0.001
+        },
+        {
+          "above": 500000,
+          "rate": 0
+        }
       ]
     },
-    "platformFeeCaps": { "isa": 42, "sipp": 120 },
-    "sippFee": { "type": "fixed", "amount": 0 },
+    "platformFeeCaps": {
+      "isa": 42,
+      "sipp": 120
+    },
+    "sippFee": {
+      "type": "fixed",
+      "amount": 0
+    },
     "sippExtra": null,
     "sippMin": null,
-    "fundTrade": 1.50,
+    "fundTrade": 1.5,
     "etfTrade": 5,
     "shareTrade": 5,
-    "regularInvesting": 1.50,
+    "regularInvesting": 1.5,
     "regularInvestingFunds": null,
     "fxRate": 0.0075,
-    "fxTiers": [{ "max": 10000, "rate": 0.0075 }],
+    "fxTiers": [
+      {
+        "max": 10000,
+        "rate": 0.0075
+      }
+    ],
     "fxDividends": null,
-    "entryExit": "\u00a30",
+    "entryExit": "£0",
     "sippDrawdownFee": 0,
     "hasSIPP": true,
     "hasDrawdown": true,
     "restricted": false,
     "cashInterest": "Yes (variable rate)",
     "fscsGroup": null,
-    "notes": "ISA fee cap \u00a342. SIPP fee cap \u00a3120. Broad investment range.",
-    "warnings": ["\u00a35 per ETF/share trade"],
-    "pros": ["Broad investment range", "ISA capped at \u00a342/yr for larger portfolios", "SIPP capped at \u00a3120/yr", "JISA and LISA available", "Good reputation"],
-    "tags": { "established": true, "bestSIPP": true, "wideRange": true },
+    "notes": "ISA fee cap £42. SIPP fee cap £120. Broad investment range.",
+    "warnings": [
+      "£5 per ETF/share trade"
+    ],
+    "pros": [
+      "Broad investment range",
+      "ISA capped at £42/yr for larger portfolios",
+      "SIPP capped at £120/yr",
+      "JISA and LISA available",
+      "Good reputation"
+    ],
+    "tags": {
+      "established": true,
+      "bestSIPP": true,
+      "wideRange": true
+    },
     "ratings": {
       "customerService": 4,
       "easeOfUse": 3,
       "investmentRange": 5,
       "established": 4
-    }
+    },
+    "lastVerified": "2026-02"
   },
   {
     "name": "Fidelity",
     "category": "percentage",
-    "accounts": ["isa", "gia", "sipp", "jisa", "lisa"],
-    "investmentTypes": ["fund", "etf", "shareUK"],
+    "accounts": [
+      "isa",
+      "gia",
+      "sipp",
+      "jisa",
+      "lisa"
+    ],
+    "investmentTypes": [
+      "fund",
+      "etf",
+      "shareUK"
+    ],
     "platformFee": {
       "type": "thresholded",
       "belowThreshold": 25000,
       "belowAmount": 90,
       "tiers": [
-        { "upTo": 250000, "rate": 0.0035 },
-        { "upTo": 1000000, "rate": 0.002 },
-        { "above": 1000000, "rate": 0 }
+        {
+          "upTo": 250000,
+          "rate": 0.0035
+        },
+        {
+          "upTo": 1000000,
+          "rate": 0.002
+        },
+        {
+          "above": 1000000,
+          "rate": 0
+        }
       ]
     },
-    "platformFeeCaps": { "isa": 90, "sipp": 90 },
-    "sippFee": { "type": "fixed", "amount": 0 },
+    "platformFeeCaps": {
+      "isa": 90,
+      "sipp": 90
+    },
+    "sippFee": {
+      "type": "fixed",
+      "amount": 0
+    },
     "sippExtra": null,
     "sippMin": null,
     "fundTrade": 0,
-    "etfTrade": 7.50,
-    "shareTrade": 7.50,
-    "regularInvesting": 1.50,
+    "etfTrade": 7.5,
+    "shareTrade": 7.5,
+    "regularInvesting": 1.5,
     "regularInvestingFunds": 0,
     "fxRate": 0.0075,
-    "fxTiers": [{ "max": 10000, "rate": 0.0075 }],
+    "fxTiers": [
+      {
+        "max": 10000,
+        "rate": 0.0075
+      }
+    ],
     "fxDividends": null,
-    "entryExit": "\u00a30",
+    "entryExit": "£0",
     "sippDrawdownFee": 0,
     "hasSIPP": true,
     "hasDrawdown": true,
     "restricted": false,
     "cashInterest": "Yes (variable rate)",
     "fscsGroup": null,
-    "notes": "Fee on sum of all accounts. ISA/SIPP cap \u00a390 for ETF-only. Can't hold gilts.",
-    "warnings": ["Can't hold gilts directly", "\u00a37.50 per ETF/share trade", "Higher fee for smaller portfolios (flat \u00a390 under \u00a325k)"],
-    "pros": ["Free fund trading", "JISA and LISA available", "Excellent fund range", "Well-established"],
-    "tags": { "established": true, "wideRange": true, "bestFunds": true },
+    "notes": "Fee on sum of all accounts. ISA/SIPP cap £90 for ETF-only. Can't hold gilts.",
+    "warnings": [
+      "Can't hold gilts directly",
+      "£7.50 per ETF/share trade",
+      "Higher fee for smaller portfolios (flat £90 under £25k)"
+    ],
+    "pros": [
+      "Free fund trading",
+      "JISA and LISA available",
+      "Excellent fund range",
+      "Well-established"
+    ],
+    "tags": {
+      "established": true,
+      "wideRange": true,
+      "bestFunds": true
+    },
     "ratings": {
       "customerService": 4,
       "easeOfUse": 4,
       "investmentRange": 5,
       "established": 5
-    }
+    },
+    "lastVerified": "2026-02"
   },
   {
     "name": "Vanguard Investor",
     "category": "percentage",
-    "accounts": ["isa", "gia", "sipp", "jisa"],
-    "investmentTypes": ["fund", "etf"],
+    "accounts": [
+      "isa",
+      "gia",
+      "sipp",
+      "jisa"
+    ],
+    "investmentTypes": [
+      "fund",
+      "etf"
+    ],
     "platformFee": {
       "type": "thresholded",
       "belowThreshold": 32000,
       "belowAmount": 48,
       "tiers": [
-        { "upTo": 250000, "rate": 0.0015 }
+        {
+          "upTo": 250000,
+          "rate": 0.0015
+        }
       ],
       "cap": 375
     },
-    "sippFee": { "type": "fixed", "amount": 0 },
+    "sippFee": {
+      "type": "fixed",
+      "amount": 0
+    },
     "sippExtra": null,
     "sippMin": null,
     "fundTrade": 0,
     "etfTrade": 0,
-    "etfTradeManual": 7.50,
+    "etfTradeManual": 7.5,
     "shareTrade": null,
     "regularInvesting": 0,
     "fxRate": 0,
-    "entryExit": "\u00a30",
+    "entryExit": "£0",
     "sippDrawdownFee": 0,
     "hasSIPP": true,
     "hasDrawdown": true,
     "restricted": true,
     "cashInterest": "No",
     "fscsGroup": null,
-    "notes": "Vanguard funds/ETFs only. Fee on sum of all accounts. Max \u00a3375/yr.",
-    "warnings": ["Vanguard funds and ETFs only", "\u00a37.50 per ETF trade outside fixed dealing times", "No individual shares"],
-    "pros": ["Very low fees", "Free regular investing", "Vanguard funds are excellent low-cost options", "Fee capped at \u00a3375"],
-    "tags": { "bestFunds": true, "bestSmall": true },
+    "notes": "Vanguard funds/ETFs only. Fee on sum of all accounts. Max £375/yr.",
+    "warnings": [
+      "Vanguard funds and ETFs only",
+      "£7.50 per ETF trade outside fixed dealing times",
+      "No individual shares"
+    ],
+    "pros": [
+      "Very low fees",
+      "Free regular investing",
+      "Vanguard funds are excellent low-cost options",
+      "Fee capped at £375"
+    ],
+    "tags": {
+      "bestFunds": true,
+      "bestSmall": true
+    },
     "ratings": {
       "customerService": 3,
       "easeOfUse": 4,
       "investmentRange": 2,
       "established": 4
-    }
+    },
+    "lastVerified": "2026-02"
   },
   {
     "name": "HSBC Global Inv. Centre",
     "category": "percentage",
-    "accounts": ["isa", "gia"],
-    "investmentTypes": ["fund"],
-    "platformFee": { "type": "percentage", "rate": 0.0025 },
+    "accounts": [
+      "isa",
+      "gia"
+    ],
+    "investmentTypes": [
+      "fund"
+    ],
+    "platformFee": {
+      "type": "percentage",
+      "rate": 0.0025
+    },
     "sippFee": null,
     "fundTrade": 0,
     "etfTrade": null,
     "shareTrade": null,
     "regularInvesting": 0,
     "fxRate": 0,
-    "entryExit": "\u00a30",
+    "entryExit": "£0",
     "sippDrawdownFee": null,
     "hasSIPP": false,
     "hasDrawdown": false,
@@ -590,70 +1052,133 @@
     "cashInterest": "Check with provider",
     "fscsGroup": null,
     "notes": "Restricted non-HSBC index funds. No SIPP. Funds only.",
-    "warnings": ["No SIPP", "Funds only \u2014 no ETFs, shares, or bonds", "Restricted to non-HSBC index funds"],
-    "pros": ["Free fund trading", "HSBC brand"],
-    "tags": { "established": true },
+    "warnings": [
+      "No SIPP",
+      "Funds only — no ETFs, shares, or bonds",
+      "Restricted to non-HSBC index funds"
+    ],
+    "pros": [
+      "Free fund trading",
+      "HSBC brand"
+    ],
+    "tags": {
+      "established": true
+    },
     "ratings": {
       "customerService": 3,
       "easeOfUse": 3,
       "investmentRange": 1,
       "established": 5
-    }
+    },
+    "lastVerified": "2026-02"
   },
   {
     "name": "Barclays Smart Investor",
     "category": "percentage",
-    "accounts": ["isa", "gia", "sipp"],
-    "investmentTypes": ["fund", "etf", "shareUK", "shareIntl"],
+    "accounts": [
+      "isa",
+      "gia",
+      "sipp"
+    ],
+    "investmentTypes": [
+      "fund",
+      "etf",
+      "shareUK",
+      "shareIntl"
+    ],
     "platformFee": {
       "type": "tiered",
       "tiers": [
-        { "upTo": 200000, "rate": 0.0025 },
-        { "above": 200000, "rate": 0.0005 }
+        {
+          "upTo": 200000,
+          "rate": 0.0025
+        },
+        {
+          "above": 200000,
+          "rate": 0.0005
+        }
       ]
     },
-    "sippFee": { "type": "fixed", "amount": 0 },
+    "sippFee": {
+      "type": "fixed",
+      "amount": 0
+    },
     "sippExtra": 150,
     "fundTrade": 0,
     "etfTrade": 6,
     "shareTrade": 6,
     "regularInvesting": 0,
     "fxRate": 0.01,
-    "fxTiers": [{ "max": 5000, "rate": 0.01 }],
-    "entryExit": "SIPP: \u00a390 per transfer in",
+    "fxTiers": [
+      {
+        "max": 5000,
+        "rate": 0.01
+      }
+    ],
+    "entryExit": "SIPP: £90 per transfer in",
     "sippDrawdownFee": 120,
     "hasSIPP": true,
     "hasDrawdown": true,
     "restricted": false,
     "cashInterest": "Check with provider",
     "fscsGroup": null,
-    "notes": "SIPP has extra fees: +\u00a3150/yr platform, +\u00a3120 drawdown setup.",
-    "warnings": ["SIPP extra fees: +\u00a3150/yr + \u00a3120 drawdown", "\u00a390 per SIPP transfer in", "\u00a36 per ETF/share trade"],
-    "pros": ["Free fund trading", "Established high street bank", "Good investment range"],
-    "tags": { "established": true },
+    "notes": "SIPP has extra fees: +£150/yr platform, +£120 drawdown setup.",
+    "warnings": [
+      "SIPP extra fees: +£150/yr + £120 drawdown",
+      "£90 per SIPP transfer in",
+      "£6 per ETF/share trade"
+    ],
+    "pros": [
+      "Free fund trading",
+      "Established high street bank",
+      "Good investment range"
+    ],
+    "tags": {
+      "established": true
+    },
     "ratings": {
       "customerService": 3,
       "easeOfUse": 3,
       "investmentRange": 4,
       "established": 5
-    }
+    },
+    "lastVerified": "2026-02"
   },
   {
     "name": "Charles Stanley Direct",
     "category": "percentage",
-    "accounts": ["isa", "gia", "sipp"],
-    "investmentTypes": ["fund", "etf", "shareUK", "shareIntl", "bond"],
+    "accounts": [
+      "isa",
+      "gia",
+      "sipp"
+    ],
+    "investmentTypes": [
+      "fund",
+      "etf",
+      "shareUK",
+      "shareIntl",
+      "bond"
+    ],
     "platformFee": {
       "type": "thresholded",
       "belowThreshold": 20000,
       "belowAmount": 60,
       "tiers": [
-        { "upTo": 200000, "rate": 0.003 },
-        { "above": 200000, "rate": 0 }
+        {
+          "upTo": 200000,
+          "rate": 0.003
+        },
+        {
+          "above": 200000,
+          "rate": 0
+        }
       ],
       "cap": 600
     },
-    "sippFee": { "type": "fixed", "amount": 0 },
+    "sippFee": {
+      "type": "fixed",
+      "amount": 0
+    },
     "sippExtra120Under30k": true,
     "fundTrade": 4,
     "etfTrade": 10,
@@ -661,36 +1186,66 @@
     "regularInvesting": 0,
     "regularInvestingFunds": 0,
     "fxRate": 0.01,
-    "fxTiers": [{ "max": 10000, "rate": 0.01 }],
-    "entryExit": "Exit: \u00a310/holding",
+    "fxTiers": [
+      {
+        "max": 10000,
+        "rate": 0.01
+      }
+    ],
+    "entryExit": "Exit: £10/holding",
     "sippDrawdownFee": 0,
     "hasSIPP": true,
     "hasDrawdown": true,
     "restricted": false,
     "cashInterest": "Check with provider",
     "fscsGroup": null,
-    "notes": "50 free trades every 6 months. SIPP +\u00a3120 if all accounts under \u00a330k.",
-    "warnings": ["Exit fee \u00a310 per holding", "High share/ETF trading fee (\u00a310)", "SIPP +\u00a3120 if total under \u00a330k"],
-    "pros": ["50 free trades every 6 months", "Fee capped at \u00a3600", "Broad investment range"],
-    "tags": { "wideRange": true },
+    "notes": "50 free trades every 6 months. SIPP +£120 if all accounts under £30k.",
+    "warnings": [
+      "Exit fee £10 per holding",
+      "High share/ETF trading fee (£10)",
+      "SIPP +£120 if total under £30k"
+    ],
+    "pros": [
+      "50 free trades every 6 months",
+      "Fee capped at £600",
+      "Broad investment range"
+    ],
+    "tags": {
+      "wideRange": true
+    },
     "ratings": {
       "customerService": 3,
       "easeOfUse": 3,
       "investmentRange": 5,
       "established": 4
-    }
+    },
+    "lastVerified": "2026-02"
   },
   {
     "name": "Santander Investment Hub",
     "category": "percentage",
-    "accounts": ["isa", "gia"],
-    "investmentTypes": ["fund"],
+    "accounts": [
+      "isa",
+      "gia"
+    ],
+    "investmentTypes": [
+      "fund"
+    ],
     "platformFee": {
       "type": "tiered",
       "tiers": [
-        { "upTo": 50000, "rate": 0.0035 },
-        { "upTo": 500000, "rate": 0.002 },
-        { "above": 500000, "rate": 0.001 }
+        {
+          "upTo": 50000,
+          "rate": 0.0035
+        },
+        {
+          "upTo": 500000,
+          "rate": 0.002
+        },
+        {
+          "above": 500000,
+          "rate": 0.001
+        }
       ]
     },
     "sippFee": null,
@@ -699,7 +1254,7 @@
     "shareTrade": null,
     "regularInvesting": 0,
     "fxRate": 0,
-    "entryExit": "\u00a30",
+    "entryExit": "£0",
     "sippDrawdownFee": null,
     "hasSIPP": false,
     "hasDrawdown": false,
@@ -707,68 +1262,130 @@
     "cashInterest": "Check with provider",
     "fscsGroup": null,
     "notes": "Funds only. No SIPP.",
-    "warnings": ["No SIPP", "Funds only \u2014 no ETFs, shares, or bonds"],
-    "pros": ["Free fund trading", "Santander brand"],
-    "tags": { "established": true },
+    "warnings": [
+      "No SIPP",
+      "Funds only — no ETFs, shares, or bonds"
+    ],
+    "pros": [
+      "Free fund trading",
+      "Santander brand"
+    ],
+    "tags": {
+      "established": true
+    },
     "ratings": {
       "customerService": 3,
       "easeOfUse": 3,
       "investmentRange": 2,
       "established": 4
-    }
+    },
+    "lastVerified": "2026-02"
   },
   {
     "name": "Aviva",
     "category": "percentage",
-    "accounts": ["isa", "gia", "sipp"],
-    "investmentTypes": ["fund", "etf", "shareUK"],
+    "accounts": [
+      "isa",
+      "gia",
+      "sipp"
+    ],
+    "investmentTypes": [
+      "fund",
+      "etf",
+      "shareUK"
+    ],
     "platformFee": {
       "type": "tiered",
       "tiers": [
-        { "upTo": 500000, "rate": 0.0035 },
-        { "above": 500000, "rate": 0 }
+        {
+          "upTo": 500000,
+          "rate": 0.0035
+        },
+        {
+          "above": 500000,
+          "rate": 0
+        }
       ]
     },
-    "sippFee": { "type": "fixed", "amount": 0 },
+    "sippFee": {
+      "type": "fixed",
+      "amount": 0
+    },
     "fundTrade": 0,
     "etfTrade": 4.99,
     "shareTrade": 4.99,
     "regularInvesting": 4.99,
     "regularInvestingFunds": 0,
     "fxRate": 0,
-    "entryExit": "\u00a30",
+    "entryExit": "£0",
     "sippDrawdownFee": 0,
     "hasSIPP": true,
     "hasDrawdown": true,
     "restricted": false,
     "cashInterest": "Check with provider",
     "fscsGroup": null,
-    "notes": "Fee on sum of all accounts. 0% over \u00a3500k.",
-    "warnings": ["0.35% fee can be high for larger portfolios", "\u00a34.99 per ETF/share trade"],
-    "pros": ["Free fund trading", "SIPP with drawdown included", "0% fee above \u00a3500k", "Well-known insurer"],
-    "tags": { "established": true },
+    "notes": "Fee on sum of all accounts. 0% over £500k.",
+    "warnings": [
+      "0.35% fee can be high for larger portfolios",
+      "£4.99 per ETF/share trade"
+    ],
+    "pros": [
+      "Free fund trading",
+      "SIPP with drawdown included",
+      "0% fee above £500k",
+      "Well-known insurer"
+    ],
+    "tags": {
+      "established": true
+    },
     "ratings": {
       "customerService": 3,
       "easeOfUse": 3,
       "investmentRange": 4,
       "established": 5
-    }
+    },
+    "lastVerified": "2026-02"
   },
   {
     "name": "Bestinvest",
     "category": "percentage",
-    "accounts": ["isa", "gia", "sipp", "jisa"],
-    "investmentTypes": ["fund", "etf", "shareUK", "shareIntl"],
+    "accounts": [
+      "isa",
+      "gia",
+      "sipp",
+      "jisa"
+    ],
+    "investmentTypes": [
+      "fund",
+      "etf",
+      "shareUK",
+      "shareIntl"
+    ],
     "platformFee": {
       "type": "tiered",
       "tiers": [
-        { "upTo": 250000, "rate": 0.004 },
-        { "upTo": 500000, "rate": 0.002 },
-        { "upTo": 1000000, "rate": 0.001 },
-        { "above": 1000000, "rate": 0 }
+        {
+          "upTo": 250000,
+          "rate": 0.004
+        },
+        {
+          "upTo": 500000,
+          "rate": 0.002
+        },
+        {
+          "upTo": 1000000,
+          "rate": 0.001
+        },
+        {
+          "above": 1000000,
+          "rate": 0
+        }
       ]
     },
-    "sippFee": { "type": "fixed", "amount": 0 },
+    "sippFee": {
+      "type": "fixed",
+      "amount": 0
+    },
     "sippMin": 120,
     "fundTrade": 0,
     "etfTrade": 4.95,
@@ -777,73 +1394,149 @@
     "shareTradeUS": 0,
     "regularInvesting": 0,
     "fxRate": 0.0095,
-    "entryExit": "\u00a30",
+    "entryExit": "£0",
     "sippDrawdownFee": 0,
     "hasSIPP": true,
     "hasDrawdown": true,
     "restricted": false,
     "cashInterest": "Check with provider",
     "fscsGroup": null,
-    "notes": "SIPP min \u00a3120 fee. Free US share/ETF trading.",
-    "warnings": ["Higher platform fee at 0.4%", "SIPP minimum fee \u00a3120/yr", "\u00a34.95 per UK ETF/share trade"],
-    "pros": ["Free fund trading", "Free US share and ETF trading", "JISA available", "SIPP with drawdown"],
+    "notes": "SIPP min £120 fee. Free US share/ETF trading.",
+    "warnings": [
+      "Higher platform fee at 0.4%",
+      "SIPP minimum fee £120/yr",
+      "£4.95 per UK ETF/share trade"
+    ],
+    "pros": [
+      "Free fund trading",
+      "Free US share and ETF trading",
+      "JISA available",
+      "SIPP with drawdown"
+    ],
     "tags": {},
     "ratings": {
       "customerService": 3,
       "easeOfUse": 3,
       "investmentRange": 4,
       "established": 3
-    }
+    },
+    "lastVerified": "2026-02"
   },
   {
     "name": "Hargreaves Lansdown",
     "category": "percentage",
-    "accounts": ["isa", "gia", "sipp", "jisa", "lisa"],
-    "investmentTypes": ["fund", "etf", "shareUK", "shareIntl", "bond"],
+    "accounts": [
+      "isa",
+      "gia",
+      "sipp",
+      "jisa",
+      "lisa"
+    ],
+    "investmentTypes": [
+      "fund",
+      "etf",
+      "shareUK",
+      "shareIntl",
+      "bond"
+    ],
     "platformFee": {
       "type": "tiered",
       "tiers": [
-        { "upTo": 250000, "rate": 0.0035 },
-        { "upTo": 1000000, "rate": 0.0025 },
-        { "upTo": 2000000, "rate": 0.001 },
-        { "above": 2000000, "rate": 0 }
+        {
+          "upTo": 250000,
+          "rate": 0.0035
+        },
+        {
+          "upTo": 1000000,
+          "rate": 0.0025
+        },
+        {
+          "upTo": 2000000,
+          "rate": 0.001
+        },
+        {
+          "above": 2000000,
+          "rate": 0
+        }
       ]
     },
-    "platformFeeCaps": { "isa": 150, "sipp": 150, "lisa": 45 },
-    "sippFee": { "type": "fixed", "amount": 0 },
+    "platformFeeCaps": {
+      "isa": 150,
+      "sipp": 150,
+      "lisa": 45
+    },
+    "sippFee": {
+      "type": "fixed",
+      "amount": 0
+    },
     "fundTrade": 1.95,
     "etfTrade": 6.95,
     "shareTrade": 6.95,
     "regularInvesting": 0,
     "fxRate": 0.0099,
-    "fxTiers": [{ "max": 10000, "rate": 0.0099 }],
+    "fxTiers": [
+      {
+        "max": 10000,
+        "rate": 0.0099
+      }
+    ],
     "fxDividends": 0.01,
-    "entryExit": "\u00a30",
+    "entryExit": "£0",
     "sippDrawdownFee": 0,
     "hasSIPP": true,
     "hasDrawdown": true,
     "restricted": false,
     "cashInterest": "Yes (variable rate)",
     "fscsGroup": null,
-    "notes": "ISA fee cap \u00a3150 (from Mar 2026). SIPP cap \u00a3150. LISA cap \u00a345. Best customer service in the industry.",
-    "warnings": ["Higher percentage fee at 0.35%", "1% FX on dividends", "\u00a36.95 per share/ETF trade"],
-    "pros": ["Excellent customer service \u2014 consistently rated #1", "Widest investment range available", "All account types: ISA, SIPP, JISA, LISA", "ISA/SIPP fees capped at \u00a3150", "Comprehensive research and tools"],
-    "tags": { "established": true, "bestService": true, "wideRange": true },
+    "notes": "ISA fee cap £150 (from Mar 2026). SIPP cap £150. LISA cap £45. Best customer service in the industry.",
+    "warnings": [
+      "Higher percentage fee at 0.35%",
+      "1% FX on dividends",
+      "£6.95 per share/ETF trade"
+    ],
+    "pros": [
+      "Excellent customer service — consistently rated #1",
+      "Widest investment range available",
+      "All account types: ISA, SIPP, JISA, LISA",
+      "ISA/SIPP fees capped at £150",
+      "Comprehensive research and tools"
+    ],
+    "tags": {
+      "established": true,
+      "bestService": true,
+      "wideRange": true
+    },
     "ratings": {
       "customerService": 5,
       "easeOfUse": 5,
       "investmentRange": 5,
       "established": 5
-    }
+    },
+    "lastVerified": "2026-02"
   },
   {
     "name": "Interactive Brokers",
     "category": "trading",
-    "accounts": ["isa", "gia", "sipp"],
-    "investmentTypes": ["etf", "shareUK", "shareIntl", "bond"],
-    "platformFee": { "type": "fixed", "amount": 36 },
+    "accounts": [
+      "isa",
+      "gia",
+      "sipp"
+    ],
+    "investmentTypes": [
+      "etf",
+      "shareUK",
+      "shareIntl",
+      "bond"
+    ],
+    "platformFee": {
+      "type": "fixed",
+      "amount": 36
+    },
     "platformFeeGIA": 0,
-    "sippFee": { "type": "fixed", "amount": 0 },
+    "sippFee": {
+      "type": "fixed",
+      "amount": 0
+    },
     "sippThirdParty": true,
     "fundTrade": null,
     "etfTrade": 3,
@@ -853,37 +1546,61 @@
     "shareTradeEU": 3,
     "regularInvesting": null,
     "fxRate": 0.0003,
-    "entryExit": "\u00a30",
+    "entryExit": "£0",
     "sippDrawdownFee": null,
     "hasSIPP": true,
     "hasDrawdown": false,
     "restricted": false,
     "cashInterest": "Check with provider",
     "fscsGroup": null,
-    "notes": "Best for international trading. Complex interface. SIPP via third-party admin. ISA \u00a33/month waived with 3+ trades/month.",
-    "warnings": ["Complex interface \u2014 not beginner-friendly", "SIPP via third-party administrator", "ISA fee \u00a33/month unless 3+ trades/month", "Min trade fees apply"],
-    "pros": ["Lowest FX fee at 0.03%", "Best for international shares", "Huge range of global markets", "Very low per-trade fees for active traders"],
-    "tags": { "bestInternational": true, "bestActive": true },
+    "notes": "Best for international trading. Complex interface. SIPP via third-party admin. ISA £3/month waived with 3+ trades/month.",
+    "warnings": [
+      "Complex interface — not beginner-friendly",
+      "SIPP via third-party administrator",
+      "ISA fee £3/month unless 3+ trades/month",
+      "Min trade fees apply"
+    ],
+    "pros": [
+      "Lowest FX fee at 0.03%",
+      "Best for international shares",
+      "Huge range of global markets",
+      "Very low per-trade fees for active traders"
+    ],
+    "tags": {
+      "bestInternational": true,
+      "bestActive": true
+    },
     "ratings": {
       "customerService": 2,
       "easeOfUse": 1,
       "investmentRange": 5,
       "established": 4
-    }
+    },
+    "lastVerified": "2026-02"
   },
   {
     "name": "Trading 212",
     "category": "trading",
-    "accounts": ["isa", "gia"],
-    "investmentTypes": ["etf", "shareUK", "shareIntl"],
-    "platformFee": { "type": "fixed", "amount": 0 },
+    "accounts": [
+      "isa",
+      "gia"
+    ],
+    "investmentTypes": [
+      "etf",
+      "shareUK",
+      "shareIntl"
+    ],
+    "platformFee": {
+      "type": "fixed",
+      "amount": 0
+    },
     "sippFee": null,
     "fundTrade": null,
     "etfTrade": 0,
     "shareTrade": 0,
     "regularInvesting": 0,
     "fxRate": 0.0015,
-    "entryExit": "\u00a30",
+    "entryExit": "£0",
     "sippDrawdownFee": null,
     "hasSIPP": false,
     "hasDrawdown": false,
@@ -891,23 +1608,52 @@
     "cashInterest": "Check with provider",
     "fscsGroup": null,
     "notes": "Zero fees. No SIPP. Securities lending enabled in GIA (you can opt out).",
-    "warnings": ["No SIPP", "Securities lending in GIA (opt-out available)", "No funds \u2014 ETFs and shares only"],
-    "pros": ["Zero platform and trading fees", "Low FX at 0.15%", "Easy-to-use app", "Fractional shares available"],
-    "tags": { "zeroFees": true, "easyToUse": true },
+    "warnings": [
+      "No SIPP",
+      "Securities lending in GIA (opt-out available)",
+      "No funds — ETFs and shares only"
+    ],
+    "pros": [
+      "Zero platform and trading fees",
+      "Low FX at 0.15%",
+      "Easy-to-use app",
+      "Fractional shares available"
+    ],
+    "tags": {
+      "zeroFees": true,
+      "easyToUse": true
+    },
     "ratings": {
       "customerService": 2,
       "easeOfUse": 5,
       "investmentRange": 3,
       "established": 2
-    }
+    },
+    "lastVerified": "2026-02"
   },
   {
     "name": "Saxo",
     "category": "trading",
-    "accounts": ["isa", "gia", "sipp"],
-    "investmentTypes": ["fund", "etf", "shareUK", "shareIntl", "bond"],
-    "platformFee": { "type": "percentage", "rate": 0.0012 },
-    "sippFee": { "type": "fixed", "amount": 443 },
+    "accounts": [
+      "isa",
+      "gia",
+      "sipp"
+    ],
+    "investmentTypes": [
+      "fund",
+      "etf",
+      "shareUK",
+      "shareIntl",
+      "bond"
+    ],
+    "platformFee": {
+      "type": "percentage",
+      "rate": 0.0012
+    },
+    "sippFee": {
+      "type": "fixed",
+      "amount": 443
+    },
     "fundTrade": null,
     "etfTrade": 3,
     "shareTrade": 3,
@@ -923,60 +1669,107 @@
     "restricted": false,
     "cashInterest": "Check with provider",
     "fscsGroup": null,
-    "notes": "SIPP +\u00a3443/yr. Exit fees. Complex tiered pricing.",
-    "warnings": ["SIPP costs \u00a3443/yr extra", "Exit fees apply", "Complex fee structure", "Higher FX fees", "Commission varies by tier and market"],
-    "pros": ["Very wide international range", "Professional trading tools", "Multiple asset classes"],
-    "tags": { "wideRange": true },
+    "notes": "SIPP +£443/yr. Exit fees. Complex tiered pricing.",
+    "warnings": [
+      "SIPP costs £443/yr extra",
+      "Exit fees apply",
+      "Complex fee structure",
+      "Higher FX fees",
+      "Commission varies by tier and market"
+    ],
+    "pros": [
+      "Very wide international range",
+      "Professional trading tools",
+      "Multiple asset classes"
+    ],
+    "tags": {
+      "wideRange": true
+    },
     "ratings": {
       "customerService": 3,
       "easeOfUse": 2,
       "investmentRange": 5,
       "established": 4
-    }
+    },
+    "lastVerified": "2026-02"
   },
   {
     "name": "IG",
     "category": "trading",
-    "accounts": ["isa", "gia", "sipp"],
-    "investmentTypes": ["etf", "shareUK", "shareIntl"],
-    "platformFee": { "type": "fixed", "amount": 0 },
-    "sippFee": { "type": "fixed", "amount": 210 },
+    "accounts": [
+      "isa",
+      "gia",
+      "sipp"
+    ],
+    "investmentTypes": [
+      "etf",
+      "shareUK",
+      "shareIntl"
+    ],
+    "platformFee": {
+      "type": "fixed",
+      "amount": 0
+    },
+    "sippFee": {
+      "type": "fixed",
+      "amount": 210
+    },
     "fundTrade": null,
     "etfTrade": 0,
     "shareTrade": 0,
     "regularInvesting": null,
     "fxRate": 0.007,
-    "entryExit": "\u00a30",
+    "entryExit": "£0",
     "sippDrawdownFee": null,
     "hasSIPP": true,
     "hasDrawdown": false,
     "restricted": false,
-    "cashInterest": "Yes \u2014 competitive rate up to \u00a3100k",
+    "cashInterest": "Yes — competitive rate up to £100k",
     "fscsGroup": null,
-    "notes": "Zero platform and trading fees. No gilts/bonds (only ETFs). SIPP \u00a3210/yr.",
-    "warnings": ["No gilts or bonds \u2014 ETFs only", "SIPP costs \u00a3210/yr", "Higher FX at 0.7%", "No funds"],
-    "pros": ["Zero platform and trading fees", "Good for UK and international shares", "Well-established brand"],
-    "tags": { "zeroFees": true, "established": true },
+    "notes": "Zero platform and trading fees. No gilts/bonds (only ETFs). SIPP £210/yr.",
+    "warnings": [
+      "No gilts or bonds — ETFs only",
+      "SIPP costs £210/yr",
+      "Higher FX at 0.7%",
+      "No funds"
+    ],
+    "pros": [
+      "Zero platform and trading fees",
+      "Good for UK and international shares",
+      "Well-established brand"
+    ],
+    "tags": {
+      "zeroFees": true,
+      "established": true
+    },
     "ratings": {
       "customerService": 3,
       "easeOfUse": 3,
       "investmentRange": 3,
       "established": 5
-    }
+    },
+    "lastVerified": "2026-02"
   },
   {
     "name": "Robinhood",
     "category": "trading",
-    "accounts": ["gia"],
-    "investmentTypes": ["shareIntl"],
-    "platformFee": { "type": "fixed", "amount": 0 },
+    "accounts": [
+      "gia"
+    ],
+    "investmentTypes": [
+      "shareIntl"
+    ],
+    "platformFee": {
+      "type": "fixed",
+      "amount": 0
+    },
     "sippFee": null,
     "fundTrade": null,
     "etfTrade": 0,
     "shareTrade": 0,
     "regularInvesting": null,
     "fxRate": 0.001,
-    "entryExit": "\u00a30",
+    "entryExit": "£0",
     "sippDrawdownFee": null,
     "hasSIPP": false,
     "hasDrawdown": false,
@@ -984,53 +1777,100 @@
     "cashInterest": "Check with provider",
     "fscsGroup": null,
     "notes": "US shares only. No ISA. No SIPP. Securities lending.",
-    "warnings": ["US shares only", "No ISA", "No SIPP", "Securities lending", "Very limited range"],
-    "pros": ["Zero fees", "Low FX at 0.1%", "Easy-to-use app"],
-    "tags": { "zeroFees": true },
+    "warnings": [
+      "US shares only",
+      "No ISA",
+      "No SIPP",
+      "Securities lending",
+      "Very limited range"
+    ],
+    "pros": [
+      "Zero fees",
+      "Low FX at 0.1%",
+      "Easy-to-use app"
+    ],
+    "tags": {
+      "zeroFees": true
+    },
     "ratings": {
       "customerService": 1,
       "easeOfUse": 5,
       "investmentRange": 1,
       "established": 2
-    }
+    },
+    "lastVerified": "2026-02"
   },
   {
     "name": "Trinity Bridge",
     "category": "percentage",
-    "accounts": ["isa", "gia", "sipp"],
-    "investmentTypes": ["fund", "etf", "shareUK", "shareIntl"],
+    "accounts": [
+      "isa",
+      "gia",
+      "sipp"
+    ],
+    "investmentTypes": [
+      "fund",
+      "etf",
+      "shareUK",
+      "shareIntl"
+    ],
     "platformFee": {
       "type": "tiered",
       "tiers": [
-        { "upTo": 500000, "rate": 0.0025 },
-        { "upTo": 1000000, "rate": 0.002 },
-        { "upTo": 1500000, "rate": 0.001 },
-        { "above": 1500000, "rate": 0 }
+        {
+          "upTo": 500000,
+          "rate": 0.0025
+        },
+        {
+          "upTo": 1000000,
+          "rate": 0.002
+        },
+        {
+          "upTo": 1500000,
+          "rate": 0.001
+        },
+        {
+          "above": 1500000,
+          "rate": 0
+        }
       ]
     },
-    "sippFee": { "type": "fixed", "amount": 180 },
+    "sippFee": {
+      "type": "fixed",
+      "amount": 180
+    },
     "fundTrade": 0,
     "etfTrade": 8.95,
     "shareTrade": 8.95,
     "regularInvesting": 8.95,
     "regularInvestingFunds": 0,
     "fxRate": null,
-    "entryExit": "\u00a30",
+    "entryExit": "£0",
     "sippDrawdownFee": 0,
     "hasSIPP": true,
     "hasDrawdown": true,
     "restricted": false,
     "cashInterest": "Check with provider",
     "fscsGroup": null,
-    "notes": "Tiered fee on sum of all accounts. SIPP +\u00a3180/yr. \u00a360 SIPP setup, \u00a360 per UFPLS. FX fee not disclosed.",
-    "warnings": ["SIPP surcharge \u00a3180/yr", "\u00a360 SIPP setup fee", "FX fee not disclosed", "\u00a38.95 per ETF/share trade"],
-    "pros": ["0% fee above \u00a31.5m", "Free fund trading", "Fee on sum of all accounts (rewards consolidation)"],
+    "notes": "Tiered fee on sum of all accounts. SIPP +£180/yr. £60 SIPP setup, £60 per UFPLS. FX fee not disclosed.",
+    "warnings": [
+      "SIPP surcharge £180/yr",
+      "£60 SIPP setup fee",
+      "FX fee not disclosed",
+      "£8.95 per ETF/share trade"
+    ],
+    "pros": [
+      "0% fee above £1.5m",
+      "Free fund trading",
+      "Fee on sum of all accounts (rewards consolidation)"
+    ],
     "tags": {},
     "ratings": {
       "customerService": 3,
       "easeOfUse": 3,
       "investmentRange": 4,
       "established": 3
-    }
+    },
+    "lastVerified": "2026-02"
   }
 ]

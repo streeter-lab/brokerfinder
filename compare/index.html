@@ -16,7 +16,23 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="BrokerFinder">
 <meta name="twitter:card" content="summary">
+<meta name="theme-color" content="#2ec4b6">
 <link rel="stylesheet" href="/css/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "UK Broker Comparison Tool",
+  "url": "https://brokerfinder.uk/compare/",
+  "applicationCategory": "FinanceApplication",
+  "operatingSystem": "Web",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "GBP"
+  }
+}
+</script>
 </head>
 <body>
 
@@ -29,6 +45,7 @@
   </button>
   <nav class="site-nav">
     <a href="/compare/">Compare</a>
+    <a href="/check/">Quick Check</a>
     <a href="/calculator/">Calculator</a>
     <a href="/faq/">FAQ</a>
   </nav>
@@ -108,6 +125,14 @@
   <button class="btn-close-compare" id="btnCloseCompare">Close comparison</button>
 </section>
 
+<!-- ════════ Floating Comparison Bar ════════ -->
+<div class="compare-float-bar" id="compareFloatBar" style="display:none">
+  <div class="compare-float-inner">
+    <span id="compareFloatText">1 broker selected</span>
+    <button class="btn-wizard primary" id="compareFloatBtn" disabled>Compare selected</button>
+  </div>
+</div>
+
 <!-- ════════ Footer ════════ -->
 <footer class="site-footer">
   <div class="container">
@@ -119,6 +144,7 @@
 </footer>
 
 <script src="/js/shared.js"></script>
+<script src="/js/fee-engine.js"></script>
 <script src="/js/compare.js"></script>
 </body>
 </html>
