@@ -96,7 +96,7 @@ function calculateCost(broker, portfolioValue, userAnswers) {
     platformFee = calculatePlatformFee(broker.platformFeeISA, pv);
   }
   // Per-account minimum (Dodl)
-  if (broker.platformFeePerAccount && broker.platformFee.minimum) {
+  if (broker.platformFeePerAccount && broker.platformFee && broker.platformFee.minimum) {
     const accountCount = accounts.filter(a => broker.accounts.includes(a)).length;
     const minimumTotal = broker.platformFee.minimum * accountCount;
     platformFee = Math.max(platformFee, minimumTotal);
@@ -105,18 +105,19 @@ function calculateCost(broker, portfolioValue, userAnswers) {
   // Platform fee caps — only apply when user holds exclusively ETFs/shares (no funds or bonds)
   const hasOnlyETFsOrShares = !invTypes.includes('funds') && !invTypes.includes('bonds');
   const capsApply = hasOnlyETFsOrShares;
-  if (broker.platformFeeCaps) {
-    if (capsApply) {
-      if (needsSIPP && broker.platformFeeCaps.sipp) {
-        platformFee = Math.min(platformFee, broker.platformFeeCaps.sipp);
-      } else if (accounts.includes('isa') && broker.platformFeeCaps.isa) {
-        platformFee = Math.min(platformFee, broker.platformFeeCaps.isa);
-      }
+  if (broker.platformFeeCaps && capsApply) {
+    let totalCap = 0;
+    let hasCap = false;
+    if (accounts.includes('isa') && broker.platformFeeCaps.isa) {
+      totalCap += broker.platformFeeCaps.isa; hasCap = true;
     }
-    // LISA cap always applies regardless of investment type
+    if (needsSIPP && broker.platformFeeCaps.sipp) {
+      totalCap += broker.platformFeeCaps.sipp; hasCap = true;
+    }
     if (accounts.includes('lisa') && broker.platformFeeCaps.lisa) {
-      platformFee = Math.min(platformFee, broker.platformFeeCaps.lisa);
+      totalCap += broker.platformFeeCaps.lisa; hasCap = true;
     }
+    if (hasCap) platformFee = Math.min(platformFee, totalCap);
   }
 
   // SIPP surcharge
@@ -182,12 +183,19 @@ function calculateCost(broker, portfolioValue, userAnswers) {
     }
   }
 
-  if (buyingBonds && broker.bondTrade) {
-    tradingCost += broker.bondTrade * tradesPerType;
+  if (buyingBonds) {
+    const bondPrice = broker.bondTrade ?? broker.shareTrade ?? broker.etfTrade ?? null;
+    if (bondPrice !== null) {
+      if (isRegular && broker.regularInvesting !== null && broker.regularInvesting !== undefined) {
+        tradingCost += broker.regularInvesting * tradesPerType;
+      } else {
+        tradingCost += bondPrice * tradesPerType;
+      }
+    }
   }
 
   // Revolut special: 0.25% per trade after 1 free/month
-  if (broker.name === 'Revolut') {
+  if (brokerSlug(broker.name) === 'revolut') {
     // Reset trading cost — we calculate it all here
     tradingCost = 0;
     const relevantTrades = (buyingETFs ? tradesPerType : 0) + (buyingShares ? tradesPerType : 0);
@@ -199,23 +207,28 @@ function calculateCost(broker, portfolioValue, userAnswers) {
   }
 
   // Interactive Investor plan selection
-  if (broker.name === 'Interactive Investor') {
+  if (brokerSlug(broker.name) === 'interactive-investor') {
     const coreFee = broker.plans.core;
     const plusFee = broker.plans.plus;
 
-    // Determine per-trade cost based on what user is buying
-    let corePerTrade, plusPerTrade;
-    if (buyingFunds && !buyingETFs && !buyingShares) {
-      corePerTrade = broker.fundTradeCore;
-      plusPerTrade = broker.fundTradePlus;
-    } else {
-      // ETFs/shares use the higher trade fee on Core, lower on Plus
-      corePerTrade = broker.etfTradeCore || broker.fundTradeCore;
-      plusPerTrade = broker.etfTradePlus || broker.fundTradePlus;
+    // Calculate full per-asset-class trading cost under each plan
+    const coreFundPrice = broker.fundTradeCore;
+    const plusFundPrice = broker.fundTradePlus;
+    const coreEtfSharePrice = broker.etfTradeCore || broker.fundTradeCore;
+    const plusEtfSharePrice = broker.etfTradePlus || broker.fundTradePlus;
+
+    function iiTradingCost(fundPrice, etfSharePrice) {
+      if (isRegular) return 0;
+      let cost = 0;
+      if (buyingFunds) cost += fundPrice * tradesPerType;
+      if (buyingETFs) cost += etfSharePrice * tradesPerType;
+      if (buyingShares) cost += etfSharePrice * tradesPerType;
+      if (buyingBonds) cost += etfSharePrice * tradesPerType;
+      return cost;
     }
 
-    const coreTradeCost = isRegular ? 0 : (tradesPerYear * corePerTrade);
-    const plusTradeCost = isRegular ? 0 : (tradesPerYear * plusPerTrade);
+    const coreTradeCost = iiTradingCost(coreFundPrice, coreEtfSharePrice);
+    const plusTradeCost = iiTradingCost(plusFundPrice, plusEtfSharePrice);
 
     if (coreFee + coreTradeCost <= plusFee + plusTradeCost) {
       platformFee = coreFee;
@@ -261,15 +274,19 @@ function calculateCost(broker, portfolioValue, userAnswers) {
     drawdownCost = broker.sippDrawdownFee;
   }
 
-  const totalCost = platformFee + sippCost + tradingCost + fxCost + drawdownCost;
+  const pf = Math.round(platformFee * 100) / 100;
+  const sc = Math.round(sippCost * 100) / 100;
+  const tc = Math.round(tradingCost * 100) / 100;
+  const fc = Math.round(fxCost * 100) / 100;
+  const dc = Math.round(drawdownCost * 100) / 100;
 
   return {
-    platformFee: Math.round(platformFee * 100) / 100,
-    sippCost: Math.round(sippCost * 100) / 100,
-    tradingCost: Math.round(tradingCost * 100) / 100,
-    fxCost: Math.round(fxCost * 100) / 100,
-    drawdownCost: Math.round(drawdownCost * 100) / 100,
-    totalCost: Math.round(totalCost * 100) / 100,
+    platformFee: pf,
+    sippCost: sc,
+    tradingCost: tc,
+    fxCost: fc,
+    drawdownCost: dc,
+    totalCost: Math.round((pf + sc + tc + fc + dc) * 100) / 100,
     fxNotDisclosed
   };
 }

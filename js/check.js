@@ -14,11 +14,14 @@ const CHECK_DEFAULTS = {
 };
 
 async function loadCheckBrokers() {
+  const btnCheck = document.getElementById('btnCheck');
+  if (btnCheck) btnCheck.disabled = true;
   try {
     const response = await fetch('/data/brokers.json');
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     CHECK_BROKERS = await response.json();
     populateBrokerDropdown();
+    if (btnCheck) btnCheck.disabled = false;
   } catch (err) {
     console.error('Failed to load broker data:', err);
     const select = document.getElementById('checkBroker');
@@ -31,7 +34,7 @@ function populateBrokerDropdown() {
   const sorted = [...CHECK_BROKERS].sort((a, b) => a.name.localeCompare(b.name));
   let html = '<option value="other">Other / I don\'t know</option>';
   sorted.forEach(b => {
-    html += `<option value="${brokerSlug(b.name)}">${b.name}</option>`;
+    html += `<option value="${brokerSlug(b.name)}">${escapeHTML(b.name)}</option>`;
   });
   select.innerHTML = html;
 
@@ -99,7 +102,7 @@ function runCheck() {
     // Find user's current broker cost
     const currentEntry = allCosts.find(e => e.broker.name === selectedBroker.name);
     if (!currentEntry) {
-      resultCurrent.innerHTML = `<p style="color:var(--text-secondary)">${selectedBroker.name} doesn't match the default criteria (ISA + ETFs). <a href="/compare/" style="color:var(--accent)">Try the full comparison</a> for a personalised result.</p>`;
+      resultCurrent.innerHTML = `<p style="color:var(--text-secondary)">${escapeHTML(selectedBroker.name)} doesn't match the default criteria (ISA + ETFs). <a href="/compare/" style="color:var(--accent)">Try the full comparison</a> for a personalised result.</p>`;
       resultRank.style.display = 'none';
       resultSavings.style.display = 'none';
       checkCtas.innerHTML = '';
@@ -112,7 +115,7 @@ function runCheck() {
     const costPct = portfolioValue > 0 ? ((currentCost / portfolioValue) * 100).toFixed(2) : '0';
 
     resultCurrent.innerHTML = `
-      <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem">Your estimated annual cost with ${selectedBroker.name}</p>
+      <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem">Your estimated annual cost with ${escapeHTML(selectedBroker.name)}</p>
       <div class="cost-big">${formatCurrency(currentCost)}/year</div>
       <div class="cost-pct">${costPct}% of your portfolio</div>
     `;
@@ -134,12 +137,13 @@ function runCheck() {
     resultRank.innerHTML = `
       <p>You're paying more than <strong>${cheaperCount}</strong> out of <strong>${total}</strong> eligible brokers.</p>
       <div class="rank-bar"><div class="rank-bar-fill ${barClass}" style="width:${rankPct}%"></div></div>
+      <span class="sr-only">${rankPct <= 33 ? 'Good value' : rankPct <= 66 ? 'Average value' : 'Expensive'}</span>
       ${alternatives.length > 0 ? `
       <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:0.5rem">Cheapest alternatives:</p>
       <ul class="cheapest-list">
         ${alternatives.map(e => `
           <li class="cheapest-item">
-            <span class="cheapest-name"><a href="/broker/${brokerSlug(e.broker.name)}/">${e.broker.name}</a></span>
+            <span class="cheapest-name"><a href="/broker/${brokerSlug(e.broker.name)}/">${escapeHTML(e.broker.name)}</a></span>
             <span class="cheapest-cost">${formatCurrency(e.cost.totalCost)}/yr</span>
           </li>
         `).join('')}
@@ -153,7 +157,7 @@ function runCheck() {
       const compoundSavings = calculateCompoundSavings(annualSaving, 20, 0.07);
       resultSavings.style.display = 'block';
       resultSavings.innerHTML = `
-        <p style="font-size:0.85rem;color:var(--text-secondary);margin:0 0 0.25rem">Switching to ${allCosts[0].broker.name} could save you</p>
+        <p style="font-size:0.85rem;color:var(--text-secondary);margin:0 0 0.25rem">Switching to ${escapeHTML(allCosts[0].broker.name)} could save you</p>
         <div class="savings-big">${formatCurrency(Math.round(annualSaving))}/year</div>
         <p>Over 20 years at 7% growth, that's <strong>${formatCurrency(Math.round(compoundSavings))}</strong> in extra returns</p>
       `;
@@ -164,7 +168,7 @@ function runCheck() {
     // CTAs
     checkCtas.innerHTML = `
       <a href="/compare/#accounts=isa&investmentTypes=etfs&portfolioSize=${portfolioValue}&tradingFreq=monthly&fxTrading=rarely" class="check-cta primary">Get a personalised comparison →</a>
-      <a href="/broker/${brokerSlug(selectedBroker.name)}/" class="check-cta secondary">See full ${selectedBroker.name} breakdown →</a>
+      <a href="/broker/${brokerSlug(selectedBroker.name)}/" class="check-cta secondary">See full ${escapeHTML(selectedBroker.name)} breakdown →</a>
     `;
   } else {
     // "Other / I don't know"
@@ -179,7 +183,7 @@ function runCheck() {
       <ul class="cheapest-list">
         ${cheapest3.map((e, i) => `
           <li class="cheapest-item">
-            <span class="cheapest-name"><strong>${i + 1}.</strong> <a href="/broker/${brokerSlug(e.broker.name)}/">${e.broker.name}</a></span>
+            <span class="cheapest-name"><strong>${i + 1}.</strong> <a href="/broker/${brokerSlug(e.broker.name)}/">${escapeHTML(e.broker.name)}</a></span>
             <span class="cheapest-cost">${formatCurrency(e.cost.totalCost)}/yr</span>
           </li>
         `).join('')}

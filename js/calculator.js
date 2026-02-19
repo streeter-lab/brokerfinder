@@ -349,14 +349,42 @@ function decodeCalcParamsFromURL() {
   if (!hash) return null;
   const params = new URLSearchParams(hash);
   const result = {};
-  if (params.has('start')) result.startingAmount = parseFloat(params.get('start'));
-  if (params.has('monthly')) result.monthlyContribution = parseFloat(params.get('monthly'));
-  if (params.has('growth')) result.growthRate = parseFloat(params.get('growth'));
-  if (params.has('fee')) result.platformFee = parseFloat(params.get('fee'));
-  if (params.has('ocf')) result.fundOCF = parseFloat(params.get('ocf'));
-  if (params.has('years')) result.years = parseInt(params.get('years'));
+
+  function parseClamp(raw, min, max) {
+    const v = parseFloat(raw);
+    if (isNaN(v)) return undefined;
+    return Math.min(max, Math.max(min, v));
+  }
+
+  if (params.has('start')) {
+    const v = parseClamp(params.get('start'), 0, 100000000);
+    if (v !== undefined) result.startingAmount = v;
+  }
+  if (params.has('monthly')) {
+    const v = parseClamp(params.get('monthly'), 0, 1000000);
+    if (v !== undefined) result.monthlyContribution = v;
+  }
+  if (params.has('growth')) {
+    const v = parseClamp(params.get('growth'), 0, 30);
+    if (v !== undefined) result.growthRate = v;
+  }
+  if (params.has('fee')) {
+    const v = parseClamp(params.get('fee'), 0, 5);
+    if (v !== undefined) result.platformFee = v;
+  }
+  if (params.has('ocf')) {
+    const v = parseClamp(params.get('ocf'), 0, 5);
+    if (v !== undefined) result.fundOCF = v;
+  }
+  if (params.has('years')) {
+    const v = parseClamp(params.get('years'), 1, 40);
+    if (v !== undefined) result.years = Math.round(v);
+  }
   if (params.has('broker')) result.brokerName = params.get('broker');
-  if (params.has('inflation')) result.inflation = parseFloat(params.get('inflation'));
+  if (params.has('inflation')) {
+    const v = parseClamp(params.get('inflation'), 0, 20);
+    if (v !== undefined) result.inflation = v;
+  }
   return Object.keys(result).length > 0 ? result : null;
 }
 
@@ -393,6 +421,8 @@ function copyCalcLink(btn) {
   navigator.clipboard.writeText(window.location.href).then(() => {
     btn.textContent = 'Link copied!';
     setTimeout(() => { btn.textContent = 'Share this scenario'; }, 2000);
+  }).catch(() => {
+    showToast('Could not copy link. Please copy the URL manually.');
   });
 }
 
