@@ -7,7 +7,8 @@ function formatCurrency(value) {
   if (value === 0) return '\u00a30';
   if (value < 0) return '-' + formatCurrency(Math.abs(value));
   if (value < 1) return '\u00a3' + value.toFixed(2);
-  return '\u00a3' + Math.round(value).toLocaleString('en-GB');
+  const formatted = value.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return '\u00a3' + (formatted.endsWith('.00') ? formatted.slice(0, -3) : formatted);
 }
 
 // ── Theme toggle (runs immediately to prevent flash) ──
@@ -59,6 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Bind theme toggle click
   const themeToggle = document.getElementById('themeToggle');
   if (themeToggle) themeToggle.addEventListener('click', toggleTheme);
+  updateToggleIcon();
 
   // Mobile hamburger nav
   const navToggle = document.getElementById('navToggle');
