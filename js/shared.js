@@ -77,4 +77,53 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
   }
+
+  // ── ISA Deadline / Tax Year Banner ──
+  showTaxYearBanner();
 });
+
+function showTaxYearBanner() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth(); // 0-indexed
+  const day = now.getDate();
+
+  // Show between Jan 1 and Apr 5
+  const isISASeason = (month >= 0 && month <= 2) || (month === 3 && day <= 5);
+  if (!isISASeason) return;
+
+  // Only show on homepage and compare page
+  const path = window.location.pathname;
+  const showOnPages = ['/', '/index.html', '/compare/', '/compare/index.html'];
+  if (!showOnPages.some(p => path === p || path.endsWith(p))) return;
+
+  // Check dismissal for current tax year
+  const taxYear = month <= 3 ? year : year + 1;
+  const dismissKey = `taxBannerDismissed${taxYear}`;
+  try {
+    if (localStorage.getItem(dismissKey) === 'true') return;
+  } catch (e) { /* localStorage unavailable */ }
+
+  // Calculate days until Apr 5
+  const deadline = new Date(taxYear, 3, 5); // April 5
+  const msPerDay = 86400000;
+  const daysAway = Math.max(0, Math.ceil((deadline - now) / msPerDay));
+
+  const banner = document.createElement('div');
+  banner.className = 'tax-year-banner';
+  banner.id = 'taxYearBanner';
+  banner.innerHTML = `
+    <span>\u{1F550} The ISA deadline is <strong>5 April ${taxYear}</strong> \u2014 ${daysAway} day${daysAway !== 1 ? 's' : ''} away.
+    <a href="/compare/">Find the right broker</a> before the tax year ends.</span>
+    <button class="banner-dismiss" aria-label="Dismiss">&times;</button>
+  `;
+
+  const header = document.querySelector('.site-header');
+  if (header && header.nextSibling) {
+    header.parentNode.insertBefore(banner, header.nextSibling);
+  }
+
+  banner.querySelector('.banner-dismiss').addEventListener('click', () => {
+    banner.remove();
+    try { localStorage.setItem(dismissKey, 'true'); } catch (e) { /* localStorage unavailable */ }
+  });

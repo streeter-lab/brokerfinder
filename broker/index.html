@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>All UK Brokers — BrokerFinder</title>
+<meta name="description" content="Browse all UK investment platforms with detailed fee breakdowns, pros, cons, and ratings.">
+<meta name="theme-color" content="#2ec4b6">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://brokerfinder.uk/broker/">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta property="og:title" content="All UK Brokers — BrokerFinder">
+<meta property="og:description" content="Browse all UK investment platforms with detailed fee breakdowns, pros, cons, and ratings.">
+<meta property="og:url" content="https://brokerfinder.uk/broker/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="BrokerFinder">
+<meta name="twitter:card" content="summary">
+<link rel="stylesheet" href="/css/style.css">
+<style>
+.broker-index-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+  max-width: 960px;
+  margin: 0 auto 4rem;
+  padding: 0 1.5rem;
+}
+.broker-index-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.5rem;
+  text-decoration: none;
+  color: inherit;
+  transition: var(--transition);
+  display: flex;
+  flex-direction: column;
+}
+.broker-index-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+.broker-index-card h3 {
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  margin-bottom: 0.4rem;
+}
+.broker-index-card p {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 0;
+  flex: 1;
+}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <a href="/" class="logo">Broker<span>Finder</span></a>
+  <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false">
+    <span class="hamburger-line"></span>
+    <span class="hamburger-line"></span>
+    <span class="hamburger-line"></span>
+  </button>
+  <nav class="site-nav">
+    <a href="/compare/">Compare</a>
+    <a href="/check/">Quick Check</a>
+    <a href="/calculator/">Calculator</a>
+    <a href="/faq/">FAQ</a>
+  </nav>
+  <button class="btn-theme-toggle" id="themeToggle" aria-label="Toggle dark mode">🌙</button>
+</header>
+<noscript><p style="text-align:center;padding:2rem;color:#888;">This tool requires JavaScript. Please enable it in your browser.</p></noscript>
+
+<section class="page-hero">
+  <h1>All UK<br><em>Broker Profiles</em></h1>
+  <p>Browse detailed fee breakdowns, ratings, and reviews for every UK investment platform we cover.</p>
+</section>
+
+<div class="broker-index-grid">
+  <a href="/broker/aj-bell/" class="broker-index-card">
+    <h3>AJ Bell</h3>
+    <span class="tag tag-accent" style="margin-bottom:0.5rem">Percentage fee</span>
+    <p>ISA fee cap £42. SIPP fee cap £120. Broad investment range.</p>
+  </a>
+  <a href="/broker/aviva/" class="broker-index-card">
+    <h3>Aviva</h3>
+    <span class="tag tag-accent" style="margin-bottom:0.5rem">Percentage fee</span>
+    <p>Fee on sum of all accounts. 0% over £500k.</p>
+  </a>
+  <a href="/broker/barclays-smart-investor/" class="broker-index-card">
+    <h3>Barclays Smart Investor</h3>
+    <span class="tag tag-accent" style="margin-bottom:0.5rem">Percentage fee</span>
+    <p>SIPP has extra fees: +£150/yr platform, +£120 drawdown setup.</p>
+  </a>
+  <a href="/broker/bestinvest/" class="broker-index-card">
+    <h3>Bestinvest</h3>
+    <span class="tag tag-accent" style="margin-bottom:0.5rem">Percentage fee</span>
+    <p>SIPP min £120 fee. Free US share/ETF trading.</p>
+  </a>
+  <a href="/broker/charles-stanley-direct/" class="broker-index-card">
+    <h3>Charles Stanley Direct</h3>
+    <span class="tag tag-accent" style="margin-bottom:0.5rem">Percentage fee</span>
+    <p>50 free trades every 6 months. SIPP +£120 if all accounts under £30k.</p>
+  </a>
+  <a href="/broker/chip/" class="broker-index-card">
+    <h3>Chip</h3>
+    <span class="tag tag-accent" style="margin-bottom:0.5rem">Percentage fee</span>
+    <p>Restricted list. No SIPP. Chip X plan £65.05/yr.</p>
+  </a>
+  <a href="/broker/dodl-by-aj-bell/" class="broker-index-card">
+    <h3>Dodl by AJ Bell</h3>
+    <span class="tag tag-accent" style="margin-bottom:0.5rem">Percentage fee</span>
+    <p>Restricted list. Simple investing. No SIPP drawdown. Min £12/account.</p>
+  </a>
+  <a href="/broker/fidelity/" class="broker-index-card">
+    <h3>Fidelity</h3>
+    <span class="tag tag-accent" style="margin-bottom:0.5rem">Percentage fee</span>
+    <p>Fee on sum of all accounts. ISA/SIPP cap £90 for ETF-only. Can't hold gilts.</p>
+  </a>
+  <a href="/broker/freetrade/" class="broker-index-card">
+    <h3>Freetrade</h3>
+    <span class="tag tag-accent" style="margin-bottom:0.5rem">Flat fee</span>
+    <p>ISA now free on all plans. SIPP on Plus plan only. £240 per UFPLS withdrawal.</p>
+  </a>
+  <a href="/broker/halifax-bos/" class="broker-index-card">
+    <h3>Halifax / BoS</h3>
+    <span class="tag tag-accent" style="margin-bottom:0.5rem">Flat fee</span>
+    <p>Same FSCS entity as Lloyds and Scottish Widows for investments.</p>
+  </a>
+  <a href="/broker/hargreaves-lansdown/" class="broker-index-card">
+    <h3>Hargreaves Lansdown</h3>
+    <span class="tag tag-accent" style="margin-bottom:0.5rem">Percentage fee</span>
+    <p>ISA fee cap £150 (from Mar 2026). SIPP cap £150. LISA cap £45. Best customer service in the industry.</p>
+  </a>
+  <a href="/broker/hsbc-global-inv-centre/" class="broker-index-card">
+    <h3>HSBC Global Inv. Centre</h3>
+    <span class="tag tag-accent" style="margin-bottom:0.5rem">Percentage fee</span>
+    <p>Restricted non-HSBC index funds. No SIPP. Funds only.</p>
+  </a>
+  <a href="/broker/hsbc-invest-direct/" class="broker-index-card">
+    <h3>HSBC Invest Direct</h3>
+    <span class="tag tag-accent" style="margin-bottom:0.5rem">Flat fee</span>
+    <p>No SIPP. No funds. Exit fee £15 per holding.</p>
+  </a>
+  <a href="/broker/ig/" class="broker-index-card">
+    <h3>IG</h3>
+    <span class="tag tag-accent" style="margin-bottom:0.5rem">Trading platform</span>
+    <p>Zero platform and trading fees. No gilts/bonds (only ETFs). SIPP £210/yr.</p>
+  </a>
+  <a href="/broker/interactive-brokers/" class="broker-index-card">
+    <h3>Interactive Brokers</h3>
+    <span class="tag tag-accent" style="margin-bottom:0.5rem">Trading platform</span>
+    <p>Best for international trading. Complex interface. SIPP via third-party admin. ISA £3/month waived with 3+ trades/month.</p>
+  </a>
+  <a href="/broker/interactive-investor/" class="broker-index-card">
+    <h3>Interactive Investor</h3>
+    <span class="tag tag-accent" style="margin-bottom:0.5rem">Flat fee</span>
+    <p>Includes ISA + GIA + SIPP on one plan. Family accounts on Plus. Core £71.88/yr, Plus £179.88/yr.</p>
+  </a>
+  <a href="/broker/investengine/" class="broker-index-card">
+    <h3>InvestEngine</h3>
+    <span class="tag tag-accent" style="margin-bottom:0.5rem">Flat fee</span>
+    <p>ETFs only. Zero fees. SIPP available (no drawdown). No in-specie transfers out.</p>
+  </a>
+  <a href="/broker/lightyear/" class="broker-index-card">
+    <h3>Lightyear</h3>
+    <span class="tag tag-accent" style="margin-bottom:0.5rem">Flat fee</span>
+    <p>No SIPP. Free trades in ISA. GIA: £1 per UK share trade, 0.1% US.</p>
+  </a>
+  <a href="/broker/lloyds-bank/" class="broker-index-card">
+    <h3>Lloyds Bank</h3>
+    <span class="tag tag-accent" style="margin-bottom:0.5rem">Flat fee</span>
+    <p>Free for 18-25 or private banking. SIPP is 0.25% up to max £198. Same FSCS entity as Halifax, BoS, Scottish Widows.</p>
+  </a>
+  <a href="/broker/moneyfarm-share-investing/" class="broker-index-card">
+    <h3>Moneyfarm Share Investing</h3>
+    <span class="tag tag-accent" style="margin-bottom:0.5rem">Flat fee</span>
+    <p>GIA free, ISA 0.35% capped at £45. No SIPP.</p>
+  </a>
+  <a href="/broker/prosper/" class="broker-index-card">
+    <h3>Prosper</h3>
+    <span class="tag tag-accent" style="margin-bottom:0.5rem">Flat fee</span>
+    <p>Restricted fund list. Some 0% OCF funds available. No SIPP drawdown.</p>
+  </a>
+  <a href="/broker/quilter-invest/" class="broker-index-card">
+    <h3>Quilter Invest</h3>
+    <span class="tag tag-accent" style="margin-bottom:0.5rem">Percentage fee</span>
+    <p>Restricted list. No SIPP. Free ETF trades at fixed times.</p>
+  </a>
+  <a href="/broker/revolut/" class="broker-index-card">
+    <h3>Revolut</h3>
+    <span class="tag tag-accent" style="margin-bottom:0.5rem">Flat fee</span>
+    <p>Standard: 1 free trade/month then 0.25%. Plus: £47.88/yr. No SIPP. No funds.</p>
+  </a>
+  <a href="/broker/robinhood/" class="broker-index-card">
+    <h3>Robinhood</h3>
+    <span class="tag tag-accent" style="margin-bottom:0.5rem">Trading platform</span>
+    <p>US shares only. No ISA. No SIPP. Securities lending.</p>
+  </a>
+  <a href="/broker/santander-investment-hub/" class="broker-index-card">
+    <h3>Santander Investment Hub</h3>
+    <span class="tag tag-accent" style="margin-bottom:0.5rem">Percentage fee</span>
+    <p>Funds only. No SIPP.</p>
+  </a>
+  <a href="/broker/saxo/" class="broker-index-card">
+    <h3>Saxo</h3>
+    <span class="tag tag-accent" style="margin-bottom:0.5rem">Trading platform</span>
+    <p>SIPP +£443/yr. Exit fees. Complex tiered pricing.</p>
+  </a>
+  <a href="/broker/scottish-widows/" class="broker-index-card">
+    <h3>Scottish Widows</h3>
+    <span class="tag tag-accent" style="margin-bottom:0.5rem">Flat fee</span>
+    <p>Formerly iWeb. SIPP 0.25% up to max £198. Browser accessible.</p>
+  </a>
+  <a href="/broker/trading-212/" class="broker-index-card">
+    <h3>Trading 212</h3>
+    <span class="tag tag-accent" style="margin-bottom:0.5rem">Trading platform</span>
+    <p>Zero fees. No SIPP. Securities lending enabled in GIA (you can opt out).</p>
+  </a>
+  <a href="/broker/trinity-bridge/" class="broker-index-card">
+    <h3>Trinity Bridge</h3>
+    <span class="tag tag-accent" style="margin-bottom:0.5rem">Percentage fee</span>
+    <p>Tiered fee on sum of all accounts. SIPP +£180/yr. £60 SIPP setup, £60 per UFPLS. FX fee not disclosed.</p>
+  </a>
+  <a href="/broker/vanguard-investor/" class="broker-index-card">
+    <h3>Vanguard Investor</h3>
+    <span class="tag tag-accent" style="margin-bottom:0.5rem">Percentage fee</span>
+    <p>Vanguard funds/ETFs only. Fee on sum of all accounts. Max £375/yr.</p>
+  </a>
+</div>
+
+<footer class="site-footer">
+  <div class="container">
+    This site is for informational purposes only and is not financial advice.<br>
+    Data sourced from Monevator broker comparison (Oct 2025 / Feb 2026 updates). Always verify current fees with your chosen provider.<br>
+    Spot an error or missing broker? <a href="mailto:admin@brokerfinder.uk">admin@brokerfinder.uk</a>
+  </div>
+</footer>
+
+<script src="/js/shared.js"></script>
+</body>
+</html>

@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Am I Overpaying? Quick Broker Check — BrokerFinder</title>
+<meta name="description" content="Find out in 10 seconds if you could be paying less with a different UK investment platform. Two questions, instant answer.">
+<meta name="theme-color" content="#2ec4b6">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://brokerfinder.uk/check/">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta property="og:title" content="Am I Overpaying? Quick Broker Check — BrokerFinder">
+<meta property="og:description" content="Find out in 10 seconds if you could be paying less with a different UK investment platform.">
+<meta property="og:url" content="https://brokerfinder.uk/check/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="BrokerFinder">
+<meta name="twitter:card" content="summary">
+<link rel="stylesheet" href="/css/style.css">
+<style>
+.check-layout {
+  max-width: 620px;
+  margin: 0 auto;
+  padding: 0 1.5rem 4rem;
+}
+.check-form {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2rem;
+  margin-bottom: 1.5rem;
+}
+.check-form label {
+  display: block;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-bottom: 0.4rem;
+  font-weight: 500;
+}
+.check-form select,
+.check-form input[type="number"] {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  padding: 0.7rem 1rem;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  transition: var(--transition);
+  margin-bottom: 1rem;
+  appearance: none;
+  -webkit-appearance: none;
+}
+.check-form select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  padding-right: 2.5rem;
+}
+.check-form select:focus,
+.check-form input[type="number"]:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-dim);
+}
+.quick-amounts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: -0.5rem 0 1rem;
+}
+.quick-amount {
+  padding: 0.3rem 0.75rem;
+  border-radius: 100px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  transition: var(--transition);
+}
+.quick-amount:hover,
+.quick-amount.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-dim);
+}
+.btn-check {
+  display: block;
+  width: 100%;
+  padding: 0.85rem;
+  background: var(--accent);
+  color: #1a1a1a;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.btn-check:hover { background: var(--accent-hover); }
+.btn-check:disabled { opacity: 0.4; cursor: not-allowed; }
+.check-results {
+  display: none;
+  animation: fadeSlideIn 0.4s ease;
+}
+.result-current {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem 2rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+.result-current .cost-big {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text);
+  font-family: var(--font-body);
+}
+.result-current .cost-pct {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
+.result-rank {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem 2rem;
+  margin-bottom: 1rem;
+}
+.result-rank p {
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.75rem;
+}
+.rank-bar {
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+  margin-bottom: 1.25rem;
+  position: relative;
+  overflow: hidden;
+}
+.rank-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.8s ease;
+}
+.rank-bar-fill.good { background: var(--green); }
+.rank-bar-fill.ok { background: var(--amber); }
+.rank-bar-fill.bad { background: var(--red); }
+.cheapest-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.cheapest-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.88rem;
+}
+.cheapest-item:last-child { border-bottom: none; }
+.cheapest-item .cheapest-name { color: var(--text); font-weight: 500; }
+.cheapest-item .cheapest-name a { color: var(--accent); text-decoration: none; }
+.cheapest-item .cheapest-name a:hover { text-decoration: underline; }
+.cheapest-item .cheapest-cost { color: var(--text-secondary); font-weight: 600; }
+.result-savings {
+  background: var(--green-dim);
+  border: 1px solid var(--green);
+  border-radius: var(--radius);
+  padding: 1.5rem 2rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+.result-savings .savings-big {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--green);
+}
+.result-savings p {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  margin-top: 0.5rem;
+}
+.result-savings .savings-compound {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+}
+.check-ctas {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+.check-cta {
+  flex: 1;
+  min-width: 200px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: var(--transition);
+}
+.check-cta.primary { background: var(--accent); color: #1a1a1a; }
+.check-cta.primary:hover { background: var(--accent-hover); }
+.check-cta.secondary { background: var(--bg-card); border: 1px solid var(--border); color: var(--text-secondary); }
+.check-cta.secondary:hover { border-color: var(--accent); color: var(--accent); }
+.input-prefix {
+  position: relative;
+}
+.input-prefix::before {
+  content: '£';
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  font-weight: 500;
+  pointer-events: none;
+  margin-top: -0.5rem;
+}
+.input-prefix input {
+  padding-left: 1.75rem !important;
+}
+@media (max-width: 640px) {
+  .check-form { padding: 1.5rem; }
+  .result-current, .result-rank, .result-savings { padding: 1.25rem; }
+  .check-ctas { flex-direction: column; }
+  .result-current .cost-big { font-size: 1.6rem; }
+}
+</style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Am I Overpaying? Quick Broker Check",
+  "url": "https://brokerfinder.uk/check/",
+  "applicationCategory": "FinanceApplication",
+  "operatingSystem": "Web",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "GBP"
+  }
+}
+</script>
+</head>
+<body>
+
+<header class="site-header">
+  <a href="/" class="logo">Broker<span>Finder</span></a>
+  <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false">
+    <span class="hamburger-line"></span>
+    <span class="hamburger-line"></span>
+    <span class="hamburger-line"></span>
+  </button>
+  <nav class="site-nav">
+    <a href="/compare/">Compare</a>
+    <a href="/check/">Quick Check</a>
+    <a href="/calculator/">Calculator</a>
+    <a href="/faq/">FAQ</a>
+  </nav>
+  <button class="btn-theme-toggle" id="themeToggle" aria-label="Toggle dark mode">🌙</button>
+</header>
+<noscript><p style="text-align:center;padding:2rem;color:#888;">This tool requires JavaScript. Please enable it in your browser.</p></noscript>
+
+<section class="page-hero">
+  <h1>Am I<br><em>Overpaying?</em></h1>
+  <p>Find out in 10 seconds if you could be paying less.</p>
+</section>
+
+<div class="check-layout">
+  <div class="check-form">
+    <label for="checkBroker">Who is your current broker?</label>
+    <select id="checkBroker">
+      <option value="">Loading brokers…</option>
+    </select>
+
+    <label for="checkPortfolio">What's your portfolio worth?</label>
+    <div class="input-prefix">
+      <input type="number" id="checkPortfolio" min="0" step="1000" value="30000">
+    </div>
+    <div class="quick-amounts">
+      <button class="quick-amount" data-value="10000">£10k</button>
+      <button class="quick-amount" data-value="25000">£25k</button>
+      <button class="quick-amount" data-value="50000">£50k</button>
+      <button class="quick-amount" data-value="100000">£100k</button>
+      <button class="quick-amount" data-value="250000">£250k</button>
+    </div>
+
+    <button class="btn-check" id="btnCheck">Check now</button>
+  </div>
+
+  <div class="check-results" id="checkResults">
+    <div class="result-current" id="resultCurrent"></div>
+    <div class="result-rank" id="resultRank"></div>
+    <div class="result-savings" id="resultSavings" style="display:none"></div>
+    <div class="check-ctas" id="checkCtas"></div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="container">
+    This tool is for informational purposes only and is not financial advice.<br>
+    Data sourced from Monevator broker comparison (Oct 2025 / Feb 2026 updates). Always verify current fees with your chosen provider.<br>
+    Spot an error or missing broker? <a href="mailto:admin@brokerfinder.uk">admin@brokerfinder.uk</a>
+  </div>
+</footer>
+
+<script src="/js/shared.js"></script>
+<script src="/js/fee-engine.js"></script>
+<script src="/js/check.js"></script>
+</body>
+</html>
