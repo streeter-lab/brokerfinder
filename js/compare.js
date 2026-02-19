@@ -477,8 +477,21 @@ function calculateCost(broker, portfolioValue, userAnswers) {
   if (broker.name === 'Interactive Investor') {
     const coreFee = broker.plans.core;
     const plusFee = broker.plans.plus;
-    const coreTradeCost = tradesPerYear * broker.fundTradeCore;
-    const plusTradeCost = tradesPerYear * (buyingFunds ? broker.fundTradePlus : broker.etfTradePlus);
+
+    // Determine per-trade cost based on what user is buying
+    let corePerTrade, plusPerTrade;
+    if (buyingFunds && !buyingETFs && !buyingShares) {
+      corePerTrade = broker.fundTradeCore;
+      plusPerTrade = broker.fundTradePlus;
+    } else {
+      // ETFs/shares use the higher trade fee on Core, lower on Plus
+      corePerTrade = broker.etfTradeCore || broker.fundTradeCore;
+      plusPerTrade = broker.etfTradePlus || broker.fundTradePlus;
+    }
+
+    const coreTradeCost = tradesPerYear * corePerTrade;
+    const plusTradeCost = tradesPerYear * plusPerTrade;
+
     if (coreFee + coreTradeCost <= plusFee + plusTradeCost) {
       platformFee = coreFee;
       tradingCost = coreTradeCost;
@@ -486,7 +499,7 @@ function calculateCost(broker, portfolioValue, userAnswers) {
       platformFee = plusFee;
       tradingCost = plusTradeCost;
     }
-    if (isRegular) tradingCost = 0; // free regular investing
+    if (isRegular) tradingCost = 0; // free regular investing on both plans
   }
 
   // ─── FX Costs ───
