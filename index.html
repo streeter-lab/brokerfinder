@@ -1,0 +1,2758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UK Broker Finder — Find Your Best Investment Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0D0D0D;
+  --bg-card: #161616;
+  --bg-card-hover: #1c1c1c;
+  --bg-elevated: #1a1a1a;
+  --border: #2a2a2a;
+  --border-light: #333;
+  --text: #e8e6e3;
+  --text-secondary: #9a9590;
+  --text-muted: #666;
+  --accent: #2ec4b6;
+  --accent-dim: rgba(46, 196, 182, 0.15);
+  --accent-hover: #3dd5c7;
+  --amber: #e8a838;
+  --amber-dim: rgba(232, 168, 56, 0.15);
+  --red: #e85d5d;
+  --red-dim: rgba(232, 93, 93, 0.12);
+  --green: #4ade80;
+  --green-dim: rgba(74, 222, 128, 0.12);
+  --font-heading: 'DM Serif Display', Georgia, serif;
+  --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.3);
+  --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Header ── */
+.site-header {
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  background: rgba(13,13,13,0.92);
+  backdrop-filter: blur(12px);
+  z-index: 100;
+}
+.site-header .logo {
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+.site-header .logo span { color: var(--accent); }
+.header-right {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+.btn-theme-toggle {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  padding: 0.4rem 0.75rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-family: var(--font-body);
+  transition: var(--transition);
+}
+.btn-theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── Layout ── */
+.container { max-width: 1100px; margin: 0 auto; padding: 0 1.5rem; }
+
+/* ── Hero / Intro ── */
+.hero {
+  text-align: center;
+  padding: 4rem 1.5rem 3rem;
+}
+.hero h1 {
+  font-family: var(--font-heading);
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  margin-bottom: 1rem;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+.hero h1 em { font-style: normal; color: var(--accent); }
+.hero p {
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  max-width: 560px;
+  margin: 0 auto 2rem;
+}
+.btn-start {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--accent);
+  color: #0D0D0D;
+  border: none;
+  padding: 0.9rem 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: var(--font-body);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: var(--transition);
+}
+.btn-start:hover { background: var(--accent-hover); transform: translateY(-1px); }
+.btn-start svg { width: 18px; height: 18px; }
+
+/* ── Wizard ── */
+#wizard {
+  display: none;
+  padding: 2rem 0 4rem;
+}
+#wizard.active { display: block; }
+
+.wizard-progress {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 2.5rem;
+}
+.progress-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--border);
+  transition: var(--transition);
+}
+.progress-dot.active { background: var(--accent); transform: scale(1.2); }
+.progress-dot.done { background: var(--accent); opacity: 0.5; }
+.progress-line {
+  width: 24px;
+  height: 2px;
+  background: var(--border);
+  transition: var(--transition);
+}
+.progress-line.done { background: var(--accent); opacity: 0.5; }
+
+.wizard-step {
+  display: none;
+  animation: fadeSlideIn 0.4s ease;
+}
+.wizard-step.active { display: block; }
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.step-card {
+  max-width: 640px;
+  margin: 0 auto;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2.5rem;
+}
+.step-card .step-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+}
+.step-card h2 {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.01em;
+}
+.step-card .step-desc {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+}
+
+.options-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.option-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  text-align: left;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 0.85rem 1.1rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  transition: var(--transition);
+  position: relative;
+}
+.option-btn:hover { border-color: var(--accent); background: var(--accent-dim); }
+.option-btn.selected {
+  border-color: var(--accent);
+  background: var(--accent-dim);
+}
+.option-btn .check-indicator {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--border-light);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+.option-btn.multi .check-indicator { border-radius: 4px; }
+.option-btn.selected .check-indicator {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+.option-btn.selected .check-indicator::after {
+  content: '✓';
+  color: #0D0D0D;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+.option-btn .option-detail {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.wizard-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 640px;
+  margin: 1.5rem auto 0;
+}
+.btn-wizard {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.65rem 1.4rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+}
+.btn-wizard:hover { border-color: var(--text-secondary); color: var(--text); }
+.btn-wizard.primary {
+  background: var(--accent);
+  color: #0D0D0D;
+  border-color: var(--accent);
+  font-weight: 600;
+}
+.btn-wizard.primary:hover { background: var(--accent-hover); }
+.btn-wizard:disabled { opacity: 0.3; cursor: not-allowed; }
+.btn-wizard svg { width: 16px; height: 16px; }
+
+/* ── Results ── */
+#results {
+  display: none;
+  padding: 2rem 0 4rem;
+}
+#results.active { display: block; animation: fadeSlideIn 0.5s ease; }
+
+.results-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+.results-header h2 {
+  font-family: var(--font-heading);
+  font-size: clamp(1.5rem, 3.5vw, 2.2rem);
+  margin-bottom: 0.5rem;
+}
+.results-header p { color: var(--text-secondary); font-size: 0.95rem; }
+
+.results-actions {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+.btn-action {
+  padding: 0.5rem 1.1rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: var(--transition);
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+.btn-action:hover { border-color: var(--accent); color: var(--accent); }
+.btn-action.active { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+
+.fscs-notice {
+  background: var(--amber-dim);
+  border: 1px solid rgba(232,168,56,0.3);
+  border-radius: var(--radius-sm);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.85rem;
+  color: var(--amber);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+.fscs-notice svg { flex-shrink: 0; margin-top: 2px; }
+
+/* Broker Cards */
+.broker-list { display: flex; flex-direction: column; gap: 1rem; }
+
+.broker-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: var(--transition);
+}
+.broker-card:hover { border-color: var(--border-light); }
+.broker-card.top-pick { border-color: var(--accent); }
+.broker-card.top-pick .card-header { border-left: 3px solid var(--accent); }
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  cursor: pointer;
+  user-select: none;
+}
+.card-rank {
+  font-family: var(--font-heading);
+  font-size: 1.4rem;
+  color: var(--text-muted);
+  width: 32px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.broker-card.top-pick .card-rank { color: var(--accent); }
+
+.card-info { flex: 1; min-width: 0; }
+.card-info h3 {
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
+  margin-bottom: 0.2rem;
+}
+.card-info .broker-reason {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+.card-cost {
+  text-align: right;
+  flex-shrink: 0;
+}
+.card-cost .cost-amount {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text);
+  font-family: var(--font-body);
+}
+.card-cost .cost-label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.cost-bar-container {
+  padding: 0 1.5rem 0;
+  margin-top: -0.25rem;
+}
+.cost-bar-track {
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.cost-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  background: var(--accent);
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  padding: 0.75rem 1.5rem 0;
+}
+.tag {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 100px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.tag-green { background: var(--green-dim); color: var(--green); }
+.tag-amber { background: var(--amber-dim); color: var(--amber); }
+.tag-red { background: var(--red-dim); color: var(--red); }
+.tag-accent { background: var(--accent-dim); color: var(--accent); }
+
+.card-compare-toggle {
+  padding: 0.75rem 1.5rem 1rem;
+}
+.compare-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.compare-checkbox input { accent-color: var(--accent); cursor: pointer; }
+
+.card-details {
+  display: none;
+  border-top: 1px solid var(--border);
+  padding: 1.5rem;
+  animation: fadeSlideIn 0.3s ease;
+}
+.card-details.open { display: block; }
+
+.details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+.detail-item {
+  display: flex;
+  flex-direction: column;
+}
+.detail-item .detail-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-bottom: 0.2rem;
+}
+.detail-item .detail-value {
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.detail-warnings {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+.warning-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.82rem;
+  color: var(--amber);
+  margin-bottom: 0.4rem;
+}
+.warning-item svg { flex-shrink: 0; margin-top: 2px; }
+
+.detail-notes {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+.show-all-btn {
+  display: block;
+  width: 100%;
+  max-width: 640px;
+  margin: 1.5rem auto 0;
+  padding: 0.8rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.show-all-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── Comparison Table ── */
+#comparison {
+  display: none;
+  padding: 2rem 0 4rem;
+}
+#comparison.active { display: block; animation: fadeSlideIn 0.5s ease; }
+
+.comparison-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+.comparison-header h2 {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+.comparison-header p { color: var(--text-secondary); font-size: 0.9rem; }
+
+.comparison-table-wrapper {
+  overflow-x: auto;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+.comparison-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+  min-width: 500px;
+}
+.comparison-table th,
+.comparison-table td {
+  padding: 0.85rem 1.2rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+.comparison-table thead th {
+  background: var(--bg-elevated);
+  font-weight: 600;
+  color: var(--text);
+  position: sticky;
+  top: 0;
+  font-size: 0.95rem;
+}
+.comparison-table tbody tr:last-child td { border-bottom: none; }
+.comparison-table tbody tr:hover { background: var(--bg-card-hover); }
+.comparison-table .row-label {
+  color: var(--text-secondary);
+  font-weight: 500;
+  white-space: nowrap;
+}
+.comparison-table .total-row td {
+  font-weight: 700;
+  color: var(--accent);
+  border-top: 2px solid var(--accent);
+  font-size: 1rem;
+}
+.comparison-table .lowest-cost { color: var(--green); }
+.comparison-table .highest-cost { color: var(--red); opacity: 0.8; }
+.btn-close-compare {
+  display: block;
+  margin: 1.5rem auto 0;
+  padding: 0.6rem 1.5rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.btn-close-compare:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── What-if slider ── */
+.whatif-section {
+  max-width: 640px;
+  margin: 2rem auto 0;
+  padding: 1.5rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.whatif-section h3 {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+}
+.whatif-slider-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.whatif-slider-row input[type="range"] {
+  flex: 1;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+.whatif-value {
+  font-weight: 600;
+  font-size: 1.1rem;
+  min-width: 90px;
+  text-align: right;
+  color: var(--accent);
+}
+
+/* ── Footer ── */
+.site-footer {
+  padding: 2rem 1.5rem;
+  border-top: 1px solid var(--border);
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  line-height: 1.8;
+}
+.site-footer a { color: var(--text-secondary); }
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .step-card { padding: 1.5rem; }
+  .card-header { padding: 1rem; flex-wrap: wrap; }
+  .card-cost { text-align: left; width: 100%; margin-top: 0.5rem; display: flex; align-items: baseline; gap: 0.5rem; }
+  .card-tags { padding: 0.5rem 1rem 0; }
+  .card-compare-toggle { padding: 0.5rem 1rem 0.75rem; }
+  .details-grid { grid-template-columns: 1fr; }
+  .card-details { padding: 1rem; }
+  .cost-bar-container { padding: 0 1rem; }
+  .hero { padding: 3rem 1rem 2rem; }
+  .site-header { padding: 1rem; }
+  .results-actions { gap: 0.5rem; }
+  .btn-action { padding: 0.4rem 0.8rem; font-size: 0.8rem; }
+}
+
+@media (max-width: 600px) {
+  .step-card { padding: 1.5rem 1.25rem; }
+  .card-header { padding: 1rem 1.1rem; gap: 0.75rem; flex-wrap: wrap; }
+  .card-cost .cost-amount { font-size: 1.1rem; }
+  .card-info h3 { font-size: 1rem; }
+  .details-grid { grid-template-columns: 1fr; }
+  .hero h1 { font-size: 1.75rem; }
+  .hero p { font-size: 0.95rem; }
+  .results-actions { flex-direction: column; align-items: stretch; }
+  .results-actions .btn-action { text-align: center; }
+  .whatif-slider-row { flex-direction: column; gap: 0.5rem; }
+  .comparison-table { font-size: 0.78rem; }
+  .site-header { padding: 1rem; }
+  .site-header .logo { font-size: 1.05rem; }
+}
+
+/* Screen reader only */
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+
+/* Select pulse animation */
+.option-btn.just-selected {
+  animation: selectPulse 0.35s ease;
+}
+@keyframes selectPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.015); box-shadow: 0 0 0 3px var(--accent-dim); }
+  100% { transform: scale(1); }
+}
+
+/* Multi-select counter */
+.selection-counter {
+  display: inline-block;
+  font-size: 0.78rem;
+  color: var(--accent);
+  margin-bottom: 0.75rem;
+  font-weight: 500;
+}
+
+/* Focus styles */
+.option-btn:focus-visible,
+.btn-wizard:focus-visible,
+.btn-start:focus-visible,
+.btn-action:focus-visible,
+.card-header:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="logo">Broker<span>Finder</span></div>
+  <div class="header-right">
+    <span style="font-size:0.75rem;color:var(--text-muted)">Data: Feb 2026</span>
+  </div>
+</header>
+
+<!-- ════════ Hero ════════ -->
+<section id="hero" class="hero">
+  <h1>Find the <em>right</em> broker<br>for your money</h1>
+  <p>Answer a few questions and we'll calculate the true cost of every major UK investment platform — personalised to you.</p>
+  <button class="btn-start" onclick="startWizard()" aria-label="Start the questionnaire">
+    Get started
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+  </button>
+</section>
+
+<!-- ════════ Wizard ════════ -->
+<section id="wizard" class="container" role="form" aria-label="Broker questionnaire">
+  <div class="wizard-progress" id="wizardProgress" role="progressbar"></div>
+  <div id="wizardSteps"></div>
+  <div class="wizard-nav">
+    <button class="btn-wizard" id="btnPrev" onclick="prevStep()" aria-label="Previous question">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      Back
+    </button>
+    <button class="btn-wizard primary" id="btnNext" onclick="nextStep()" aria-label="Next question">
+      Next
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </button>
+  </div>
+</section>
+
+<!-- ════════ Results ════════ -->
+<section id="results" class="container" aria-label="Broker recommendations">
+  <div class="results-header">
+    <h2>Your top matches</h2>
+    <p id="resultsSummary"></p>
+  </div>
+
+  <div class="results-actions">
+    <button class="btn-action" onclick="changeAnswers()">Change my answers</button>
+    <button class="btn-action" onclick="copyShareLink(this)">Share results</button>
+    <button class="btn-action" id="btnCompare" onclick="showComparison()" style="display:none">Compare selected</button>
+  </div>
+
+  <div id="fscsNotice" class="fscs-notice" style="display:none">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+    <div>
+      <strong>FSCS note:</strong> Your portfolio exceeds £85,000. Consider spreading investments across multiple providers for full FSCS protection. Also note that Lloyds, Halifax, Bank of Scotland, and Scottish Widows share the same FSCS entity for investments.
+    </div>
+  </div>
+
+  <div class="broker-list" id="brokerList"></div>
+  <button class="show-all-btn" id="showAllBtn" onclick="showAllBrokers()">Show all brokers</button>
+
+  <!-- What-if slider -->
+  <div class="whatif-section">
+    <h3>What if your portfolio changes?</h3>
+    <div class="whatif-slider-row">
+      <span style="font-size:0.85rem;color:var(--text-secondary)">Portfolio size</span>
+      <input type="range" id="whatifSlider" min="5000" max="750000" step="5000" aria-label="Adjust portfolio size">
+      <span class="whatif-value" id="whatifValue">£50,000</span>
+    </div>
+  </div>
+</section>
+
+<!-- ════════ Comparison ════════ -->
+<section id="comparison" class="container" aria-label="Side-by-side comparison">
+  <div class="comparison-header">
+    <h2>Side-by-side comparison</h2>
+    <p>Estimated annual costs based on your inputs</p>
+  </div>
+  <div class="comparison-table-wrapper">
+    <table class="comparison-table" id="comparisonTable"></table>
+  </div>
+  <button class="btn-close-compare" onclick="hideComparison()">Close comparison</button>
+</section>
+
+<!-- ════════ Footer ════════ -->
+<footer class="site-footer">
+  <div class="container">
+    This tool is for informational purposes only and is not financial advice.<br>
+    Data sourced from Monevator broker comparison (Oct 2025 / Feb 2026 updates). Always verify current fees with your chosen provider.<br>
+    Fees change frequently. Last updated: February 2026.
+  </div>
+</footer>
+
+<script>
+// ═══════════════════════════════════════════════════
+// BROKER DATA
+// ═══════════════════════════════════════════════════
+const BROKERS = [
+  // ── Flat-Fee Brokers ──
+  {
+    name: "InvestEngine",
+    category: "flat",
+    accounts: ["isa","gia","jisa","sipp"],
+    investmentTypes: ["etf"],
+    platformFee: () => 0,
+    sippFee: () => 0,
+    fundTrade: null,
+    etfTrade: 0,
+    shareTrade: null,
+    regularInvesting: 0,
+    fxRate: 0,
+    entryExit: "£0",
+    sippDrawdownFee: null,
+    hasSIPP: true,
+    hasDrawdown: false,
+    restricted: true,
+    cashInterest: "No",
+    notes: "ETFs only. Zero fees. SIPP available (no drawdown). No in-specie transfers out.",
+    warnings: ["ETFs only — cannot hold funds or individual shares","No in-specie transfers out (must sell holdings to leave)","No SIPP drawdown available","No salary sacrifice support"],
+    pros: ["Zero platform, trading, and FX fees","Good range of ETFs","Free ISA, GIA, JISA, SIPP"],
+    tags: {zeroFees:true, bestETF:true},
+    customerService: 3,
+    easeOfUse: 4,
+    investmentRange: 2,
+    established: 2
+  },
+  {
+    name: "Prosper",
+    category: "flat",
+    accounts: ["isa","gia","sipp"],
+    investmentTypes: ["fund","etf"],
+    platformFee: () => 0,
+    sippFee: () => 0,
+    fundTrade: 0,
+    etfTrade: 0,
+    shareTrade: null,
+    regularInvesting: 0,
+    fxRate: 0,
+    entryExit: "£0",
+    sippDrawdownFee: null,
+    hasSIPP: true,
+    hasDrawdown: false,
+    restricted: true,
+    cashInterest: "Check with provider",
+    notes: "Restricted fund list. Some 0% OCF funds available. No SIPP drawdown.",
+    warnings: ["Restricted fund list","No SIPP drawdown","No individual shares"],
+    pros: ["Zero fees for funds and ETFs","SIPP available at no extra cost","Some 0% OCF funds"],
+    tags: {zeroFees:true},
+    customerService: 2,
+    easeOfUse: 3,
+    investmentRange: 2,
+    established: 1
+  },
+  {
+    name: "Lightyear",
+    category: "flat",
+    accounts: ["isa","gia"],
+    investmentTypes: ["etf","shareUK","shareIntl"],
+    platformFee: () => 0,
+    sippFee: () => null,
+    fundTrade: null,
+    etfTrade: 0,
+    shareTrade: 0,
+    shareTradeGIA_UK: 1,
+    shareTradeGIA_US: 0.001, // 0.1%
+    regularInvesting: 0,
+    fxRate: 0.0035,
+    entryExit: "£0",
+    sippDrawdownFee: null,
+    hasSIPP: false,
+    hasDrawdown: false,
+    restricted: false,
+    cashInterest: "Check with provider",
+    notes: "No SIPP. Free trades in ISA. GIA: £1 per UK share trade, 0.1% US.",
+    warnings: ["No SIPP available","GIA share trades not free (£1 UK, 0.1% US)"],
+    pros: ["Zero platform fee","Free ISA trading","Low FX fee at 0.35%"],
+    tags: {zeroFees:true},
+    customerService: 2,
+    easeOfUse: 4,
+    investmentRange: 3,
+    established: 1
+  },
+  {
+    name: "Freetrade",
+    category: "flat",
+    accounts: ["isa","gia","sipp"],
+    investmentTypes: ["etf","shareUK","shareIntl"],
+    platformFee: () => 0,
+    sippFee: (plan) => 0, // SIPP on Plus plan only but platform fee is 0
+    fundTrade: 0,
+    etfTrade: 0,
+    shareTrade: 0,
+    regularInvesting: 0,
+    fxRate: 0.0099, // Basic
+    fxRates: {basic:0.0099, standard:0.0059, plus:0.0039},
+    entryExit: "£0",
+    sippDrawdownFee: 240,
+    hasSIPP: true,
+    hasDrawdown: true,
+    restricted: false,
+    cashInterest: "Check with provider",
+    notes: "ISA now free on all plans. SIPP on Plus plan only. £240 per UFPLS withdrawal.",
+    warnings: ["SIPP only on Plus plan","£240 per UFPLS withdrawal","FX fee varies by plan: 0.99% Basic, 0.59% Standard, 0.39% Plus"],
+    pros: ["Zero platform and trading fees on all plans","Free ISA on all plans","SIPP available (Plus plan)"],
+    tags: {zeroFees:true},
+    customerService: 3,
+    easeOfUse: 4,
+    investmentRange: 3,
+    established: 2
+  },
+  {
+    name: "Interactive Investor",
+    category: "flat",
+    accounts: ["isa","gia","sipp","jisa"],
+    investmentTypes: ["fund","etf","shareUK","shareIntl","bond"],
+    platformFee: (plan) => plan === 'core' ? 71.88 : 179.88,
+    sippFee: () => 0, // included in plan
+    fundTrade: 3.99,
+    fundTradePlus: 1.49,
+    etfTrade: 3.99,
+    etfTradePlus: 2.99,
+    shareTrade: 3.99,
+    shareTradePlus: 2.99,
+    regularInvesting: 0,
+    fxRate: 0.0075,
+    entryExit: "£0",
+    sippDrawdownFee: 0,
+    hasSIPP: true,
+    hasDrawdown: true,
+    restricted: false,
+    cashInterest: "Yes (variable rate)",
+    notes: "Includes ISA + GIA + SIPP on one plan. Family accounts on Plus. Core £71.88/yr, Plus £179.88/yr.",
+    warnings: ["Per-trade fees apply (£3.99 Core, lower on Plus)"],
+    pros: ["ISA, GIA, and SIPP included in one flat fee","Family accounts on Plus plan","Broad investment range including bonds"],
+    tags: {established:true, bestFlat:true},
+    customerService: 4,
+    easeOfUse: 3,
+    investmentRange: 5,
+    established: 5,
+    _calcPlatformFee: function(v) {
+      // For large portfolios, flat fee is great value
+      return v < 50000 ? 71.88 : 71.88; // same flat fee regardless
+    }
+  },
+  {
+    name: "Lloyds Bank",
+    category: "flat",
+    accounts: ["isa","gia","sipp"],
+    investmentTypes: ["fund","etf","shareUK","shareIntl"],
+    platformFee: () => 36,
+    sippFee: (v) => Math.min(v * 0.0025, 198),
+    fundTrade: 1.50,
+    etfTrade: 9.50,
+    etfTradeIntl: 0,
+    shareTrade: 9.50,
+    shareTradeIntl: 0,
+    regularInvesting: 0,
+    fxRate: 0.01,
+    entryExit: "£0",
+    sippDrawdownFee: null,
+    hasSIPP: true,
+    hasDrawdown: true,
+    restricted: false,
+    cashInterest: "Check with provider",
+    fscsGroup: "lloyds",
+    notes: "Free for 18-25 or private banking. SIPP is 0.25% up to max £198. Same FSCS entity as Halifax, BoS, Scottish Widows.",
+    warnings: ["High ETF/share trading fee (£9.50 UK)","Same FSCS entity as Halifax, BoS, and Scottish Widows"],
+    pros: ["Low platform fee at £36/year","Cheap fund trades at £1.50","Well-established high street bank"],
+    tags: {established:true},
+    customerService: 3,
+    easeOfUse: 3,
+    investmentRange: 4,
+    established: 5
+  },
+  {
+    name: "Halifax / BoS",
+    category: "flat",
+    accounts: ["isa","gia","sipp"],
+    investmentTypes: ["fund","etf","shareUK","shareIntl"],
+    platformFee: () => 36,
+    sippFee: (v) => Math.min(v * 0.0025, 198),
+    fundTrade: 9.50,
+    etfTrade: 9.50,
+    etfTradeIntl: 0,
+    shareTrade: 9.50,
+    shareTradeIntl: 0,
+    regularInvesting: 0,
+    fxRate: 0.0125,
+    entryExit: "£0",
+    sippDrawdownFee: null,
+    hasSIPP: true,
+    hasDrawdown: true,
+    restricted: false,
+    cashInterest: "Check with provider",
+    fscsGroup: "lloyds",
+    notes: "Same FSCS entity as Lloyds and Scottish Widows for investments.",
+    warnings: ["High trading fees (£9.50 per trade)","Same FSCS entity as Lloyds, BoS, and Scottish Widows","Higher FX at 1.25%"],
+    pros: ["Low flat platform fee at £36/year","Established high street bank"],
+    tags: {established:true},
+    customerService: 3,
+    easeOfUse: 3,
+    investmentRange: 4,
+    established: 5
+  },
+  {
+    name: "Scottish Widows",
+    category: "flat",
+    accounts: ["isa","gia","sipp"],
+    investmentTypes: ["fund","etf","shareUK","shareIntl"],
+    platformFee: () => 0,
+    sippFee: (v) => Math.min(v * 0.0025, 198),
+    fundTrade: 5,
+    etfTrade: 5,
+    etfTradeIntl: 0,
+    shareTrade: 5,
+    shareTradeIntl: 0,
+    regularInvesting: 0,
+    fxRate: 0.015,
+    entryExit: "£0",
+    sippDrawdownFee: null,
+    hasSIPP: true,
+    hasDrawdown: true,
+    restricted: false,
+    cashInterest: "No",
+    fscsGroup: "lloyds",
+    notes: "Formerly iWeb. SIPP 0.25% up to max £198. Browser accessible.",
+    warnings: ["Higher FX fee at 1.5%","Same FSCS entity as Lloyds, Halifax, BoS","£5 per trade"],
+    pros: ["Zero platform fee","SIPP available","Formerly iWeb — straightforward platform"],
+    tags: {},
+    customerService: 2,
+    easeOfUse: 2,
+    investmentRange: 4,
+    established: 4
+  },
+  {
+    name: "Revolut",
+    category: "flat",
+    accounts: ["isa","gia"],
+    investmentTypes: ["etf","shareUK","shareIntl"],
+    platformFee: () => 0,
+    sippFee: () => null,
+    fundTrade: null,
+    etfTrade: null,
+    shareTrade: 0, // 1 free/month on Standard
+    shareTradePercent: 0.0025,
+    regularInvesting: null,
+    fxRate: 0.01,
+    fxRatePlus: 0.005,
+    entryExit: "£0",
+    sippDrawdownFee: null,
+    hasSIPP: false,
+    hasDrawdown: false,
+    restricted: false,
+    cashInterest: "Check with provider",
+    notes: "Standard: 1 free trade/month then 0.25%. Plus: £47.88/yr. No SIPP. No funds.",
+    warnings: ["No SIPP","No funds — shares and ETFs only","0.25% per trade after 1 free/month (Standard)"],
+    pros: ["Zero platform fee","Familiar banking app","Plus plan reduces FX to 0.5%"],
+    tags: {},
+    customerService: 2,
+    easeOfUse: 5,
+    investmentRange: 2,
+    established: 2
+  },
+  {
+    name: "HSBC Invest Direct",
+    category: "flat",
+    accounts: ["isa","gia"],
+    investmentTypes: ["etf","shareUK"],
+    platformFee: () => 42,
+    sippFee: () => null,
+    fundTrade: null,
+    etfTrade: 10.50,
+    shareTrade: 10.50,
+    regularInvesting: null,
+    fxRate: 0,
+    entryExit: "Exit: £15/holding",
+    sippDrawdownFee: null,
+    hasSIPP: false,
+    hasDrawdown: false,
+    restricted: false,
+    cashInterest: "Check with provider",
+    notes: "No SIPP. No funds. Exit fee £15 per holding.",
+    warnings: ["No SIPP","No funds available","Exit fee £15 per holding","High trading fee (£10.50)"],
+    pros: ["HSBC brand — well established"],
+    tags: {established:true},
+    customerService: 3,
+    easeOfUse: 2,
+    investmentRange: 2,
+    established: 5
+  },
+  {
+    name: "Moneyfarm Share Investing",
+    category: "flat",
+    accounts: ["isa","gia"],
+    investmentTypes: ["etf","shareUK","bond"],
+    platformFee: (acc) => 0, // GIA free, ISA 0.35% max £45
+    platformFeeISA: (v) => Math.min(v * 0.0035, 45),
+    sippFee: () => null,
+    fundTrade: 3.95,
+    etfTrade: 3.95,
+    shareTrade: 3.95,
+    bondTrade: 5.95,
+    regularInvesting: null,
+    fxRate: 0.007,
+    entryExit: "£0",
+    sippDrawdownFee: null,
+    hasSIPP: false,
+    hasDrawdown: false,
+    restricted: false,
+    cashInterest: "Check with provider",
+    notes: "GIA free, ISA 0.35% capped at £45. No SIPP.",
+    warnings: ["No SIPP","ISA fee 0.35% (capped at £45)","£3.95 per trade"],
+    pros: ["Low ISA fee cap of £45","GIA is free","Bonds available (£5.95 per trade)"],
+    tags: {},
+    customerService: 3,
+    easeOfUse: 3,
+    investmentRange: 3,
+    established: 2
+  },
+
+  // ── Percentage-Fee Brokers ──
+  {
+    name: "Dodl by AJ Bell",
+    category: "percentage",
+    accounts: ["isa","gia","sipp","lisa"],
+    investmentTypes: ["fund","etf"],
+    platformFee: (v) => Math.max(v * 0.0015, 12),
+    platformFeePerAccount: true,
+    sippFee: () => 0,
+    fundTrade: 0,
+    etfTrade: 0,
+    shareTrade: null,
+    regularInvesting: 0,
+    fxRate: 0.0075,
+    fxTiers: [{max:10000,rate:0.0075}],
+    entryExit: "£0",
+    sippDrawdownFee: null,
+    hasSIPP: true,
+    hasDrawdown: false,
+    restricted: true,
+    cashInterest: "Check with provider",
+    notes: "Restricted list. Simple investing. No SIPP drawdown. Min £12/account.",
+    warnings: ["Restricted fund/ETF list","No SIPP drawdown","No individual shares","Min £12/account fee"],
+    pros: ["Very low 0.15% fee","Free fund and ETF trading","Simple, beginner-friendly app","LISA available"],
+    tags: {bestSmall:true, easyToUse:true},
+    customerService: 3,
+    easeOfUse: 5,
+    investmentRange: 2,
+    established: 3
+  },
+  {
+    name: "Chip",
+    category: "percentage",
+    accounts: ["isa","gia","lisa"],
+    investmentTypes: ["fund","etf"],
+    platformFee: (v) => v * 0.0025 + 12,
+    sippFee: () => null,
+    fundTrade: null,
+    etfTrade: 0,
+    shareTrade: null,
+    regularInvesting: 0,
+    fxRate: 0,
+    entryExit: "£0",
+    sippDrawdownFee: null,
+    hasSIPP: false,
+    hasDrawdown: false,
+    restricted: true,
+    cashInterest: "Check with provider",
+    notes: "Restricted list. No SIPP. Chip X plan £65.05/yr.",
+    warnings: ["No SIPP","Restricted fund/ETF list","No individual shares"],
+    pros: ["LISA available","Easy saving app"],
+    tags: {},
+    customerService: 2,
+    easeOfUse: 4,
+    investmentRange: 2,
+    established: 1
+  },
+  {
+    name: "Quilter Invest",
+    category: "percentage",
+    accounts: ["isa","gia"],
+    investmentTypes: ["fund","etf"],
+    platformFee: (v) => v * 0.0025 + 24,
+    sippFee: () => null,
+    fundTrade: null,
+    etfTrade: 0,
+    shareTrade: null,
+    regularInvesting: 0,
+    fxRate: 0.004,
+    entryExit: "£0",
+    sippDrawdownFee: null,
+    hasSIPP: false,
+    hasDrawdown: false,
+    restricted: true,
+    cashInterest: "Check with provider",
+    notes: "Restricted list. No SIPP. Free ETF trades at fixed times.",
+    warnings: ["No SIPP","Restricted list","No individual shares","£24 base fee plus 0.25%"],
+    pros: ["Free ETF trading at fixed times"],
+    tags: {},
+    customerService: 2,
+    easeOfUse: 3,
+    investmentRange: 2,
+    established: 3
+  },
+  {
+    name: "AJ Bell",
+    category: "percentage",
+    accounts: ["isa","gia","sipp","lisa","jisa"],
+    investmentTypes: ["fund","etf","shareUK","shareIntl","bond"],
+    platformFee: (v) => {
+      // per account: 0.25% up to £250k, 0.1% £250k-£500k, 0% over £500k
+      let fee = 0;
+      if (v <= 250000) fee = v * 0.0025;
+      else if (v <= 500000) fee = 250000 * 0.0025 + (v - 250000) * 0.001;
+      else fee = 250000 * 0.0025 + 250000 * 0.001;
+      return fee;
+    },
+    platformFeeCaps: {isa: 42, sipp: 120},
+    sippFee: () => 0,
+    fundTrade: 1.50,
+    etfTrade: 5,
+    shareTrade: 5,
+    regularInvesting: 1.50,
+    fxRate: 0.0075,
+    fxTiers: [{max:10000,rate:0.0075}],
+    entryExit: "£0",
+    sippDrawdownFee: 0,
+    hasSIPP: true,
+    hasDrawdown: true,
+    restricted: false,
+    cashInterest: "Yes (variable rate)",
+    notes: "ISA fee cap £42. SIPP fee cap £120. Broad investment range.",
+    warnings: ["£5 per ETF/share trade"],
+    pros: ["Broad investment range","ISA capped at £42/yr for larger portfolios","SIPP capped at £120/yr","JISA and LISA available","Good reputation"],
+    tags: {established:true, bestSIPP:true, wideRange:true},
+    customerService: 4,
+    easeOfUse: 3,
+    investmentRange: 5,
+    established: 4
+  },
+  {
+    name: "Fidelity",
+    category: "percentage",
+    accounts: ["isa","gia","sipp","jisa","lisa"],
+    investmentTypes: ["fund","etf","shareUK"],
+    cashInterest: "Yes (variable rate)",
+    platformFee: (v) => {
+      // fee on sum of all accounts
+      if (v <= 25000) return 90;
+      if (v <= 250000) return v * 0.0035;
+      if (v <= 1000000) return 250000 * 0.0035 + (v - 250000) * 0.002;
+      return 250000 * 0.0035 + 750000 * 0.002;
+    },
+    platformFeeCaps: {isa: 90, sipp: 90}, // for ETF-only portfolio
+    sippFee: () => 0,
+    fundTrade: 0,
+    etfTrade: 7.50,
+    shareTrade: 7.50,
+    regularInvesting: 1.50,
+    regularInvestingFunds: 0,
+    fxRate: 0.0075,
+    fxTiers: [{max:10000,rate:0.0075}],
+    entryExit: "£0",
+    sippDrawdownFee: 0,
+    hasSIPP: true,
+    hasDrawdown: true,
+    restricted: false,
+    notes: "Fee on sum of all accounts. ISA/SIPP cap £90 for ETF-only. Can't hold gilts.",
+    warnings: ["Can't hold gilts directly","£7.50 per ETF/share trade","Higher fee for smaller portfolios (flat £90 under £25k)"],
+    pros: ["Free fund trading","JISA and LISA available","Excellent fund range","Well-established"],
+    tags: {established:true, wideRange:true, bestFunds:true},
+    customerService: 4,
+    easeOfUse: 4,
+    investmentRange: 5,
+    established: 5
+  },
+  {
+    name: "Vanguard Investor",
+    category: "percentage",
+    accounts: ["isa","gia","sipp","jisa"],
+    investmentTypes: ["fund","etf"],
+    cashInterest: "No",
+    platformFee: (v) => {
+      if (v <= 32000) return 48;
+      if (v <= 250000) return v * 0.0015;
+      return 250000 * 0.0015; // max £375
+    },
+    sippFee: () => 0,
+    fundTrade: 0,
+    etfTrade: 0, // free at fixed times, £7.50 otherwise
+    etfTradeManual: 7.50,
+    shareTrade: null,
+    regularInvesting: 0,
+    fxRate: 0,
+    entryExit: "£0",
+    sippDrawdownFee: 0,
+    hasSIPP: true,
+    hasDrawdown: true,
+    restricted: true,
+    notes: "Vanguard funds/ETFs only. Fee on sum of all accounts. Max £375/yr.",
+    warnings: ["Vanguard funds and ETFs only","£7.50 per ETF trade outside fixed dealing times","No individual shares"],
+    pros: ["Very low fees","Free regular investing","Vanguard funds are excellent low-cost options","Fee capped at £375"],
+    tags: {bestFunds:true, bestSmall:true},
+    customerService: 3,
+    easeOfUse: 4,
+    investmentRange: 2,
+    established: 4
+  },
+  {
+    name: "HSBC Global Inv. Centre",
+    category: "percentage",
+    accounts: ["isa","gia"],
+    investmentTypes: ["fund"],
+    platformFee: (v) => v * 0.0025,
+    sippFee: () => null,
+    fundTrade: 0,
+    etfTrade: null,
+    shareTrade: null,
+    regularInvesting: 0,
+    fxRate: 0,
+    entryExit: "£0",
+    sippDrawdownFee: null,
+    hasSIPP: false,
+    hasDrawdown: false,
+    restricted: true,
+    cashInterest: "Check with provider",
+    notes: "Restricted non-HSBC index funds. No SIPP. Funds only.",
+    warnings: ["No SIPP","Funds only — no ETFs, shares, or bonds","Restricted to non-HSBC index funds"],
+    pros: ["Free fund trading","HSBC brand"],
+    tags: {established:true},
+    customerService: 3,
+    easeOfUse: 3,
+    investmentRange: 1,
+    established: 5
+  },
+  {
+    name: "Barclays Smart Investor",
+    category: "percentage",
+    accounts: ["isa","gia","sipp"],
+    investmentTypes: ["fund","etf","shareUK","shareIntl"],
+    platformFee: (v) => {
+      if (v <= 200000) return v * 0.0025;
+      return 200000 * 0.0025 + (v - 200000) * 0.0005;
+    },
+    sippFee: () => 0,
+    sippExtra: 150,
+    fundTrade: 0,
+    etfTrade: 6,
+    shareTrade: 6,
+    regularInvesting: 0,
+    fxRate: 0.01,
+    fxTiers: [{max:5000,rate:0.01}],
+    entryExit: "SIPP: £90 per transfer in",
+    sippDrawdownFee: 120,
+    hasSIPP: true,
+    hasDrawdown: true,
+    restricted: false,
+    cashInterest: "Check with provider",
+    notes: "SIPP has extra fees: +£150/yr platform, +£120 drawdown setup.",
+    warnings: ["SIPP extra fees: +£150/yr + £120 drawdown","£90 per SIPP transfer in","£6 per ETF/share trade"],
+    pros: ["Free fund trading","Established high street bank","Good investment range"],
+    tags: {established:true},
+    customerService: 3,
+    easeOfUse: 3,
+    investmentRange: 4,
+    established: 5
+  },
+  {
+    name: "Charles Stanley Direct",
+    category: "percentage",
+    accounts: ["isa","gia","sipp"],
+    investmentTypes: ["fund","etf","shareUK","shareIntl","bond"],
+    platformFee: (v) => {
+      if (v <= 20000) return 60;
+      if (v <= 200000) return v * 0.003;
+      return 200000 * 0.003; // max £600
+    },
+    sippFee: () => 0,
+    sippExtra120Under30k: true,
+    fundTrade: 4,
+    etfTrade: 10,
+    shareTrade: 10,
+    regularInvesting: 0,
+    regularInvestingFunds: 0,
+    fxRate: 0.01,
+    fxTiers: [{max:10000,rate:0.01}],
+    entryExit: "Exit: £10/holding",
+    sippDrawdownFee: 0,
+    hasSIPP: true,
+    hasDrawdown: true,
+    restricted: false,
+    cashInterest: "Check with provider",
+    notes: "50 free trades every 6 months. SIPP +£120 if all accounts under £30k.",
+    warnings: ["Exit fee £10 per holding","High share/ETF trading fee (£10)","SIPP +£120 if total under £30k"],
+    pros: ["50 free trades every 6 months","Fee capped at £600","Broad investment range"],
+    tags: {wideRange:true},
+    customerService: 3,
+    easeOfUse: 3,
+    investmentRange: 5,
+    established: 4
+  },
+  {
+    name: "Santander Investment Hub",
+    category: "percentage",
+    accounts: ["isa","gia"],
+    investmentTypes: ["fund"],
+    platformFee: (v) => {
+      if (v <= 50000) return v * 0.0035;
+      if (v <= 500000) return 50000 * 0.0035 + (v - 50000) * 0.002;
+      return 50000 * 0.0035 + 450000 * 0.002 + (v - 500000) * 0.001;
+    },
+    sippFee: () => null,
+    fundTrade: 0,
+    etfTrade: null,
+    shareTrade: null,
+    regularInvesting: 0,
+    fxRate: 0,
+    entryExit: "£0",
+    sippDrawdownFee: null,
+    hasSIPP: false,
+    hasDrawdown: false,
+    restricted: false,
+    cashInterest: "Check with provider",
+    notes: "Funds only. No SIPP.",
+    warnings: ["No SIPP","Funds only — no ETFs, shares, or bonds"],
+    pros: ["Free fund trading","Santander brand"],
+    tags: {established:true},
+    customerService: 3,
+    easeOfUse: 3,
+    investmentRange: 2,
+    established: 4
+  },
+  {
+    name: "Aviva",
+    category: "percentage",
+    accounts: ["isa","gia","sipp"],
+    investmentTypes: ["fund","etf","shareUK"],
+    platformFee: (v) => {
+      if (v <= 500000) return v * 0.0035;
+      return 500000 * 0.0035;
+    },
+    sippFee: () => 0,
+    fundTrade: 0,
+    etfTrade: 4.99,
+    shareTrade: 4.99,
+    regularInvesting: 4.99,
+    regularInvestingFunds: 0,
+    fxRate: 0,
+    entryExit: "£0",
+    sippDrawdownFee: 0,
+    hasSIPP: true,
+    hasDrawdown: true,
+    restricted: false,
+    cashInterest: "Check with provider",
+    notes: "Fee on sum of all accounts. 0% over £500k.",
+    warnings: ["0.35% fee can be high for larger portfolios","£4.99 per ETF/share trade"],
+    pros: ["Free fund trading","SIPP with drawdown included","0% fee above £500k","Well-known insurer"],
+    tags: {established:true},
+    customerService: 3,
+    easeOfUse: 3,
+    investmentRange: 4,
+    established: 5
+  },
+  {
+    name: "Bestinvest",
+    category: "percentage",
+    accounts: ["isa","gia","sipp","jisa"],
+    investmentTypes: ["fund","etf","shareUK","shareIntl"],
+    platformFee: (v) => {
+      if (v <= 250000) return v * 0.004;
+      if (v <= 500000) return 250000 * 0.004 + (v - 250000) * 0.002;
+      if (v <= 1000000) return 250000 * 0.004 + 250000 * 0.002 + (v - 500000) * 0.001;
+      return 250000 * 0.004 + 250000 * 0.002 + 500000 * 0.001;
+    },
+    sippFee: () => 0,
+    sippMin: 120,
+    fundTrade: 0,
+    etfTrade: 4.95,
+    etfTradeUS: 0,
+    shareTrade: 4.95,
+    shareTradeUS: 0,
+    regularInvesting: 0,
+    fxRate: 0.0095,
+    entryExit: "£0",
+    sippDrawdownFee: 0,
+    hasSIPP: true,
+    hasDrawdown: true,
+    restricted: false,
+    cashInterest: "Check with provider",
+    notes: "SIPP min £120 fee. Free US share/ETF trading.",
+    warnings: ["Higher platform fee at 0.4%","SIPP minimum fee £120/yr","£4.95 per UK ETF/share trade"],
+    pros: ["Free fund trading","Free US share and ETF trading","JISA available","SIPP with drawdown"],
+    tags: {},
+    customerService: 3,
+    easeOfUse: 3,
+    investmentRange: 4,
+    established: 3
+  },
+  {
+    name: "Hargreaves Lansdown",
+    category: "percentage",
+    accounts: ["isa","gia","sipp","jisa","lisa"],
+    investmentTypes: ["fund","etf","shareUK","shareIntl","bond"],
+    platformFee: (v) => {
+      if (v <= 250000) return v * 0.0035;
+      if (v <= 1000000) return 250000 * 0.0035 + (v - 250000) * 0.0025;
+      if (v <= 2000000) return 250000 * 0.0035 + 750000 * 0.0025 + (v - 1000000) * 0.001;
+      return 250000 * 0.0035 + 750000 * 0.0025 + 1000000 * 0.001;
+    },
+    platformFeeCaps: {isa: 150, sipp: 150, lisa: 45},
+    sippFee: () => 0,
+    fundTrade: 1.95,
+    etfTrade: 6.95,
+    shareTrade: 6.95,
+    regularInvesting: 0,
+    fxRate: 0.0099,
+    fxTiers: [{max:10000,rate:0.0099}],
+    fxDividends: 0.01,
+    entryExit: "£0",
+    sippDrawdownFee: 0,
+    hasSIPP: true,
+    hasDrawdown: true,
+    restricted: false,
+    cashInterest: "Yes (variable rate)",
+    notes: "ISA fee cap £150 (from Mar 2026). SIPP cap £150. LISA cap £45. Best customer service in the industry.",
+    warnings: ["Higher percentage fee at 0.35%","1% FX on dividends","£6.95 per share/ETF trade"],
+    pros: ["Excellent customer service — consistently rated #1","Widest investment range available","All account types: ISA, SIPP, JISA, LISA","ISA/SIPP fees capped at £150","Comprehensive research and tools"],
+    tags: {established:true, bestService:true, wideRange:true},
+    customerService: 5,
+    easeOfUse: 5,
+    investmentRange: 5,
+    established: 5
+  },
+
+  // ── Trading Platforms ──
+  {
+    name: "Interactive Brokers",
+    category: "trading",
+    accounts: ["isa","gia","sipp"],
+    investmentTypes: ["etf","shareUK","shareIntl","bond"],
+    platformFee: (v, acc) => {
+      if (acc === 'gia') return 0;
+      return 36; // £3/month ISA, waived with 3+ trades
+    },
+    sippFee: () => 0,
+    sippThirdParty: true,
+    fundTrade: null,
+    etfTrade: 3,
+    etfTradeUS: 4,
+    shareTrade: 3,
+    shareTradeUS: 4,
+    shareTradeEU: 3,
+    regularInvesting: null,
+    fxRate: 0.0003,
+    entryExit: "£0",
+    sippDrawdownFee: null,
+    hasSIPP: true,
+    hasDrawdown: false,
+    restricted: false,
+    cashInterest: "Check with provider",
+    notes: "Best for international trading. Complex interface. SIPP via third-party admin. ISA £3/month waived with 3+ trades/month.",
+    warnings: ["Complex interface — not beginner-friendly","SIPP via third-party administrator","ISA fee £3/month unless 3+ trades/month","Min trade fees apply"],
+    pros: ["Lowest FX fee at 0.03%","Best for international shares","Huge range of global markets","Very low per-trade fees for active traders"],
+    tags: {bestInternational:true, bestActive:true},
+    customerService: 2,
+    easeOfUse: 1,
+    investmentRange: 5,
+    established: 4
+  },
+  {
+    name: "Trading 212",
+    category: "trading",
+    accounts: ["isa","gia"],
+    investmentTypes: ["etf","shareUK","shareIntl"],
+    platformFee: () => 0,
+    sippFee: () => null,
+    fundTrade: null,
+    etfTrade: 0,
+    shareTrade: 0,
+    regularInvesting: 0,
+    fxRate: 0.0015,
+    entryExit: "£0",
+    sippDrawdownFee: null,
+    hasSIPP: false,
+    hasDrawdown: false,
+    restricted: false,
+    cashInterest: "Check with provider",
+    notes: "Zero fees. No SIPP. Securities lending enabled in GIA (you can opt out).",
+    warnings: ["No SIPP","Securities lending in GIA (opt-out available)","No funds — ETFs and shares only"],
+    pros: ["Zero platform and trading fees","Low FX at 0.15%","Easy-to-use app","Fractional shares available"],
+    tags: {zeroFees:true, easyToUse:true},
+    customerService: 2,
+    easeOfUse: 5,
+    investmentRange: 3,
+    established: 2
+  },
+  {
+    name: "Saxo",
+    category: "trading",
+    accounts: ["isa","gia","sipp"],
+    investmentTypes: ["fund","etf","shareUK","shareIntl","bond"],
+    platformFee: (v) => {
+      // 0.12% up to £1m for shares/ETFs; 0.4% up to £200k for funds
+      return v * 0.0012;
+    },
+    sippFee: () => 443,
+    fundTrade: null, // varies
+    etfTrade: null, // % of trade, varies
+    shareTrade: null,
+    regularInvesting: null,
+    fxRate: 0.006,
+    fxRatePlatinum: 0.004,
+    fxRateVIP: 0.002,
+    entryExit: "Exit fees apply",
+    sippDrawdownFee: null,
+    hasSIPP: true,
+    hasDrawdown: true,
+    restricted: false,
+    cashInterest: "Check with provider",
+    notes: "SIPP +£443/yr. Exit fees. Complex tiered pricing.",
+    warnings: ["SIPP costs £443/yr extra","Exit fees apply","Complex fee structure","Higher FX fees"],
+    pros: ["Very wide international range","Professional trading tools","Multiple asset classes"],
+    tags: {wideRange:true},
+    customerService: 3,
+    easeOfUse: 2,
+    investmentRange: 5,
+    established: 4
+  },
+  {
+    name: "IG",
+    category: "trading",
+    accounts: ["isa","gia","sipp"],
+    investmentTypes: ["etf","shareUK","shareIntl"],
+    platformFee: () => 0,
+    sippFee: () => 210,
+    fundTrade: null,
+    etfTrade: 0,
+    shareTrade: 0,
+    regularInvesting: null,
+    fxRate: 0.007,
+    entryExit: "£0",
+    sippDrawdownFee: null,
+    hasSIPP: true,
+    hasDrawdown: false,
+    restricted: false,
+    cashInterest: "Yes — competitive rate up to £100k",
+    notes: "Zero platform and trading fees. No gilts/bonds (only ETFs). SIPP £210/yr.",
+    warnings: ["No gilts or bonds — ETFs only","SIPP costs £210/yr","Higher FX at 0.7%","No funds"],
+    pros: ["Zero platform and trading fees","Good for UK and international shares","Well-established brand"],
+    tags: {zeroFees:true, established:true},
+    customerService: 3,
+    easeOfUse: 3,
+    investmentRange: 3,
+    established: 5
+  },
+  {
+    name: "Robinhood",
+    category: "trading",
+    accounts: ["gia"],
+    investmentTypes: ["shareIntl"],
+    platformFee: () => 0,
+    sippFee: () => null,
+    fundTrade: null,
+    etfTrade: 0,
+    shareTrade: 0,
+    regularInvesting: null,
+    fxRate: 0.001,
+    entryExit: "£0",
+    sippDrawdownFee: null,
+    hasSIPP: false,
+    hasDrawdown: false,
+    restricted: true,
+    cashInterest: "Check with provider",
+    notes: "US shares only. No ISA. No SIPP. Securities lending.",
+    warnings: ["US shares only","No ISA","No SIPP","Securities lending","Very limited range"],
+    pros: ["Zero fees","Low FX at 0.1%","Easy-to-use app"],
+    tags: {zeroFees:true},
+    customerService: 1,
+    easeOfUse: 5,
+    investmentRange: 1,
+    established: 2
+  },
+
+  // ── Trinity Bridge ──
+  {
+    name: "Trinity Bridge",
+    category: "percentage",
+    accounts: ["isa","gia","sipp"],
+    investmentTypes: ["fund","etf","shareUK","shareIntl"],
+    platformFee: (v) => {
+      if (v <= 500000) return v * 0.0025;
+      if (v <= 1000000) return 500000 * 0.0025 + (v - 500000) * 0.002;
+      if (v <= 1500000) return 500000 * 0.0025 + 500000 * 0.002 + (v - 1000000) * 0.001;
+      return 500000 * 0.0025 + 500000 * 0.002 + 500000 * 0.001;
+    },
+    sippFee: () => 180,
+    fundTrade: 0,
+    etfTrade: 8.95,
+    shareTrade: 8.95,
+    regularInvesting: 8.95,
+    regularInvestingFunds: 0,
+    fxRate: null,
+    entryExit: "£0",
+    sippDrawdownFee: 0,
+    hasSIPP: true,
+    hasDrawdown: true,
+    restricted: false,
+    cashInterest: "Check with provider",
+    notes: "Tiered fee on sum of all accounts. SIPP +£180/yr. £60 SIPP setup, £60 per UFPLS. FX fee not disclosed.",
+    warnings: ["SIPP surcharge £180/yr","£60 SIPP setup fee","FX fee not disclosed","£8.95 per ETF/share trade"],
+    pros: ["0% fee above £1.5m","Free fund trading","Fee on sum of all accounts (rewards consolidation)"],
+    tags: {},
+    customerService: 3,
+    easeOfUse: 3,
+    investmentRange: 4,
+    established: 3
+  }
+];
+
+// ═══════════════════════════════════════════════════
+// WIZARD QUESTIONS
+// ═══════════════════════════════════════════════════
+const QUESTIONS = [
+  {
+    id: 'accounts',
+    label: 'Step 1 of 7',
+    title: 'What account type(s) do you need?',
+    desc: 'Select all that apply.',
+    multi: true,
+    options: [
+      {value:'isa', label:'Stocks & Shares ISA'},
+      {value:'sipp', label:'SIPP (pension)'},
+      {value:'gia', label:'General Investment Account (GIA)'},
+      {value:'jisa', label:'JISA (Junior ISA)'},
+      {value:'lisa', label:'LISA (Lifetime ISA)'}
+    ]
+  },
+  {
+    id: 'investmentTypes',
+    label: 'Step 2 of 8',
+    title: 'What do you want to invest in?',
+    desc: 'Select all that apply.',
+    multi: true,
+    options: [
+      {value:'funds', label:'Index funds / OEICs', detail:'Mutual funds, typically via regular investing'},
+      {value:'etfs', label:'ETFs', detail:'Exchange-traded funds, bought like shares'},
+      {value:'sharesUK', label:'Individual shares (UK)'},
+      {value:'sharesIntl', label:'Individual shares (International)'},
+      {value:'bonds', label:'Bonds / Gilts'}
+    ]
+  },
+  {
+    id: 'portfolioSize',
+    label: 'Step 3 of 7',
+    title: 'How large is your portfolio?',
+    desc: 'Or your expected portfolio. This is the biggest factor in your costs.',
+    multi: false,
+    options: [
+      {value:5000, label:'Under £10,000', detail:'Just getting started'},
+      {value:30000, label:'£10,000 – £50,000'},
+      {value:75000, label:'£50,000 – £100,000'},
+      {value:175000, label:'£100,000 – £250,000'},
+      {value:375000, label:'£250,000 – £500,000'},
+      {value:750000, label:'Over £500,000'}
+    ]
+  },
+  {
+    id: 'tradingFreq',
+    label: 'Step 4 of 7',
+    title: 'How often do you trade?',
+    desc: 'Trading costs add up. Regular investing is usually cheapest.',
+    multi: false,
+    options: [
+      {value:'setForget', label:'Set and forget', detail:'1–2 trades per year'},
+      {value:'monthly', label:'Monthly regular investor', detail:'12 buys per year via standing order'},
+      {value:'occasional', label:'Occasional', detail:'6–12 trades per year'},
+      {value:'active', label:'Active', detail:'24+ trades per year'}
+    ]
+  },
+  {
+    id: 'fxTrading',
+    label: 'Step 5 of 7',
+    title: 'Do you trade in non-GBP currencies?',
+    desc: 'For example, US shares or international ETFs requiring FX conversion.',
+    multi: false,
+    options: [
+      {value:'rarely', label:'No / Rarely'},
+      {value:'sometimes', label:'Sometimes'},
+      {value:'frequently', label:'Frequently'}
+    ]
+  },
+  {
+    id: 'priorities',
+    label: 'Step 6 of 7',
+    title: 'What matters most to you?',
+    desc: 'Select up to 3 priorities. We\'ll weight recommendations accordingly.',
+    multi: true,
+    maxSelect: 3,
+    options: [
+      {value:'lowestFees', label:'Lowest fees'},
+      {value:'customerService', label:'Customer service / reputation'},
+      {value:'wideRange', label:'Wide investment range'},
+      {value:'easyToUse', label:'Easy-to-use app / website'},
+      {value:'fscs', label:'FSCS protection comfort', detail:'Prefer established, well-capitalised brokers'},
+      {value:'drawdown', label:'Drawdown / decumulation features', detail:'For SIPP drawdown in retirement'}
+    ]
+  },
+  {
+    id: 'feeModel',
+    label: 'Step 7 of 8',
+    title: 'Do you have a preference for how your broker charges?',
+    desc: 'This filters which types of brokers we recommend. Not sure? Pick "No preference".',
+    multi: false,
+    options: [
+      {value:'noPreference', label:'No preference', detail:'Show me the cheapest option regardless'},
+      {value:'zeroFee', label:'Zero / commission-free brokers', detail:'They earn from spreads, FX fees, and other services'},
+      {value:'flatFee', label:'Flat fee brokers', detail:'Fixed annual charge regardless of portfolio size — better for larger portfolios'},
+      {value:'percentageFee', label:'Percentage fee brokers', detail:'Fee scales with your portfolio — better for smaller portfolios'},
+      {value:'directFee', label:'Established direct-fee brokers only', detail:'I want to pay transparent fees to well-established providers'}
+    ]
+  },
+  {
+    id: 'drawdownSoon',
+    label: 'Step 8 of 8',
+    title: 'Will you need SIPP drawdown soon?',
+    desc: 'This affects which platforms are suitable for you.',
+    multi: false,
+    conditional: (answers) => answers.accounts && answers.accounts.includes('sipp'),
+    options: [
+      {value:'yes', label:'Yes, within 5 years'},
+      {value:'no', label:'No, still accumulating'}
+    ]
+  }
+];
+
+// ═══════════════════════════════════════════════════
+// APP STATE
+// ═══════════════════════════════════════════════════
+let currentStep = 0;
+let answers = {};
+let rankedBrokers = [];
+let showingAll = false;
+let compareSet = new Set();
+
+// ═══════════════════════════════════════════════════
+// WIZARD LOGIC
+// ═══════════════════════════════════════════════════
+function startWizard() {
+  document.getElementById('hero').style.display = 'none';
+  document.getElementById('wizard').classList.add('active');
+  document.getElementById('results').classList.remove('active');
+  document.getElementById('comparison').classList.remove('active');
+  currentStep = 0;
+  answers = {};
+  renderStep();
+}
+
+function changeAnswers() {
+  document.getElementById('results').classList.remove('active');
+  document.getElementById('comparison').classList.remove('active');
+  document.getElementById('wizard').classList.add('active');
+  currentStep = 0;
+  showingAll = false;
+  compareSet.clear();
+  history.replaceState(null, '', window.location.pathname);
+  renderStep();
+}
+
+function getVisibleQuestions() {
+  return QUESTIONS.filter(q => !q.conditional || q.conditional(answers));
+}
+
+function renderStep() {
+  const visible = getVisibleQuestions();
+  const total = visible.length;
+  const q = visible[currentStep];
+  if (!q) return;
+
+  // Progress dots
+  let progressHTML = '';
+  for (let i = 0; i < total; i++) {
+    if (i > 0) progressHTML += `<div class="progress-line ${i <= currentStep ? 'done' : ''}"></div>`;
+    progressHTML += `<div class="progress-dot ${i === currentStep ? 'active' : i < currentStep ? 'done' : ''}"></div>`;
+  }
+  document.getElementById('wizardProgress').innerHTML = progressHTML;
+
+  // Step content — dynamic label
+  const stepLabel = `Step ${currentStep + 1} of ${total}`;
+  const selected = answers[q.id] || (q.multi ? [] : null);
+  let optionsHTML = q.options.map(opt => {
+    const isSelected = q.multi ? (selected && selected.includes(opt.value)) : selected === opt.value;
+    return `
+      <button class="option-btn ${q.multi ? 'multi' : ''} ${isSelected ? 'selected' : ''}"
+              onclick="selectOption('${q.id}', ${typeof opt.value === 'string' ? `'${opt.value}'` : opt.value}, ${q.multi}, ${q.maxSelect || 99})"
+              aria-pressed="${isSelected}"
+              role="${q.multi ? 'checkbox' : 'radio'}">
+        <span class="check-indicator"></span>
+        <span>
+          ${opt.label}
+          ${opt.detail ? `<span class="option-detail">${opt.detail}</span>` : ''}
+        </span>
+      </button>
+    `;
+  }).join('');
+
+  // Multi-select counter
+  let counterHTML = '';
+  if (q.multi && q.maxSelect) {
+    const count = (selected && selected.length) || 0;
+    counterHTML = `<span class="selection-counter">${count} of ${q.maxSelect} selected</span>`;
+  }
+
+  const stepsContainer = document.getElementById('wizardSteps');
+  stepsContainer.innerHTML = `
+    <div class="wizard-step active" role="group" aria-labelledby="step-title-${currentStep}">
+      <div class="step-card">
+        <div class="step-label">${stepLabel}</div>
+        <h2 id="step-title-${currentStep}">${q.title}</h2>
+        <p class="step-desc">${q.desc}</p>
+        ${counterHTML}
+        <div class="options-grid" role="${q.multi ? 'group' : 'radiogroup'}" aria-label="${q.title}">
+          ${optionsHTML}
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Nav buttons
+  document.getElementById('btnPrev').style.visibility = currentStep === 0 ? 'hidden' : 'visible';
+  const isLast = currentStep === total - 1;
+  const btnNext = document.getElementById('btnNext');
+  btnNext.innerHTML = isLast ? 'See results <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>' : 'Next <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+
+  const hasAnswer = q.multi ? (selected && selected.length > 0) : selected !== null && selected !== undefined;
+  btnNext.disabled = !hasAnswer;
+}
+
+function selectOption(qId, value, multi, maxSelect) {
+  if (multi) {
+    if (!answers[qId]) answers[qId] = [];
+    const idx = answers[qId].indexOf(value);
+    if (idx > -1) {
+      answers[qId].splice(idx, 1);
+    } else {
+      if (answers[qId].length < maxSelect) {
+        answers[qId].push(value);
+      }
+    }
+  } else {
+    answers[qId] = value;
+  }
+  renderStep();
+  // Apply pulse animation for visual feedback (no auto-advance)
+  if (!multi) {
+    const selectedBtn = document.querySelector('.option-btn.selected');
+    if (selectedBtn) selectedBtn.classList.add('just-selected');
+  }
+}
+
+function nextStep() {
+  const visible = getVisibleQuestions();
+  // Clamp to valid range in case visibility changed
+  if (currentStep >= visible.length) currentStep = visible.length - 1;
+  if (currentStep < visible.length - 1) {
+    currentStep++;
+    renderStep();
+  } else {
+    showResults();
+  }
+}
+
+function prevStep() {
+  if (currentStep > 0) {
+    currentStep--;
+    const visible = getVisibleQuestions();
+    if (currentStep >= visible.length) currentStep = visible.length - 1;
+    renderStep();
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// COST CALCULATION
+// ═══════════════════════════════════════════════════
+function calculateCost(broker, portfolioValue, userAnswers) {
+  const pv = portfolioValue || userAnswers.portfolioSize;
+  const accounts = userAnswers.accounts || ['isa'];
+  const invTypes = userAnswers.investmentTypes || ['etfs'];
+  const tradingFreq = userAnswers.tradingFreq || 'monthly';
+  const fxTrading = userAnswers.fxTrading || 'rarely';
+  const needsSIPP = accounts.includes('sipp');
+  const needsDrawdown = needsSIPP && userAnswers.drawdownSoon === 'yes';
+
+  // Determine trades per year
+  let tradesPerYear;
+  let isRegular = false;
+  switch (tradingFreq) {
+    case 'setForget': tradesPerYear = 2; break;
+    case 'monthly': tradesPerYear = 12; isRegular = true; break;
+    case 'occasional': tradesPerYear = 9; break;
+    case 'active': tradesPerYear = 30; break;
+    default: tradesPerYear = 12;
+  }
+
+  // Determine what they're buying (investmentTypes is now an array)
+  const buyingFunds = invTypes.includes('funds');
+  const buyingETFs = invTypes.includes('etfs');
+  const buyingShares = invTypes.includes('sharesUK') || invTypes.includes('sharesIntl');
+  const buyingBonds = invTypes.includes('bonds');
+  const buyingIntl = invTypes.includes('sharesIntl');
+
+  // ─── Platform Fee ───
+  let platformFee = 0;
+  if (broker.platformFee) {
+    platformFee = broker.platformFee(pv, needsSIPP ? 'sipp' : 'isa');
+  }
+  // ISA-specific platform fee (Moneyfarm)
+  if (broker.platformFeeISA && accounts.includes('isa')) {
+    platformFee = broker.platformFeeISA(pv);
+  }
+  // Platform fee caps — only apply when user holds ETFs/shares/ITs/bonds (not fund-only)
+  const fundsOnly = invTypes.length === 1 && invTypes[0] === 'funds';
+  const capsApply = !fundsOnly;
+  if (broker.platformFeeCaps) {
+    if (capsApply) {
+      if (needsSIPP && broker.platformFeeCaps.sipp) {
+        platformFee = Math.min(platformFee, broker.platformFeeCaps.sipp);
+      } else if (accounts.includes('isa') && broker.platformFeeCaps.isa) {
+        platformFee = Math.min(platformFee, broker.platformFeeCaps.isa);
+      }
+    }
+    // LISA cap always applies regardless of investment type
+    if (accounts.includes('lisa') && broker.platformFeeCaps.lisa) {
+      platformFee = Math.min(platformFee, broker.platformFeeCaps.lisa);
+    }
+  }
+
+  // SIPP surcharge
+  let sippCost = 0;
+  if (needsSIPP) {
+    if (broker.sippFee && broker.sippFee(pv) !== null) {
+      sippCost = broker.sippFee(pv);
+    }
+    if (broker.sippExtra) sippCost += broker.sippExtra;
+    if (broker.sippMin) sippCost = Math.max(sippCost, broker.sippMin);
+    if (broker.sippExtra120Under30k && pv < 30000) sippCost += 120;
+  }
+
+  // ─── Trading Costs ───
+  let tradingCost = 0;
+
+  // Count how many tradeable asset classes the user selected
+  const activeTypes = [];
+  if (buyingFunds) activeTypes.push('funds');
+  if (buyingETFs) activeTypes.push('etfs');
+  if (buyingShares) activeTypes.push('shares');
+  if (buyingBonds) activeTypes.push('bonds');
+  const typeCount = activeTypes.length || 1;
+
+  // Allocate trades proportionally across asset types
+  const tradesPerType = Math.ceil(tradesPerYear / typeCount);
+
+  if (buyingFunds && broker.fundTrade !== null) {
+    let fundTradePrice;
+    if (isRegular && broker.regularInvesting !== null && broker.regularInvesting !== undefined) {
+      fundTradePrice = broker.regularInvestingFunds !== undefined ? broker.regularInvestingFunds : broker.regularInvesting;
+    } else {
+      fundTradePrice = broker.fundTrade;
+    }
+    tradingCost += fundTradePrice * tradesPerType;
+  }
+
+  if (buyingETFs && (broker.etfTrade !== null)) {
+    let etfPrice;
+    if (isRegular && broker.regularInvesting !== null && broker.regularInvesting !== undefined) {
+      etfPrice = broker.regularInvesting;
+    } else {
+      etfPrice = broker.etfTrade;
+    }
+    tradingCost += etfPrice * tradesPerType;
+  }
+
+  if (buyingShares && (broker.shareTrade !== null || broker.etfTrade !== null)) {
+    let sharePrice;
+    if (isRegular && broker.regularInvesting !== null && broker.regularInvesting !== undefined) {
+      sharePrice = broker.regularInvesting;
+    } else {
+      sharePrice = broker.shareTrade !== null ? broker.shareTrade : (broker.etfTrade !== null ? broker.etfTrade : 0);
+    }
+    tradingCost += sharePrice * tradesPerType;
+  }
+
+  if (buyingBonds && broker.bondTrade) {
+    tradingCost += broker.bondTrade * tradesPerType;
+  }
+
+  // Revolut special: 0.25% per trade after 1 free/month
+  if (broker.name === 'Revolut' && (buyingETFs || buyingShares)) {
+    const relevantTrades = (buyingETFs ? tradesPerType : 0) + (buyingShares ? tradesPerType : 0);
+    const paidTrades = Math.max(0, relevantTrades - 12); // 1 free/month
+    const avgTradeSize = pv / Math.max(relevantTrades, 1);
+    tradingCost = paidTrades * avgTradeSize * 0.0025;
+  }
+
+  // Interactive Investor plan selection
+  if (broker.name === 'Interactive Investor') {
+    const coreFee = 71.88;
+    const plusFee = 179.88;
+    const coreTradeCost = tradesPerYear * 3.99;
+    const plusTradeCost = tradesPerYear * (buyingFunds ? 1.49 : 2.99);
+    if (coreFee + coreTradeCost <= plusFee + plusTradeCost) {
+      platformFee = coreFee;
+      tradingCost = coreTradeCost;
+    } else {
+      platformFee = plusFee;
+      tradingCost = plusTradeCost;
+    }
+    if (isRegular) tradingCost = 0; // free regular investing
+  }
+
+  // ─── FX Costs ───
+  let fxCost = 0;
+  let fxNotDisclosed = broker.fxRate === null || broker.fxRate === undefined;
+  if (broker.fxRate > 0 && fxTrading !== 'rarely') {
+    let fxFactor;
+    switch (fxTrading) {
+      case 'sometimes': fxFactor = 0.03; break;
+      case 'frequently': fxFactor = 0.10; break;
+      default: fxFactor = 0;
+    }
+    // If they're buying international shares AND said they do FX trading, increase factor
+    if (buyingIntl && fxTrading === 'frequently') {
+      fxFactor = Math.max(fxFactor, 0.12);
+    }
+    fxCost = pv * broker.fxRate * fxFactor;
+  }
+  // FX dividends (HL) — only if user actually trades internationally
+  if (broker.fxDividends && buyingIntl && fxTrading !== 'rarely') {
+    fxCost += pv * broker.fxDividends * 0.02; // ~2% yield assumption
+  }
+
+  // ─── Drawdown ───
+  let drawdownCost = 0;
+  if (needsDrawdown && broker.sippDrawdownFee) {
+    drawdownCost = broker.sippDrawdownFee;
+  }
+
+  const totalCost = platformFee + sippCost + tradingCost + fxCost + drawdownCost;
+
+  return {
+    platformFee: Math.round(platformFee * 100) / 100,
+    sippCost: Math.round(sippCost * 100) / 100,
+    tradingCost: Math.round(tradingCost * 100) / 100,
+    fxCost: Math.round(fxCost * 100) / 100,
+    drawdownCost: Math.round(drawdownCost * 100) / 100,
+    totalCost: Math.round(totalCost * 100) / 100,
+    fxNotDisclosed
+  };
+}
+
+// ═══════════════════════════════════════════════════
+// ELIGIBILITY & SCORING
+// ═══════════════════════════════════════════════════
+function checkEligibility(broker, userAnswers) {
+  const accounts = userAnswers.accounts || ['isa'];
+  const needsSIPP = accounts.includes('sipp');
+  const needsJISA = accounts.includes('jisa');
+  const needsLISA = accounts.includes('lisa');
+  const needsDrawdown = needsSIPP && userAnswers.drawdownSoon === 'yes';
+
+  const warnings = [];
+  let eligible = true;
+
+  // Account type checks
+  if (needsSIPP && !broker.hasSIPP) {
+    warnings.push('No SIPP available');
+    eligible = false;
+  }
+  if (needsJISA && !broker.accounts.includes('jisa')) {
+    warnings.push('No JISA available');
+    eligible = false;
+  }
+  if (needsLISA && !broker.accounts.includes('lisa')) {
+    warnings.push('No LISA available');
+    eligible = false;
+  }
+  if (needsDrawdown && !broker.hasDrawdown) {
+    warnings.push('No SIPP drawdown available');
+  }
+
+  // Investment type checks (investmentTypes is now an array)
+  const invTypes = userAnswers.investmentTypes || ['etfs'];
+  const buyingFunds = invTypes.includes('funds');
+  const buyingETFs = invTypes.includes('etfs');
+  const buyingShares = invTypes.includes('sharesUK') || invTypes.includes('sharesIntl');
+  const buyingBonds = invTypes.includes('bonds');
+
+  if (buyingFunds && broker.fundTrade === null && !broker.investmentTypes.includes('fund')) {
+    if (invTypes.length === 1 && invTypes[0] === 'funds') { eligible = false; }
+    warnings.push('No funds available');
+  }
+  if (buyingShares && broker.shareTrade === null && !broker.investmentTypes.includes('shareUK') && !broker.investmentTypes.includes('shareIntl')) {
+    if (invTypes.length === 1 && (invTypes[0] === 'sharesUK' || invTypes[0] === 'sharesIntl')) { eligible = false; }
+    warnings.push('No individual shares');
+  }
+  if (buyingBonds && !broker.investmentTypes.includes('bond')) {
+    if (invTypes.length === 1 && invTypes[0] === 'bonds') { eligible = false; }
+    warnings.push('No bonds/gilts available');
+  }
+  if (buyingETFs && broker.etfTrade === null && !broker.investmentTypes.includes('etf')) {
+    if (invTypes.length === 1 && invTypes[0] === 'etfs') { eligible = false; }
+    warnings.push('No ETFs available');
+  }
+
+  // GIA-only check
+  if (accounts.length === 1 && accounts[0] === 'gia' && !broker.accounts.includes('gia')) {
+    eligible = false;
+  }
+
+  return { eligible, warnings };
+}
+
+function scoreBroker(broker, costResult, userAnswers) {
+  const priorities = userAnswers.priorities || ['lowestFees'];
+  let score = 0;
+
+  // Cost score (lower is better, normalize later)
+  score += 0; // We'll sort by cost primarily
+
+  // Priority bonuses
+  if (priorities.includes('customerService')) score += (broker.customerService || 0) * 8;
+  if (priorities.includes('wideRange')) score += (broker.investmentRange || 0) * 8;
+  if (priorities.includes('easyToUse')) score += (broker.easeOfUse || 0) * 8;
+  if (priorities.includes('fscs')) score += (broker.established || 0) * 8;
+  if (priorities.includes('drawdown') && broker.hasDrawdown) score += 20;
+
+  // Fee model preference scoring
+  const feeModel = userAnswers.feeModel || 'noPreference';
+
+  if (feeModel === 'zeroFee') {
+    if (broker.tags.zeroFees) score += 40;
+    else score -= 15;
+  }
+  if (feeModel === 'flatFee') {
+    if (broker.category === 'flat' && !broker.tags.zeroFees) score += 35;
+    else if (broker.category === 'flat' && broker.tags.zeroFees) score += 15;
+    else score -= 10;
+  }
+  if (feeModel === 'percentageFee') {
+    if (broker.category === 'percentage') score += 35;
+    else score -= 10;
+  }
+  if (feeModel === 'directFee') {
+    if (broker.established >= 4 && !broker.tags.zeroFees) score += 40;
+    else if (broker.tags.zeroFees) score -= 20;
+    else if (broker.category === 'trading') score -= 15;
+  }
+
+  return score;
+}
+
+function getRecommendationReason(broker, costResult, userAnswers) {
+  const pv = userAnswers.portfolioSize;
+  const invTypes = userAnswers.investmentTypes || ['etfs'];
+  const reasons = [];
+
+  if (costResult.totalCost === 0) reasons.push('zero total fees');
+  else if (costResult.platformFee === 0) reasons.push('zero platform fee');
+
+  if (pv >= 100000 && broker.category === 'flat') reasons.push('flat fee saves money on larger portfolios');
+  if (pv < 25000 && broker.category === 'percentage') reasons.push('percentage fee is low on smaller portfolios');
+
+  if (invTypes.includes('funds') && broker.fundTrade === 0) reasons.push('free fund trading');
+  if (invTypes.includes('etfs') && broker.etfTrade === 0) reasons.push('free ETF trading');
+  if (broker.customerService >= 5) reasons.push('top-rated customer service');
+  if (broker.investmentRange >= 5) reasons.push('widest investment range');
+
+  if (reasons.length === 0) reasons.push('competitive overall costs');
+
+  const pvLabel = pv >= 1000 ? `£${(pv/1000).toFixed(0)}k` : `£${pv}`;
+  return `Best for you because: ${reasons.slice(0, 2).join(' and ')} on your ${pvLabel} portfolio`;
+}
+
+// ═══════════════════════════════════════════════════
+// RESULTS RENDERING
+// ═══════════════════════════════════════════════════
+function recalculateAndRender(userAnswers) {
+  const pv = userAnswers.portfolioSize;
+
+  // FSCS notice
+  document.getElementById('fscsNotice').style.display = pv >= 85000 ? 'flex' : 'none';
+
+  // Calculate and rank
+  rankedBrokers = [];
+  BROKERS.forEach(broker => {
+    const { eligible, warnings: eligWarnings } = checkEligibility(broker, userAnswers);
+    const costResult = calculateCost(broker, pv, userAnswers);
+    const priorityScore = scoreBroker(broker, costResult, userAnswers);
+    const reason = getRecommendationReason(broker, costResult, userAnswers);
+
+    rankedBrokers.push({
+      broker,
+      costResult,
+      eligible,
+      eligWarnings,
+      priorityScore,
+      reason
+    });
+  });
+
+  // Blended scoring: normalize cost and priority, then blend
+  const eligibleBrokers = rankedBrokers.filter(b => b.eligible);
+  const maxCost = Math.max(...eligibleBrokers.map(b => b.costResult.totalCost), 1);
+  const maxPriorityScore = Math.max(...eligibleBrokers.map(b => b.priorityScore), 1);
+  const hasLowestFees = (userAnswers.priorities || []).includes('lowestFees');
+  const costWeight = hasLowestFees ? 0.8 : 0.55;
+  const priorityWeight = 1 - costWeight;
+
+  rankedBrokers.forEach(b => {
+    const costScore = 100 * (1 - b.costResult.totalCost / maxCost);
+    const normalizedPriority = 100 * (b.priorityScore / maxPriorityScore);
+    b.blendedScore = costScore * costWeight + normalizedPriority * priorityWeight;
+  });
+
+  // Sort: eligible first, then by blended score (highest first)
+  rankedBrokers.sort((a, b) => {
+    if (a.eligible !== b.eligible) return a.eligible ? -1 : 1;
+    return b.blendedScore - a.blendedScore;
+  });
+
+  // Summary
+  const invTypeLabels = {
+    funds: 'index funds', etfs: 'ETFs', sharesUK: 'UK shares',
+    sharesIntl: 'international shares', bonds: 'bonds/gilts'
+  };
+  const invTypes = userAnswers.investmentTypes || ['etfs'];
+  const invLabel = invTypes.map(t => invTypeLabels[t] || t).join(', ').replace(/, ([^,]*)$/, ' and $1');
+  const pvLabel = pv >= 1000 ? `£${(pv/1000).toFixed(0)}k` : `£${pv}`;
+  document.getElementById('resultsSummary').textContent = `Based on a ${pvLabel} portfolio investing in ${invLabel}`;
+
+  // Render cards
+  const ineligibleBrokers = rankedBrokers.filter(b => !b.eligible);
+  const initialShow = 5;
+
+  renderBrokerCards(eligibleBrokers, ineligibleBrokers, initialShow, maxCost);
+  animateCostBars();
+}
+
+function showResults() {
+  document.getElementById('wizard').classList.remove('active');
+  document.getElementById('hero').style.display = 'none';
+  document.getElementById('results').classList.add('active');
+
+  recalculateAndRender(answers);
+
+  // What-if slider — initialise and bind handler
+  const slider = document.getElementById('whatifSlider');
+  slider.value = answers.portfolioSize;
+  document.getElementById('whatifValue').textContent = formatCurrency(answers.portfolioSize);
+  slider.oninput = function() {
+    const val = parseInt(this.value);
+    document.getElementById('whatifValue').textContent = formatCurrency(val);
+    const modifiedAnswers = { ...answers, portfolioSize: val };
+    recalculateAndRender(modifiedAnswers);
+  };
+
+  // Encode answers to URL for sharing
+  encodeAnswersToURL();
+
+  document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function renderBrokerCards(eligible, ineligible, initialShow, maxCost) {
+  const list = document.getElementById('brokerList');
+  let html = '';
+
+  const toShow = showingAll ? eligible : eligible.slice(0, initialShow);
+
+  toShow.forEach((item, idx) => {
+    html += renderBrokerCard(item, idx + 1, maxCost);
+  });
+
+  if (!showingAll && ineligible.length > 0) {
+    // Show ineligible as greyed out
+  }
+
+  list.innerHTML = html;
+
+  // Show/hide "show all" button
+  const showAllBtn = document.getElementById('showAllBtn');
+  if (eligible.length > initialShow && !showingAll) {
+    showAllBtn.style.display = 'block';
+    showAllBtn.textContent = `Show all ${eligible.length} eligible brokers`;
+  } else {
+    showAllBtn.style.display = 'none';
+  }
+
+  // Update compare button
+  updateCompareButton();
+}
+
+function renderBrokerCard(item, rank, maxCost) {
+  const { broker, costResult, reason, eligWarnings } = item;
+  const isTopPick = rank <= 3;
+  const costPercent = maxCost > 0 ? Math.max((costResult.totalCost / maxCost) * 100, 1) : 1;
+
+  // Tags
+  let tagsHTML = '';
+  if (costResult.totalCost === 0) tagsHTML += '<span class="tag tag-green">Zero fees</span>';
+  if (broker.tags.bestService) tagsHTML += '<span class="tag tag-accent">Great service</span>';
+  if (broker.tags.wideRange) tagsHTML += '<span class="tag tag-accent">Wide range</span>';
+  if (broker.tags.established) tagsHTML += '<span class="tag tag-accent">Established</span>';
+  if (broker.tags.bestInternational) tagsHTML += '<span class="tag tag-accent">Best international</span>';
+  if (broker.tags.easyToUse) tagsHTML += '<span class="tag tag-accent">Easy to use</span>';
+  if (broker.tags.zeroFees && costResult.totalCost > 0) tagsHTML += '<span class="tag tag-green">Low fees</span>';
+  if (broker.restricted) tagsHTML += '<span class="tag tag-amber">Restricted list</span>';
+  if (broker.category === 'flat' && answers.portfolioSize >= 100000) tagsHTML += '<span class="tag tag-green">Flat fee advantage</span>';
+
+  // Fee model match tag
+  const feeModel = answers.feeModel || 'noPreference';
+  if (feeModel !== 'noPreference') {
+    const isMatch = (
+      (feeModel === 'zeroFee' && broker.tags.zeroFees) ||
+      (feeModel === 'flatFee' && broker.category === 'flat' && !broker.tags.zeroFees) ||
+      (feeModel === 'percentageFee' && broker.category === 'percentage') ||
+      (feeModel === 'directFee' && broker.established >= 4 && !broker.tags.zeroFees)
+    );
+    if (isMatch) tagsHTML += '<span class="tag tag-green">Matches your fee preference</span>';
+  }
+
+  // Warnings
+  let warningsHTML = '';
+  const allWarnings = [...(broker.warnings || [])];
+  if (eligWarnings.length > 0) {
+    allWarnings.push(...eligWarnings);
+  }
+  if (allWarnings.length > 0) {
+    warningsHTML = '<div class="detail-warnings">';
+    allWarnings.forEach(w => {
+      warningsHTML += `<div class="warning-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg>${w}</div>`;
+    });
+    warningsHTML += '</div>';
+  }
+
+  // Details grid
+  const detailsHTML = `
+    <div class="details-grid">
+      <div class="detail-item">
+        <span class="detail-label">Platform fee</span>
+        <span class="detail-value">${formatCurrency(costResult.platformFee)}/yr</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">SIPP cost</span>
+        <span class="detail-value">${costResult.sippCost > 0 ? formatCurrency(costResult.sippCost) + '/yr' : (broker.hasSIPP ? 'Included' : 'N/A')}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Trading costs</span>
+        <span class="detail-value">${formatCurrency(costResult.tradingCost)}/yr</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">FX costs</span>
+        <span class="detail-value">${formatCurrency(costResult.fxCost)}/yr</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">FX rate</span>
+        <span class="detail-value">${broker.fxRate === null ? 'Not disclosed' : broker.fxRate ? (broker.fxRate * 100).toFixed(2) + '%' : 'N/A'}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Regular investing</span>
+        <span class="detail-value">${broker.regularInvesting !== null && broker.regularInvesting !== undefined ? (broker.regularInvesting === 0 ? 'Free' : formatCurrency(broker.regularInvesting) + '/trade') : 'N/A'}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Entry/exit fees</span>
+        <span class="detail-value">${broker.entryExit}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Category</span>
+        <span class="detail-value">${broker.category === 'flat' ? 'Flat fee' : broker.category === 'percentage' ? 'Percentage fee' : 'Trading platform'}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Cash interest</span>
+        <span class="detail-value">${broker.cashInterest || 'Check with provider'}</span>
+      </div>
+    </div>
+    ${warningsHTML}
+    ${broker.notes ? `<div class="detail-notes">${broker.notes}</div>` : ''}
+  `;
+
+  const isCompared = compareSet.has(broker.name);
+
+  return `
+    <div class="broker-card ${isTopPick ? 'top-pick' : ''}" data-broker="${broker.name}">
+      <div class="card-header" onclick="toggleDetails('${broker.name}')" tabindex="0" role="button" aria-expanded="false" aria-label="Show details for ${broker.name}">
+        <span class="card-rank">${rank}</span>
+        <div class="card-info">
+          <h3>${broker.name}</h3>
+          <span class="broker-reason">${reason}</span>
+        </div>
+        <div class="card-cost">
+          <span class="cost-amount">${formatCurrency(costResult.totalCost)}</span>
+          <span class="cost-label">per year</span>
+        </div>
+      </div>
+      <div class="cost-bar-container">
+        <div class="cost-bar-track">
+          <div class="cost-bar-fill" style="width: 0%" data-target="${costPercent}"></div>
+        </div>
+      </div>
+      <div class="card-tags">${tagsHTML}</div>
+      <div class="card-compare-toggle">
+        <label class="compare-checkbox">
+          <input type="checkbox" ${isCompared ? 'checked' : ''} onchange="toggleCompare('${broker.name}', this.checked)">
+          Add to comparison
+        </label>
+      </div>
+      <div class="card-details" id="details-${broker.name.replace(/[^a-zA-Z0-9]/g, '')}">${detailsHTML}</div>
+    </div>
+  `;
+}
+
+function toggleDetails(brokerName) {
+  const id = 'details-' + brokerName.replace(/[^a-zA-Z0-9]/g, '');
+  const el = document.getElementById(id);
+  const card = el.closest('.broker-card');
+  const header = card.querySelector('.card-header');
+  if (el.classList.contains('open')) {
+    el.classList.remove('open');
+    header.setAttribute('aria-expanded', 'false');
+  } else {
+    el.classList.add('open');
+    header.setAttribute('aria-expanded', 'true');
+  }
+}
+
+function showAllBrokers() {
+  showingAll = true;
+  const eligible = rankedBrokers.filter(b => b.eligible);
+  const ineligible = rankedBrokers.filter(b => !b.eligible);
+  const maxCost = Math.max(...eligible.map(b => b.costResult.totalCost), 1);
+  renderBrokerCards(eligible, ineligible, eligible.length, maxCost);
+  animateCostBars();
+}
+
+// Animate cost bars on scroll/render
+function animateCostBars() {
+  setTimeout(() => {
+    document.querySelectorAll('.cost-bar-fill').forEach(bar => {
+      bar.style.width = bar.dataset.target + '%';
+    });
+  }, 100);
+}
+
+// Observe for animation
+const observer = new MutationObserver(() => animateCostBars());
+observer.observe(document.getElementById('brokerList'), { childList: true });
+
+// ═══════════════════════════════════════════════════
+// COMPARISON
+// ═══════════════════════════════════════════════════
+function toggleCompare(brokerName, checked) {
+  if (checked && compareSet.size < 3) {
+    compareSet.add(brokerName);
+  } else {
+    compareSet.delete(brokerName);
+  }
+  updateCompareButton();
+}
+
+function updateCompareButton() {
+  const btn = document.getElementById('btnCompare');
+  if (compareSet.size >= 2) {
+    btn.style.display = 'inline-block';
+    btn.textContent = `Compare ${compareSet.size} brokers`;
+  } else {
+    btn.style.display = 'none';
+  }
+}
+
+function showComparison() {
+  if (compareSet.size < 2) return;
+  document.getElementById('comparison').classList.add('active');
+
+  const selected = rankedBrokers.filter(b => compareSet.has(b.broker.name));
+  const table = document.getElementById('comparisonTable');
+
+  const headers = selected.map(s => `<th>${s.broker.name}</th>`).join('');
+
+  const rows = [
+    { label: 'Platform fee', key: 'platformFee' },
+    { label: 'SIPP cost', key: 'sippCost' },
+    { label: 'Trading costs', key: 'tradingCost' },
+    { label: 'FX costs', key: 'fxCost' },
+    { label: 'Drawdown cost', key: 'drawdownCost' },
+  ];
+
+  let bodyHTML = '';
+  rows.forEach(row => {
+    const vals = selected.map(s => s.costResult[row.key]);
+    const min = Math.min(...vals);
+    const max = Math.max(...vals);
+    bodyHTML += '<tr>';
+    bodyHTML += `<td class="row-label">${row.label}</td>`;
+    vals.forEach(v => {
+      let cls = '';
+      if (vals.filter(x => x !== v).length > 0) {
+        if (v === min && min !== max) cls = 'lowest-cost';
+        if (v === max && min !== max) cls = 'highest-cost';
+      }
+      bodyHTML += `<td class="${cls}">${formatCurrency(v)}</td>`;
+    });
+    bodyHTML += '</tr>';
+  });
+
+  // Total row
+  const totals = selected.map(s => s.costResult.totalCost);
+  const minTotal = Math.min(...totals);
+  const maxTotal = Math.max(...totals);
+  bodyHTML += '<tr class="total-row">';
+  bodyHTML += '<td class="row-label">Total annual cost</td>';
+  totals.forEach(t => {
+    let cls = '';
+    if (t === minTotal && minTotal !== maxTotal) cls = 'lowest-cost';
+    if (t === maxTotal && minTotal !== maxTotal) cls = 'highest-cost';
+    bodyHTML += `<td class="${cls}">${formatCurrency(t)}</td>`;
+  });
+  bodyHTML += '</tr>';
+
+  // Extra info rows
+  const extraRows = [
+    { label: 'FX rate', fn: s => s.broker.fxRate === null ? 'Not disclosed' : s.broker.fxRate ? (s.broker.fxRate * 100).toFixed(2) + '%' : 'N/A' },
+    { label: 'Regular investing', fn: s => s.broker.regularInvesting !== null && s.broker.regularInvesting !== undefined ? (s.broker.regularInvesting === 0 ? 'Free' : formatCurrency(s.broker.regularInvesting)) : 'N/A' },
+    { label: 'SIPP available', fn: s => s.broker.hasSIPP ? 'Yes' : 'No' },
+    { label: 'Drawdown', fn: s => s.broker.hasDrawdown ? 'Yes' : 'No' },
+    { label: 'Entry/exit', fn: s => s.broker.entryExit },
+    { label: 'Cash interest', fn: s => s.broker.cashInterest || 'Check with provider' },
+  ];
+
+  extraRows.forEach(row => {
+    bodyHTML += '<tr>';
+    bodyHTML += `<td class="row-label">${row.label}</td>`;
+    selected.forEach(s => {
+      bodyHTML += `<td>${row.fn(s)}</td>`;
+    });
+    bodyHTML += '</tr>';
+  });
+
+  table.innerHTML = `
+    <thead><tr><th>Fee breakdown</th>${headers}</tr></thead>
+    <tbody>${bodyHTML}</tbody>
+  `;
+
+  // Remove any previous FSCS warnings
+  document.querySelectorAll('#comparison .fscs-notice').forEach(el => el.remove());
+
+  // Check for FSCS group overlap
+  const groups = {};
+  selected.forEach(s => {
+    if (s.broker.fscsGroup) {
+      if (!groups[s.broker.fscsGroup]) groups[s.broker.fscsGroup] = [];
+      groups[s.broker.fscsGroup].push(s.broker.name);
+    }
+  });
+  let fscsWarningHTML = '';
+  Object.entries(groups).forEach(([group, names]) => {
+    if (names.length >= 2) {
+      fscsWarningHTML += `
+        <div class="fscs-notice" style="margin-top:1rem">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>
+          </svg>
+          <div>
+            <strong>FSCS overlap:</strong> ${names.join(' and ')} share the same FSCS investment protection (\u00A385,000 combined limit across both). Using both does NOT give you \u00A3170,000 of protection.
+          </div>
+        </div>
+      `;
+    }
+  });
+  if (fscsWarningHTML) {
+    document.querySelector('.comparison-table-wrapper').insertAdjacentHTML('afterend', fscsWarningHTML);
+  }
+
+  document.getElementById('comparison').scrollIntoView({ behavior: 'smooth' });
+}
+
+function hideComparison() {
+  document.getElementById('comparison').classList.remove('active');
+}
+
+// ═══════════════════════════════════════════════════
+// UTILITIES
+// ═══════════════════════════════════════════════════
+function formatCurrency(value) {
+  if (value === 0) return '£0';
+  if (value >= 1000) return '£' + value.toLocaleString('en-GB', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  if (value < 1 && value > 0) return '£' + value.toFixed(2);
+  return '£' + value.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+// Keyboard navigation for wizard
+document.addEventListener('keydown', (e) => {
+  if (!document.getElementById('wizard').classList.contains('active')) return;
+  if (e.key === 'Enter') {
+    const btnNext = document.getElementById('btnNext');
+    if (!btnNext.disabled) nextStep();
+  }
+});
+
+// ═══════════════════════════════════════════════════
+// URL PARAMETER SHARING
+// ═══════════════════════════════════════════════════
+function encodeAnswersToURL() {
+  const params = new URLSearchParams();
+  Object.entries(answers).forEach(([key, value]) => {
+    if (Array.isArray(value)) {
+      params.set(key, value.join(','));
+    } else {
+      params.set(key, String(value));
+    }
+  });
+  history.replaceState(null, '', '#' + params.toString());
+}
+
+function decodeAnswersFromURL() {
+  const hash = window.location.hash.slice(1);
+  if (!hash) return null;
+  const params = new URLSearchParams(hash);
+  const restored = {};
+  const multiFields = ['accounts', 'priorities', 'investmentTypes'];
+  params.forEach((value, key) => {
+    if (multiFields.includes(key)) {
+      restored[key] = value.split(',');
+    } else if (key === 'portfolioSize' && !isNaN(Number(value))) {
+      restored[key] = Number(value);
+    } else {
+      restored[key] = value;
+    }
+  });
+  return Object.keys(restored).length > 0 ? restored : null;
+}
+
+function copyShareLink(btn) {
+  navigator.clipboard.writeText(window.location.href).then(() => {
+    btn.textContent = 'Link copied!';
+    setTimeout(() => { btn.textContent = 'Share results'; }, 2000);
+  });
+}
+
+// On page load, check for saved answers in URL
+window.addEventListener('DOMContentLoaded', () => {
+  const saved = decodeAnswersFromURL();
+  if (saved) {
+    answers = saved;
+    showResults();
+  }
+});
+</script>
+</body>
+</html>
