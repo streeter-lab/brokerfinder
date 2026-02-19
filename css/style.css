@@ -138,7 +138,8 @@ body {
   cursor: pointer;
   transition: var(--transition);
 }
-.btn-start:hover { background: var(--accent-hover); transform: translateY(-1px); }
+.btn-start:hover:not(:disabled) { background: var(--accent-hover); transform: translateY(-1px); }
+.btn-start:disabled { opacity: 0.5; cursor: not-allowed; }
 .btn-start svg { width: 18px; height: 18px; }
 
 /* ── Wizard ── */
