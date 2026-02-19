@@ -137,6 +137,7 @@
   </nav>
   <button class="btn-theme-toggle" id="themeToggle" aria-label="Toggle dark mode">🌙</button>
 </header>
+<noscript><p style="text-align:center;padding:2rem;color:#888;">This tool requires JavaScript. Please enable it in your browser.</p></noscript>
 
 <section class="page-hero">
   <h1>Frequently Asked<br><em>Questions</em></h1>
@@ -150,7 +151,7 @@
     <h2>Choosing a broker</h2>
 
     <div class="faq-item">
-      <button class="faq-question" onclick="toggleFaq(this)">
+      <button class="faq-question">
         What's the difference between a flat fee and percentage fee broker?
         <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
       </button>
@@ -162,7 +163,7 @@
     </div>
 
     <div class="faq-item">
-      <button class="faq-question" onclick="toggleFaq(this)">
+      <button class="faq-question">
         When does a flat fee broker become cheaper than a percentage fee broker?
         <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
       </button>
@@ -173,7 +174,7 @@
     </div>
 
     <div class="faq-item">
-      <button class="faq-question" onclick="toggleFaq(this)">
+      <button class="faq-question">
         What is FSCS protection and why does it matter?
         <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
       </button>
@@ -185,7 +186,7 @@
     </div>
 
     <div class="faq-item">
-      <button class="faq-question" onclick="toggleFaq(this)">
+      <button class="faq-question">
         Why do some brokers share the same FSCS protection limit?
         <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
       </button>
@@ -202,7 +203,7 @@
     <h2>Account types</h2>
 
     <div class="faq-item">
-      <button class="faq-question" onclick="toggleFaq(this)">
+      <button class="faq-question">
         What's the difference between an ISA, SIPP, GIA, JISA, and LISA?
         <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
       </button>
@@ -216,7 +217,7 @@
     </div>
 
     <div class="faq-item">
-      <button class="faq-question" onclick="toggleFaq(this)">
+      <button class="faq-question">
         Can I have accounts with multiple brokers?
         <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
       </button>
@@ -228,7 +229,7 @@
     </div>
 
     <div class="faq-item">
-      <button class="faq-question" onclick="toggleFaq(this)">
+      <button class="faq-question">
         What is in-specie transfer and why does it matter?
         <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
       </button>
@@ -245,7 +246,7 @@
     <h2>Fees</h2>
 
     <div class="faq-item">
-      <button class="faq-question" onclick="toggleFaq(this)">
+      <button class="faq-question">
         What are platform fees, trading fees, and FX fees?
         <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
       </button>
@@ -257,7 +258,7 @@
     </div>
 
     <div class="faq-item">
-      <button class="faq-question" onclick="toggleFaq(this)">
+      <button class="faq-question">
         What is an OCF (Ongoing Charges Figure)?
         <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
       </button>
@@ -269,7 +270,7 @@
     </div>
 
     <div class="faq-item">
-      <button class="faq-question" onclick="toggleFaq(this)">
+      <button class="faq-question">
         Are "free" brokers really free? How do they make money?
         <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
       </button>
@@ -284,7 +285,7 @@
     </div>
 
     <div class="faq-item">
-      <button class="faq-question" onclick="toggleFaq(this)">
+      <button class="faq-question">
         What is the impact of fees on long-term returns?
         <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
       </button>
@@ -303,7 +304,7 @@
     <h2>Using this tool</h2>
 
     <div class="faq-item">
-      <button class="faq-question" onclick="toggleFaq(this)">
+      <button class="faq-question">
         Where does the data come from?
         <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
       </button>
@@ -314,7 +315,7 @@
     </div>
 
     <div class="faq-item">
-      <button class="faq-question" onclick="toggleFaq(this)">
+      <button class="faq-question">
         How often is it updated?
         <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
       </button>
@@ -325,7 +326,7 @@
     </div>
 
     <div class="faq-item">
-      <button class="faq-question" onclick="toggleFaq(this)">
+      <button class="faq-question">
         Is this financial advice?
         <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
       </button>
@@ -363,6 +364,12 @@ function toggleFaq(btn) {
     item.classList.add('open');
   }
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.faq-question').forEach(btn => {
+    btn.addEventListener('click', () => toggleFaq(btn));
+  });
+});
 </script>
 </body>
 </html>

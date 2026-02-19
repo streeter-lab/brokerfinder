@@ -772,37 +772,7 @@ body {
 }
 
 /* ── Responsive ── */
-@media (max-width: 640px) {
-  .step-card { padding: 1.5rem; }
-  .card-header { padding: 1rem; flex-wrap: wrap; }
-  .card-cost { text-align: left; width: 100%; margin-top: 0.5rem; display: flex; align-items: baseline; gap: 0.5rem; }
-  .card-tags { padding: 0.5rem 1rem 0; }
-  .card-compare-toggle { padding: 0.5rem 1rem 0.75rem; }
-  .details-grid { grid-template-columns: 1fr; }
-  .card-details { padding: 1rem; }
-  .cost-bar-container { padding: 0 1rem; }
-  .hero { padding: 3rem 1rem 2rem; }
-  .site-header { padding: 1rem; }
-  .results-actions { gap: 0.5rem; }
-  .btn-action { padding: 0.4rem 0.8rem; font-size: 0.8rem; }
-}
-
-@media (max-width: 600px) {
-  .step-card { padding: 1.5rem 1.25rem; }
-  .card-header { padding: 1rem 1.1rem; gap: 0.75rem; flex-wrap: wrap; }
-  .card-cost .cost-amount { font-size: 1.1rem; }
-  .card-info h3 { font-size: 1rem; }
-  .details-grid { grid-template-columns: 1fr; }
-  .hero h1 { font-size: 1.75rem; }
-  .hero p { font-size: 0.95rem; }
-  .results-actions { flex-direction: column; align-items: stretch; }
-  .results-actions .btn-action { text-align: center; }
-  .whatif-slider-row { flex-direction: column; gap: 0.5rem; }
-  .comparison-table { font-size: 0.78rem; }
-  .site-header { padding: 1rem; flex-wrap: wrap; position: relative; }
-  .site-header .logo { font-size: 1.05rem; }
-  .tools-grid { grid-template-columns: 1fr; }
-
+@media (max-width: 768px) {
   /* Mobile hamburger nav */
   .nav-toggle {
     display: flex;
@@ -837,6 +807,31 @@ body {
     margin-left: auto;
     margin-right: 0.5rem;
   }
+
+  .site-header { padding: 1rem; flex-wrap: wrap; position: relative; }
+  .site-header .logo { font-size: 1.05rem; }
+}
+
+@media (max-width: 640px) {
+  .step-card { padding: 1.5rem 1.25rem; }
+  .card-header { padding: 1rem 1.1rem; gap: 0.75rem; flex-wrap: wrap; }
+  .card-cost { text-align: left; width: 100%; margin-top: 0.5rem; display: flex; align-items: baseline; gap: 0.5rem; }
+  .card-cost .cost-amount { font-size: 1.1rem; }
+  .card-info h3 { font-size: 1rem; }
+  .card-tags { padding: 0.5rem 1rem 0; }
+  .card-compare-toggle { padding: 0.5rem 1rem 0.75rem; }
+  .details-grid { grid-template-columns: 1fr; }
+  .card-details { padding: 1rem; }
+  .cost-bar-container { padding: 0 1rem; }
+  .hero { padding: 3rem 1rem 2rem; }
+  .hero h1 { font-size: 1.75rem; }
+  .hero p { font-size: 0.95rem; }
+  .results-actions { gap: 0.5rem; flex-direction: column; align-items: stretch; }
+  .results-actions .btn-action { text-align: center; }
+  .btn-action { padding: 0.4rem 0.8rem; font-size: 0.8rem; }
+  .whatif-slider-row { flex-direction: column; gap: 0.5rem; }
+  .comparison-table { font-size: 0.78rem; }
+  .tools-grid { grid-template-columns: 1fr; }
 }
 
 /* Screen reader only */

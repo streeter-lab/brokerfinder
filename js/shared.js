@@ -5,14 +5,14 @@
 function formatCurrency(value) {
   if (value === 0) return '\u00a30';
   if (value < 0) return '-' + formatCurrency(Math.abs(value));
-  if (value >= 1000) return '\u00a3' + value.toLocaleString('en-GB', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
-  if (value < 1 && value > 0) return '\u00a3' + value.toFixed(2);
-  return '\u00a3' + value.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  if (value < 1) return '\u00a3' + value.toFixed(2);
+  return '\u00a3' + Math.round(value).toLocaleString('en-GB');
 }
 
 // ── Theme toggle (runs immediately to prevent flash) ──
 function initTheme() {
-  const saved = localStorage.getItem('theme');
+  let saved = null;
+  try { saved = localStorage.getItem('theme'); } catch (e) { /* localStorage unavailable */ }
   if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
     document.documentElement.setAttribute('data-theme', 'dark');
   } else {
@@ -25,14 +25,14 @@ function toggleTheme() {
   const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
   if (isDark) {
     document.documentElement.removeAttribute('data-theme');
-    localStorage.setItem('theme', 'light');
+    try { localStorage.setItem('theme', 'light'); } catch (e) { /* localStorage unavailable */ }
   } else {
     document.documentElement.setAttribute('data-theme', 'dark');
-    localStorage.setItem('theme', 'dark');
+    try { localStorage.setItem('theme', 'dark'); } catch (e) { /* localStorage unavailable */ }
   }
   updateToggleIcon();
   // Redraw calculator chart if on calculator page
-  if (typeof drawChart === 'function' && chartData) drawChart();
+  if (typeof drawChart === 'function' && typeof chartData !== 'undefined' && chartData) drawChart();
 }
 
 function updateToggleIcon() {

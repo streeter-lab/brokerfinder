@@ -34,12 +34,13 @@
   </nav>
   <button class="btn-theme-toggle" id="themeToggle" aria-label="Toggle dark mode">🌙</button>
 </header>
+<noscript><p style="text-align:center;padding:2rem;color:#888;">This tool requires JavaScript. Please enable it in your browser.</p></noscript>
 
 <!-- ════════ Hero ════════ -->
 <section id="hero" class="hero">
   <h1>Find the <em>right</em> broker<br>for your money</h1>
   <p>Answer a few questions and we'll calculate the true cost of every major UK investment platform — personalised to you.</p>
-  <button class="btn-start" id="btnStart" onclick="startWizard()" aria-label="Start the questionnaire">
+  <button class="btn-start" id="btnStart" aria-label="Start the questionnaire">
     Get started
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
   </button>
@@ -50,11 +51,11 @@
   <div class="wizard-progress" id="wizardProgress" role="progressbar"></div>
   <div id="wizardSteps"></div>
   <div class="wizard-nav">
-    <button class="btn-wizard" id="btnPrev" onclick="prevStep()" aria-label="Previous question">
+    <button class="btn-wizard" id="btnPrev" aria-label="Previous question">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
       Back
     </button>
-    <button class="btn-wizard primary" id="btnNext" onclick="nextStep()" aria-label="Next question">
+    <button class="btn-wizard primary" id="btnNext" aria-label="Next question">
       Next
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
     </button>
@@ -69,9 +70,9 @@
   </div>
 
   <div class="results-actions">
-    <button class="btn-action" onclick="changeAnswers()">Change my answers</button>
-    <button class="btn-action" onclick="copyShareLink(this)">Share results</button>
-    <button class="btn-action" id="btnCompare" onclick="showComparison()" style="display:none">Compare selected</button>
+    <button class="btn-action" id="btnChangeAnswers">Change my answers</button>
+    <button class="btn-action" id="btnShareResults">Share results</button>
+    <button class="btn-action" id="btnCompare" style="display:none">Compare selected</button>
   </div>
 
   <div id="fscsNotice" class="fscs-notice" style="display:none">
@@ -82,7 +83,7 @@
   </div>
 
   <div class="broker-list" id="brokerList"></div>
-  <button class="show-all-btn" id="showAllBtn" onclick="showAllBrokers()">Show all brokers</button>
+  <button class="show-all-btn" id="showAllBtn">Show all brokers</button>
 
   <!-- What-if slider -->
   <div class="whatif-section">
@@ -104,7 +105,7 @@
   <div class="comparison-table-wrapper">
     <table class="comparison-table" id="comparisonTable"></table>
   </div>
-  <button class="btn-close-compare" onclick="hideComparison()">Close comparison</button>
+  <button class="btn-close-compare" id="btnCloseCompare">Close comparison</button>
 </section>
 
 <!-- ════════ Footer ════════ -->
