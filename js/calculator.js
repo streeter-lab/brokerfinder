@@ -14,7 +14,7 @@ const defaults = {
 let chartData = null;
 
 function getInputs() {
-  return {
+  const raw = {
     startingAmount: parseFloat(document.getElementById('startingAmount').value) || 0,
     monthlyContribution: parseFloat(document.getElementById('monthlyContribution').value) || 0,
     growthRate: parseFloat(document.getElementById('growthRate').value) || 0,
@@ -22,6 +22,15 @@ function getInputs() {
     fundOCF: parseFloat(document.getElementById('fundOCF').value) || 0,
     years: parseInt(document.getElementById('yearsSlider').value) || 20
   };
+
+  const inflationOn = document.getElementById('inflationToggle')?.checked;
+  if (inflationOn) {
+    const inflationRate = parseFloat(document.getElementById('inflationRate')?.value) || 2.5;
+    raw.growthRate = Math.max(raw.growthRate - inflationRate, 0);
+    raw.inflationAdjusted = true;
+  }
+
+  return raw;
 }
 
 function calculate() {
@@ -92,6 +101,11 @@ function calculate() {
   const contribPercent = finalWithFees > 0 ? (totalContributions / finalWithFees * 100) : 0;
   document.getElementById('contribBar').style.width = Math.min(contribPercent, 100) + '%';
   document.getElementById('growthBar').style.width = Math.max(100 - contribPercent, 0) + '%';
+
+  // Update labels based on inflation toggle
+  const inflationOn = document.getElementById('inflationToggle')?.checked;
+  const realLabel = inflationOn ? ' (in today\'s money)' : '';
+  document.querySelector('.result-card.highlight .result-sub').textContent = 'after fees' + realLabel;
 
   document.getElementById('results').style.display = 'block';
   drawChart();
@@ -252,9 +266,103 @@ function drawChart() {
   ctx.fillText('Contributions', leg3x + 25, legendY + 4);
 }
 
+function initChartTooltip() {
+  const canvas = document.getElementById('growthChart');
+  const tooltip = document.getElementById('chartTooltip');
+  if (!canvas || !tooltip) return;
+
+  canvas.addEventListener('mousemove', (e) => {
+    if (!chartData || chartData.length < 2) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const w = rect.width;
+    const padding = { left: 65, right: 20 };
+    const chartW = w - padding.left - padding.right;
+    const years = chartData.length - 1;
+
+    const relX = x - padding.left;
+    if (relX < 0 || relX > chartW) {
+      tooltip.style.display = 'none';
+      return;
+    }
+    const yearIndex = Math.round((relX / chartW) * years);
+    const clamped = Math.max(0, Math.min(yearIndex, years));
+    const d = chartData[clamped];
+
+    const tooltipX = padding.left + (clamped / years) * chartW;
+    const flipSide = tooltipX > w * 0.65;
+    tooltip.style.display = 'block';
+    tooltip.style.left = flipSide ? (tooltipX - tooltip.offsetWidth - 12) + 'px' : (tooltipX + 12) + 'px';
+    tooltip.style.top = '40px';
+
+    document.getElementById('tooltipYear').textContent = 'Year ' + d.year;
+    document.getElementById('tooltipWithFees').textContent = 'With fees: ' + formatCurrency(Math.round(d.withFees));
+    document.getElementById('tooltipWithoutFees').textContent = 'Without fees: ' + formatCurrency(Math.round(d.withoutFees));
+    document.getElementById('tooltipContribs').textContent = 'Contributed: ' + formatCurrency(Math.round(d.contributions));
+    document.getElementById('tooltipFees').textContent = 'Fees paid: ' + formatCurrency(Math.round(d.fees));
+  });
+
+  canvas.addEventListener('mouseleave', () => {
+    tooltip.style.display = 'none';
+  });
+}
+
 function updateYearsLabel() {
   const val = document.getElementById('yearsSlider').value;
   document.getElementById('yearsValue').textContent = val + ' years';
+}
+
+// ── URL Parameter Encoding/Decoding ──
+function decodeCalcParamsFromURL() {
+  const hash = window.location.hash.slice(1);
+  if (!hash) return null;
+  const params = new URLSearchParams(hash);
+  const result = {};
+  if (params.has('start')) result.startingAmount = parseFloat(params.get('start'));
+  if (params.has('monthly')) result.monthlyContribution = parseFloat(params.get('monthly'));
+  if (params.has('growth')) result.growthRate = parseFloat(params.get('growth'));
+  if (params.has('fee')) result.platformFee = parseFloat(params.get('fee'));
+  if (params.has('ocf')) result.fundOCF = parseFloat(params.get('ocf'));
+  if (params.has('years')) result.years = parseInt(params.get('years'));
+  if (params.has('broker')) result.brokerName = params.get('broker');
+  if (params.has('inflation')) result.inflation = parseFloat(params.get('inflation'));
+  return Object.keys(result).length > 0 ? result : null;
+}
+
+function encodeCalcParamsToURL() {
+  // Use raw input values (not inflation-adjusted) for URL
+  const params = new URLSearchParams({
+    start: parseFloat(document.getElementById('startingAmount').value) || 0,
+    monthly: parseFloat(document.getElementById('monthlyContribution').value) || 0,
+    growth: parseFloat(document.getElementById('growthRate').value) || 0,
+    fee: parseFloat(document.getElementById('platformFee').value) || 0,
+    ocf: parseFloat(document.getElementById('fundOCF').value) || 0,
+    years: parseInt(document.getElementById('yearsSlider').value) || 20
+  });
+  const inflationOn = document.getElementById('inflationToggle')?.checked;
+  if (inflationOn) {
+    params.set('inflation', document.getElementById('inflationRate')?.value || '2.5');
+  }
+  history.replaceState(null, '', '#' + params.toString());
+}
+
+function showBrokerBanner(brokerName) {
+  // Remove existing banner if present
+  const existing = document.querySelector('.broker-context-banner');
+  if (existing) existing.remove();
+  const banner = document.createElement('div');
+  banner.className = 'broker-context-banner';
+  banner.innerHTML = `Modelling fees for <strong>${brokerName}</strong> — <a href="/compare/" style="color:var(--accent)">back to comparison</a>`;
+  const calcInputs = document.getElementById('calcForm');
+  calcInputs.parentNode.insertBefore(banner, calcInputs);
+}
+
+function copyCalcLink(btn) {
+  navigator.clipboard.writeText(window.location.href).then(() => {
+    btn.textContent = 'Link copied!';
+    setTimeout(() => { btn.textContent = 'Share this scenario'; }, 2000);
+  });
 }
 
 // Initialise
@@ -268,16 +376,62 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('yearsSlider').value = defaults.years;
   updateYearsLabel();
 
+  // Check for URL parameters (e.g. from broker comparison link)
+  const urlParams = decodeCalcParamsFromURL();
+  if (urlParams) {
+    if (urlParams.startingAmount !== undefined) document.getElementById('startingAmount').value = urlParams.startingAmount;
+    if (urlParams.monthlyContribution !== undefined) document.getElementById('monthlyContribution').value = urlParams.monthlyContribution;
+    if (urlParams.growthRate !== undefined) document.getElementById('growthRate').value = urlParams.growthRate;
+    if (urlParams.platformFee !== undefined) document.getElementById('platformFee').value = urlParams.platformFee;
+    if (urlParams.fundOCF !== undefined) document.getElementById('fundOCF').value = urlParams.fundOCF;
+    if (urlParams.years !== undefined) {
+      document.getElementById('yearsSlider').value = urlParams.years;
+      updateYearsLabel();
+    }
+    if (urlParams.brokerName) {
+      showBrokerBanner(urlParams.brokerName);
+    }
+    if (urlParams.inflation !== undefined) {
+      document.getElementById('inflationToggle').checked = true;
+      document.getElementById('inflationRate').value = urlParams.inflation;
+      document.getElementById('inflationHint').style.display = 'block';
+    }
+  }
+
   // Auto-calculate on any input change
   document.querySelectorAll('#calcForm input').forEach(input => {
+    // Skip inflation inputs — they have their own handlers
+    if (input.id === 'inflationToggle' || input.id === 'inflationRate') return;
     input.addEventListener('input', () => {
       if (input.id === 'yearsSlider') updateYearsLabel();
       calculate();
+      encodeCalcParamsToURL();
     });
   });
 
+  // Inflation toggle and rate
+  const inflationToggle = document.getElementById('inflationToggle');
+  const inflationHint = document.getElementById('inflationHint');
+  const inflationRateInput = document.getElementById('inflationRate');
+
+  if (inflationToggle) {
+    inflationToggle.addEventListener('change', () => {
+      inflationHint.style.display = inflationToggle.checked ? 'block' : 'none';
+      calculate();
+      encodeCalcParamsToURL();
+    });
+  }
+  if (inflationRateInput) {
+    inflationRateInput.addEventListener('input', () => {
+      calculate();
+      encodeCalcParamsToURL();
+    });
+  }
+
   // Initial calculation
   calculate();
+  if (urlParams) encodeCalcParamsToURL();
+  initChartTooltip();
 
   // Redraw chart on resize
   window.addEventListener('resize', () => {

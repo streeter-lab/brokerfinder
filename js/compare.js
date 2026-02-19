@@ -641,6 +641,28 @@ function scoreBroker(broker, costResult, userAnswers) {
   return score;
 }
 
+function buildCalcLink(broker, costResult, userAnswers) {
+  const pv = userAnswers.portfolioSize || 30000;
+  let feePercent;
+  if (broker.platformFee && broker.platformFee.type === 'fixed') {
+    feePercent = pv > 0 ? ((costResult.platformFee / pv) * 100).toFixed(2) : 0;
+  } else if (broker.platformFee && broker.platformFee.rate) {
+    feePercent = (broker.platformFee.rate * 100).toFixed(2);
+  } else {
+    feePercent = pv > 0 ? ((costResult.platformFee / pv) * 100).toFixed(2) : 0;
+  }
+  const params = new URLSearchParams({
+    start: pv,
+    monthly: 500,
+    growth: 7,
+    fee: feePercent,
+    ocf: 0.15,
+    years: 20,
+    broker: broker.name
+  });
+  return `/calculator/#${params.toString()}`;
+}
+
 function getRecommendationReason(broker, costResult, userAnswers) {
   const pv = userAnswers.portfolioSize;
   const invTypes = userAnswers.investmentTypes || ['etfs'];
@@ -903,6 +925,11 @@ function renderBrokerCard(item, rank, maxCost) {
     </div>
     ${warningsHTML}
     ${broker.notes ? `<div class="detail-notes">${broker.notes}</div>` : ''}
+    <div class="detail-calc-cta">
+      <a href="${buildCalcLink(broker, costResult, answers)}" class="btn-calc-link">
+        See long-term fee impact &rarr;
+      </a>
+    </div>
   `;
 
   const isCompared = compareSet.has(broker.name);

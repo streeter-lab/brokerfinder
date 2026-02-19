@@ -515,6 +515,28 @@ body {
   color: var(--text-secondary);
 }
 
+.detail-calc-cta {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.btn-calc-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--accent);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 0.5rem 0;
+  transition: var(--transition);
+}
+
+.btn-calc-link:hover {
+  color: var(--accent-hover);
+}
+
 .show-all-btn {
   display: block;
   width: 100%;
@@ -694,6 +716,30 @@ body {
 }
 .site-footer a { color: var(--text-secondary); }
 
+/* ── Site Navigation ── */
+.site-nav {
+  display: flex;
+  gap: 0.25rem;
+  align-items: center;
+}
+.site-nav a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 0.85rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: var(--radius-sm);
+  transition: var(--transition);
+  font-weight: 500;
+}
+.site-nav a:hover {
+  color: var(--text);
+  background: var(--bg-card);
+}
+.site-nav a.active {
+  color: var(--accent);
+  background: var(--accent-dim);
+}
+
 /* ── Hamburger toggle — hidden on desktop ── */
 .nav-toggle {
   display: none;
@@ -827,30 +873,6 @@ body {
 .card-header:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
-}
-
-/* ── Site Navigation ── */
-.site-nav {
-  display: flex;
-  gap: 0.25rem;
-  align-items: center;
-}
-.site-nav a {
-  color: var(--text-secondary);
-  text-decoration: none;
-  font-size: 0.85rem;
-  padding: 0.35rem 0.7rem;
-  border-radius: var(--radius-sm);
-  transition: var(--transition);
-  font-weight: 500;
-}
-.site-nav a:hover {
-  color: var(--text);
-  background: var(--bg-card);
-}
-.site-nav a.active {
-  color: var(--accent);
-  background: var(--accent-dim);
 }
 
 /* ── Page Hero (reusable across pages) ── */

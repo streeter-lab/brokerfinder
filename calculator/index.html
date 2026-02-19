@@ -200,6 +200,7 @@
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 1.5rem;
+  position: relative;
 }
 
 .chart-container h3 {
@@ -211,6 +212,76 @@
 .chart-container canvas {
   width: 100%;
   height: 320px;
+  cursor: crosshair;
+}
+
+.chart-tooltip {
+  position: absolute;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.6rem 0.8rem;
+  font-size: 0.78rem;
+  pointer-events: none;
+  z-index: 10;
+  min-width: 160px;
+  box-shadow: var(--shadow);
+}
+
+.tooltip-year {
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+  color: var(--text);
+}
+
+.tooltip-row {
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.tooltip-row.accent {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.tooltip-row.muted {
+  color: var(--text-muted);
+}
+
+.tooltip-row.amber {
+  color: var(--amber);
+}
+
+.broker-context-banner {
+  background: var(--accent-dim);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem 1.25rem;
+  margin-bottom: 1rem;
+  font-size: 0.88rem;
+  color: var(--text);
+}
+
+.calc-share-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1.5rem;
+}
+
+.inflation-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.inflation-toggle input[type="checkbox"] {
+  accent-color: var(--accent);
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
 }
 
 @media (max-width: 640px) {
@@ -279,7 +350,20 @@
           <span class="slider-value" id="yearsValue">20 years</span>
         </div>
       </div>
+      <div class="input-group" style="grid-column: 1 / -1;">
+        <label class="inflation-toggle">
+          <input type="checkbox" id="inflationToggle">
+          <span>Show in today's money (adjust for inflation)</span>
+        </label>
+        <div class="input-hint" id="inflationHint" style="display:none">
+          Growth rate reduced by <input type="number" id="inflationRate" value="2.5" min="0" max="10" step="0.5" style="width:60px; display:inline-block; padding:0.2rem 0.4rem; font-size:0.8rem; background:var(--bg); border:1px solid var(--border); border-radius:4px; color:var(--text); text-align:center;">% assumed inflation
+        </div>
+      </div>
     </div>
+  </div>
+
+  <div class="calc-share-row">
+    <button class="btn-action" id="btnShareCalc" onclick="copyCalcLink(this)">Share this scenario</button>
   </div>
 
   <div class="calc-results" id="results">
@@ -327,6 +411,13 @@
     <div class="chart-container">
       <h3>Portfolio growth over time</h3>
       <canvas id="growthChart"></canvas>
+      <div class="chart-tooltip" id="chartTooltip" style="display:none">
+        <div class="tooltip-year" id="tooltipYear"></div>
+        <div class="tooltip-row accent" id="tooltipWithFees"></div>
+        <div class="tooltip-row muted" id="tooltipWithoutFees"></div>
+        <div class="tooltip-row" id="tooltipContribs"></div>
+        <div class="tooltip-row amber" id="tooltipFees"></div>
+      </div>
     </div>
   </div>
 </div>
