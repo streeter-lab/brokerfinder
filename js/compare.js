@@ -185,6 +185,7 @@ function changeAnswers() {
   currentStep = 0;
   showingAll = false;
   compareSet.clear();
+  updateCompareButton();
   history.replaceState(null, '', window.location.pathname);
   renderStep();
 }
@@ -351,19 +352,19 @@ function checkEligibility(broker, userAnswers) {
   const buyingBonds = invTypes.includes('bonds');
 
   if (buyingFunds && broker.fundTrade === null && !broker.investmentTypes.includes('fund')) {
-    if (invTypes.length === 1 && invTypes[0] === 'funds') { eligible = false; }
+    eligible = false;
     warnings.push('No funds available');
   }
   if (buyingShares && broker.shareTrade === null && !broker.investmentTypes.includes('shareUK') && !broker.investmentTypes.includes('shareIntl')) {
-    if (invTypes.length === 1 && (invTypes[0] === 'sharesUK' || invTypes[0] === 'sharesIntl')) { eligible = false; }
+    eligible = false;
     warnings.push('No individual shares');
   }
   if (buyingBonds && !broker.investmentTypes.includes('bond')) {
-    if (invTypes.length === 1 && invTypes[0] === 'bonds') { eligible = false; }
+    eligible = false;
     warnings.push('No bonds/gilts available');
   }
   if (buyingETFs && broker.etfTrade === null && !broker.investmentTypes.includes('etf')) {
-    if (invTypes.length === 1 && invTypes[0] === 'etfs') { eligible = false; }
+    eligible = false;
     warnings.push('No ETFs available');
   }
 
@@ -684,7 +685,7 @@ function renderBrokerCard(item, rank, maxCost) {
       </div>
       <div class="detail-item">
         <span class="detail-label">FX rate</span>
-        <span class="detail-value">${broker.fxRate === null ? 'Not disclosed' : broker.fxRate ? (broker.fxRate * 100).toFixed(2) + '%' : 'N/A'}</span>
+        <span class="detail-value">${broker.fxRate === null ? 'Not disclosed' : broker.fxRate !== undefined ? (broker.fxRate * 100).toFixed(2) + '%' : 'N/A'}</span>
       </div>
       <div class="detail-item">
         <span class="detail-label">Regular investing</span>
@@ -873,7 +874,7 @@ function showComparison() {
 
   // Extra info rows
   const extraRows = [
-    { label: 'FX rate', fn: s => s.broker.fxRate === null ? 'Not disclosed' : s.broker.fxRate ? (s.broker.fxRate * 100).toFixed(2) + '%' : 'N/A' },
+    { label: 'FX rate', fn: s => s.broker.fxRate === null ? 'Not disclosed' : s.broker.fxRate !== undefined ? (s.broker.fxRate * 100).toFixed(2) + '%' : 'N/A' },
     { label: 'Regular investing', fn: s => s.broker.regularInvesting !== null && s.broker.regularInvesting !== undefined ? (s.broker.regularInvesting === 0 ? 'Free' : formatCurrency(s.broker.regularInvesting)) : 'N/A' },
     { label: 'SIPP available', fn: s => s.broker.hasSIPP ? 'Yes' : 'No' },
     { label: 'Drawdown', fn: s => s.broker.hasDrawdown ? 'Yes' : 'No' },
