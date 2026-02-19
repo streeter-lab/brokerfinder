@@ -13,7 +13,11 @@ async function loadBrokers() {
     BROKERS = await response.json();
   } catch (err) {
     console.error('Failed to load broker data:', err);
-    document.getElementById('hero').innerHTML = '<p style="color:var(--red);padding:2rem">Failed to load broker data. Please refresh the page.</p>';
+    const hero = document.getElementById('hero');
+    if (hero) {
+      hero.querySelector('p').textContent = 'Failed to load broker data. Please refresh the page.';
+      hero.querySelector('p').style.color = 'var(--red)';
+    }
   }
 }
 
@@ -78,7 +82,6 @@ function calculateTieredFee(tiers, portfolioValue) {
 const QUESTIONS = [
   {
     id: 'accounts',
-    label: 'Step 1 of 7',
     title: 'What account type(s) do you need?',
     desc: 'Select all that apply.',
     multi: true,
@@ -92,7 +95,6 @@ const QUESTIONS = [
   },
   {
     id: 'investmentTypes',
-    label: 'Step 2 of 8',
     title: 'What do you want to invest in?',
     desc: 'Select all that apply.',
     multi: true,
@@ -106,7 +108,6 @@ const QUESTIONS = [
   },
   {
     id: 'portfolioSize',
-    label: 'Step 3 of 7',
     title: 'How large is your portfolio?',
     desc: 'Or your expected portfolio. This is the biggest factor in your costs.',
     multi: false,
@@ -121,7 +122,6 @@ const QUESTIONS = [
   },
   {
     id: 'tradingFreq',
-    label: 'Step 4 of 7',
     title: 'How often do you trade?',
     desc: 'Trading costs add up. Regular investing is usually cheapest.',
     multi: false,
@@ -134,7 +134,6 @@ const QUESTIONS = [
   },
   {
     id: 'fxTrading',
-    label: 'Step 5 of 7',
     title: 'Do you trade in non-GBP currencies?',
     desc: 'For example, US shares or international ETFs requiring FX conversion.',
     multi: false,
@@ -146,7 +145,6 @@ const QUESTIONS = [
   },
   {
     id: 'priorities',
-    label: 'Step 6 of 7',
     title: 'What matters most to you?',
     desc: 'Select up to 3 priorities. We\'ll weight recommendations accordingly.',
     multi: true,
@@ -162,7 +160,6 @@ const QUESTIONS = [
   },
   {
     id: 'feeModel',
-    label: 'Step 7 of 8',
     title: 'Do you have a preference for how your broker charges?',
     desc: 'This filters which types of brokers we recommend. Not sure? Pick "No preference".',
     multi: false,
@@ -176,7 +173,6 @@ const QUESTIONS = [
   },
   {
     id: 'drawdownSoon',
-    label: 'Step 8 of 8',
     title: 'Will you need SIPP drawdown soon?',
     desc: 'This affects which platforms are suitable for you.',
     multi: false,
@@ -377,6 +373,13 @@ function calculateCost(broker, portfolioValue, userAnswers) {
   if (broker.platformFeeISA && accounts.includes('isa')) {
     platformFee = calculatePlatformFee(broker.platformFeeISA, pv);
   }
+  // Per-account minimum (Dodl)
+  if (broker.platformFeePerAccount && broker.platformFee.minimum) {
+    const accountCount = accounts.filter(a => broker.accounts.includes(a)).length;
+    const minimumTotal = broker.platformFee.minimum * accountCount;
+    platformFee = Math.max(platformFee, minimumTotal);
+  }
+
   // Platform fee caps — only apply when user holds ETFs/shares/ITs/bonds (not fund-only)
   const fundsOnly = invTypes.length === 1 && invTypes[0] === 'funds';
   const capsApply = !fundsOnly;
@@ -455,19 +458,36 @@ function calculateCost(broker, portfolioValue, userAnswers) {
   }
 
   // Revolut special: 0.25% per trade after 1 free/month
-  if (broker.name === 'Revolut' && (buyingETFs || buyingShares)) {
+  if (broker.name === 'Revolut') {
+    // Reset trading cost — we calculate it all here
+    tradingCost = 0;
     const relevantTrades = (buyingETFs ? tradesPerType : 0) + (buyingShares ? tradesPerType : 0);
-    const paidTrades = Math.max(0, relevantTrades - 12); // 1 free/month
-    const avgTradeSize = pv / Math.max(relevantTrades, 1);
-    tradingCost = paidTrades * avgTradeSize * 0.0025;
+    if (relevantTrades > 0) {
+      const paidTrades = Math.max(0, relevantTrades - 12); // 1 free/month
+      const avgTradeSize = pv / Math.max(relevantTrades, 1);
+      tradingCost = paidTrades * avgTradeSize * 0.0025;
+    }
   }
 
   // Interactive Investor plan selection
   if (broker.name === 'Interactive Investor') {
     const coreFee = broker.plans.core;
     const plusFee = broker.plans.plus;
-    const coreTradeCost = tradesPerYear * broker.fundTradeCore;
-    const plusTradeCost = tradesPerYear * (buyingFunds ? broker.fundTradePlus : broker.etfTradePlus);
+
+    // Determine per-trade cost based on what user is buying
+    let corePerTrade, plusPerTrade;
+    if (buyingFunds && !buyingETFs && !buyingShares) {
+      corePerTrade = broker.fundTradeCore;
+      plusPerTrade = broker.fundTradePlus;
+    } else {
+      // ETFs/shares use the higher trade fee on Core, lower on Plus
+      corePerTrade = broker.etfTradeCore || broker.fundTradeCore;
+      plusPerTrade = broker.etfTradePlus || broker.fundTradePlus;
+    }
+
+    const coreTradeCost = tradesPerYear * corePerTrade;
+    const plusTradeCost = tradesPerYear * plusPerTrade;
+
     if (coreFee + coreTradeCost <= plusFee + plusTradeCost) {
       platformFee = coreFee;
       tradingCost = coreTradeCost;
@@ -475,7 +495,7 @@ function calculateCost(broker, portfolioValue, userAnswers) {
       platformFee = plusFee;
       tradingCost = plusTradeCost;
     }
-    if (isRegular) tradingCost = 0; // free regular investing
+    if (isRegular) tradingCost = 0; // free regular investing on both plans
   }
 
   // ─── FX Costs ───
@@ -846,7 +866,7 @@ function renderBrokerCard(item, rank, maxCost) {
 
   return `
     <div class="broker-card ${isTopPick ? 'top-pick' : ''}" data-broker="${broker.name}">
-      <div class="card-header" onclick="toggleDetails('${broker.name}')" tabindex="0" role="button" aria-expanded="false" aria-label="Show details for ${broker.name}">
+      <div class="card-header" data-broker-name="${broker.name.replace(/"/g, '&quot;')}" onclick="toggleDetails(this.dataset.brokerName)" tabindex="0" role="button" aria-expanded="false" aria-label="Show details for ${broker.name}">
         <span class="card-rank">${rank}</span>
         <div class="card-info">
           <h3>${broker.name}</h3>
@@ -865,7 +885,7 @@ function renderBrokerCard(item, rank, maxCost) {
       <div class="card-tags">${tagsHTML}</div>
       <div class="card-compare-toggle">
         <label class="compare-checkbox">
-          <input type="checkbox" ${isCompared ? 'checked' : ''} onchange="toggleCompare('${broker.name}', this.checked)">
+          <input type="checkbox" ${isCompared ? 'checked' : ''} onchange="toggleCompare(this.closest('.broker-card').dataset.broker, this.checked)">
           Add to comparison
         </label>
       </div>
@@ -1089,11 +1109,25 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
+// Keyboard support for broker card expand/collapse
+document.addEventListener('keydown', (e) => {
+  const target = e.target;
+  if (target.classList.contains('card-header') && (e.key === 'Enter' || e.key === ' ')) {
+    e.preventDefault();
+    const brokerName = target.closest('.broker-card').dataset.broker;
+    toggleDetails(brokerName);
+  }
+});
+
 // ═══════════════════════════════════════════════════
 // INITIALISE
 // ═══════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', async () => {
   await loadBrokers();
+
+  // Enable start button now data is loaded
+  const startBtn = document.getElementById('btnStart');
+  if (startBtn) startBtn.disabled = false;
 
   // Observe broker list for cost bar animation
   const brokerList = document.getElementById('brokerList');

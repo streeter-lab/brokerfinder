@@ -28,7 +28,7 @@ function calculate() {
   const inputs = getInputs();
   const { startingAmount, monthlyContribution, growthRate, platformFee, fundOCF, years } = inputs;
 
-  const annualGrowth = growthRate / 100;
+  const annualGrowth = Math.max(growthRate, 0) / 100;
   const totalFeeRate = (platformFee + fundOCF) / 100;
 
   // Calculate year-by-year with fees
@@ -76,13 +76,20 @@ function calculate() {
 
   document.getElementById('finalValue').textContent = formatCurrency(Math.round(finalWithFees));
   document.getElementById('totalContributions').textContent = formatCurrency(Math.round(totalContributions));
-  document.getElementById('totalGrowth').textContent = formatCurrency(Math.round(totalGrowthWithFees));
+  document.getElementById('totalGrowth').textContent = formatCurrency(Math.round(Math.abs(totalGrowthWithFees)));
+  // Add loss indicator
+  if (totalGrowthWithFees < 0) {
+    document.getElementById('totalGrowth').textContent = '-' + formatCurrency(Math.round(Math.abs(totalGrowthWithFees)));
+    document.getElementById('totalGrowth').style.color = 'var(--red)';
+  } else {
+    document.getElementById('totalGrowth').style.color = '';
+  }
   document.getElementById('totalFees').textContent = formatCurrency(Math.round(totalFeesAccumulated));
   document.getElementById('feeDrag').textContent = formatCurrency(Math.round(feeDrag));
   document.getElementById('withoutFeesValue').textContent = formatCurrency(Math.round(finalWithoutFees));
 
   // Update contribution/growth bar
-  const contribPercent = totalContributions / finalWithFees * 100;
+  const contribPercent = finalWithFees > 0 ? (totalContributions / finalWithFees * 100) : 0;
   document.getElementById('contribBar').style.width = Math.min(contribPercent, 100) + '%';
   document.getElementById('growthBar').style.width = Math.max(100 - contribPercent, 0) + '%';
 
@@ -92,6 +99,24 @@ function calculate() {
 
 function drawChart() {
   if (!chartData) return;
+
+  const maxVal = Math.max(...chartData.map(d => d.withoutFees));
+  if (maxVal === 0) {
+    // Nothing to chart — clear canvas and return
+    const canvas = document.getElementById('growthChart');
+    const ctx = canvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    ctx.scale(dpr, dpr);
+    ctx.clearRect(0, 0, rect.width, rect.height);
+    ctx.fillStyle = '#666';
+    ctx.font = '13px "DM Sans", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Enter a starting amount or monthly contribution to see the chart', rect.width / 2, rect.height / 2);
+    return;
+  }
 
   const canvas = document.getElementById('growthChart');
   const ctx = canvas.getContext('2d');
@@ -111,8 +136,6 @@ function drawChart() {
 
   // Clear
   ctx.clearRect(0, 0, w, h);
-
-  const maxVal = Math.max(...chartData.map(d => d.withoutFees));
   const years = chartData.length - 1;
 
   function xPos(year) { return padding.left + (year / years) * chartW; }
