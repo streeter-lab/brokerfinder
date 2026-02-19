@@ -257,6 +257,53 @@ function updateYearsLabel() {
   document.getElementById('yearsValue').textContent = val + ' years';
 }
 
+// ── URL Parameter Encoding/Decoding ──
+function decodeCalcParamsFromURL() {
+  const hash = window.location.hash.slice(1);
+  if (!hash) return null;
+  const params = new URLSearchParams(hash);
+  const result = {};
+  if (params.has('start')) result.startingAmount = parseFloat(params.get('start'));
+  if (params.has('monthly')) result.monthlyContribution = parseFloat(params.get('monthly'));
+  if (params.has('growth')) result.growthRate = parseFloat(params.get('growth'));
+  if (params.has('fee')) result.platformFee = parseFloat(params.get('fee'));
+  if (params.has('ocf')) result.fundOCF = parseFloat(params.get('ocf'));
+  if (params.has('years')) result.years = parseInt(params.get('years'));
+  if (params.has('broker')) result.brokerName = params.get('broker');
+  return Object.keys(result).length > 0 ? result : null;
+}
+
+function encodeCalcParamsToURL() {
+  const inputs = getInputs();
+  const params = new URLSearchParams({
+    start: inputs.startingAmount,
+    monthly: inputs.monthlyContribution,
+    growth: inputs.growthRate,
+    fee: inputs.platformFee,
+    ocf: inputs.fundOCF,
+    years: inputs.years
+  });
+  history.replaceState(null, '', '#' + params.toString());
+}
+
+function showBrokerBanner(brokerName) {
+  // Remove existing banner if present
+  const existing = document.querySelector('.broker-context-banner');
+  if (existing) existing.remove();
+  const banner = document.createElement('div');
+  banner.className = 'broker-context-banner';
+  banner.innerHTML = `Modelling fees for <strong>${brokerName}</strong> — <a href="/compare/" style="color:var(--accent)">back to comparison</a>`;
+  const calcInputs = document.getElementById('calcForm');
+  calcInputs.parentNode.insertBefore(banner, calcInputs);
+}
+
+function copyCalcLink(btn) {
+  navigator.clipboard.writeText(window.location.href).then(() => {
+    btn.textContent = 'Link copied!';
+    setTimeout(() => { btn.textContent = 'Share this scenario'; }, 2000);
+  });
+}
+
 // Initialise
 document.addEventListener('DOMContentLoaded', () => {
   // Set defaults
@@ -268,16 +315,35 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('yearsSlider').value = defaults.years;
   updateYearsLabel();
 
+  // Check for URL parameters (e.g. from broker comparison link)
+  const urlParams = decodeCalcParamsFromURL();
+  if (urlParams) {
+    if (urlParams.startingAmount !== undefined) document.getElementById('startingAmount').value = urlParams.startingAmount;
+    if (urlParams.monthlyContribution !== undefined) document.getElementById('monthlyContribution').value = urlParams.monthlyContribution;
+    if (urlParams.growthRate !== undefined) document.getElementById('growthRate').value = urlParams.growthRate;
+    if (urlParams.platformFee !== undefined) document.getElementById('platformFee').value = urlParams.platformFee;
+    if (urlParams.fundOCF !== undefined) document.getElementById('fundOCF').value = urlParams.fundOCF;
+    if (urlParams.years !== undefined) {
+      document.getElementById('yearsSlider').value = urlParams.years;
+      updateYearsLabel();
+    }
+    if (urlParams.brokerName) {
+      showBrokerBanner(urlParams.brokerName);
+    }
+  }
+
   // Auto-calculate on any input change
   document.querySelectorAll('#calcForm input').forEach(input => {
     input.addEventListener('input', () => {
       if (input.id === 'yearsSlider') updateYearsLabel();
       calculate();
+      encodeCalcParamsToURL();
     });
   });
 
   // Initial calculation
   calculate();
+  if (urlParams) encodeCalcParamsToURL();
 
   // Redraw chart on resize
   window.addEventListener('resize', () => {
