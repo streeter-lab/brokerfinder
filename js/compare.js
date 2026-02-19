@@ -197,6 +197,10 @@ let compareSet = new Set();
 // WIZARD LOGIC
 // ═══════════════════════════════════════════════════
 function startWizard() {
+  if (BROKERS.length === 0) {
+    alert('Still loading broker data — please try again in a moment.');
+    return;
+  }
   document.getElementById('hero').style.display = 'none';
   document.getElementById('wizard').classList.add('active');
   document.getElementById('results').classList.remove('active');
@@ -1124,10 +1128,6 @@ document.addEventListener('keydown', (e) => {
 // ═══════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', async () => {
   await loadBrokers();
-
-  // Enable start button now data is loaded
-  const startBtn = document.getElementById('btnStart');
-  if (startBtn) startBtn.disabled = false;
 
   // Observe broker list for cost bar animation
   const brokerList = document.getElementById('brokerList');
