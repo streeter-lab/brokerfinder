@@ -3,21 +3,40 @@
 // ═══════════════════════════════════════════════════
 
 let BROKERS = [];
+let dataState = 'loading'; // 'loading' | 'loaded' | 'failed'
 
 // ═══════════════════════════════════════════════════
 // DATA LOADING
 // ═══════════════════════════════════════════════════
 async function loadBrokers() {
+  dataState = 'loading';
+  updateStartButton();
   try {
     const response = await fetch('/data/brokers.json');
-    BROKERS = await response.json();
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const data = await response.json();
+    if (!Array.isArray(data)) throw new Error('Invalid broker data format');
+    BROKERS = data;
+    dataState = 'loaded';
   } catch (err) {
     console.error('Failed to load broker data:', err);
-    const hero = document.getElementById('hero');
-    if (hero) {
-      hero.querySelector('p').textContent = 'Failed to load broker data. Please refresh the page.';
-      hero.querySelector('p').style.color = 'var(--red)';
-    }
+    dataState = 'failed';
+  }
+  updateStartButton();
+}
+
+function updateStartButton() {
+  const btn = document.getElementById('btnStart');
+  if (!btn) return;
+  if (dataState === 'loading') {
+    btn.disabled = true;
+    btn.innerHTML = 'Loading brokers\u2026';
+  } else if (dataState === 'failed') {
+    btn.disabled = false;
+    btn.innerHTML = 'Retry loading <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M1 4v6h6"/><path d="M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/></svg>';
+  } else {
+    btn.disabled = false;
+    btn.innerHTML = 'Get started <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
   }
 }
 
@@ -197,8 +216,11 @@ let compareSet = new Set();
 // WIZARD LOGIC
 // ═══════════════════════════════════════════════════
 function startWizard() {
-  if (BROKERS.length === 0) {
-    alert('Still loading broker data — please try again in a moment.');
+  if (dataState === 'failed') {
+    loadBrokers();
+    return;
+  }
+  if (dataState === 'loading' || BROKERS.length === 0) {
     return;
   }
   document.getElementById('hero').style.display = 'none';
