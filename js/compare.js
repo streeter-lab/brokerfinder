@@ -269,7 +269,7 @@ function renderStep() {
     return `
       <button class="option-btn ${q.multi ? 'multi' : ''} ${isSelected ? 'selected' : ''}"
               data-qid="${q.id}" data-value="${opt.value}" data-type="${typeof opt.value}" data-multi="${q.multi}" data-max="${q.maxSelect || 99}"
-              aria-pressed="${isSelected}"
+              aria-checked="${isSelected}"
               role="${q.multi ? 'checkbox' : 'radio'}">
         <span class="check-indicator"></span>
         <span>
@@ -406,9 +406,9 @@ function calculateCost(broker, portfolioValue, userAnswers) {
     platformFee = Math.max(platformFee, minimumTotal);
   }
 
-  // Platform fee caps — only apply when user holds ETFs/shares/ITs/bonds (not fund-only)
-  const fundsOnly = invTypes.length === 1 && invTypes[0] === 'funds';
-  const capsApply = !fundsOnly;
+  // Platform fee caps — only apply when user holds exclusively ETFs/shares (no funds or bonds)
+  const hasOnlyETFsOrShares = !invTypes.includes('funds') && !invTypes.includes('bonds');
+  const capsApply = hasOnlyETFsOrShares;
   if (broker.platformFeeCaps) {
     if (capsApply) {
       if (needsSIPP && broker.platformFeeCaps.sipp) {
@@ -469,14 +469,21 @@ function calculateCost(broker, portfolioValue, userAnswers) {
     tradingCost += etfPrice * tradesPerType;
   }
 
-  if (buyingShares && (broker.shareTrade !== null || broker.etfTrade !== null)) {
-    let sharePrice;
-    if (isRegular && broker.regularInvesting !== null && broker.regularInvesting !== undefined) {
-      sharePrice = broker.regularInvesting;
-    } else {
-      sharePrice = broker.shareTrade !== null ? broker.shareTrade : (broker.etfTrade !== null ? broker.etfTrade : 0);
+  if (buyingShares) {
+    const supportsShares = broker.investmentTypes.includes('shareUK') || broker.investmentTypes.includes('shareIntl');
+    if (supportsShares && (broker.shareTrade !== null || broker.etfTrade !== null)) {
+      let sharePrice;
+      if (isRegular && broker.regularInvesting !== null && broker.regularInvesting !== undefined) {
+        sharePrice = broker.regularInvesting;
+      } else {
+        sharePrice = broker.shareTrade !== null ? broker.shareTrade : (broker.etfTrade !== null ? broker.etfTrade : 0);
+        // GIA-specific share trading fees
+        if (accounts.includes('gia') && !accounts.includes('isa') && broker.shareTradeGIA_UK) {
+          sharePrice = broker.shareTradeGIA_UK;
+        }
+      }
+      tradingCost += sharePrice * tradesPerType;
     }
-    tradingCost += sharePrice * tradesPerType;
   }
 
   if (buyingBonds && broker.bondTrade) {
@@ -511,8 +518,8 @@ function calculateCost(broker, portfolioValue, userAnswers) {
       plusPerTrade = broker.etfTradePlus || broker.fundTradePlus;
     }
 
-    const coreTradeCost = tradesPerYear * corePerTrade;
-    const plusTradeCost = tradesPerYear * plusPerTrade;
+    const coreTradeCost = isRegular ? 0 : (tradesPerYear * corePerTrade);
+    const plusTradeCost = isRegular ? 0 : (tradesPerYear * plusPerTrade);
 
     if (coreFee + coreTradeCost <= plusFee + plusTradeCost) {
       platformFee = coreFee;
@@ -527,7 +534,14 @@ function calculateCost(broker, portfolioValue, userAnswers) {
   // ─── FX Costs ───
   let fxCost = 0;
   let fxNotDisclosed = broker.fxRate === null || broker.fxRate === undefined;
-  if (broker.fxRate > 0 && fxTrading !== 'rarely') {
+  let effectiveFxRate = broker.fxRate || 0;
+  if (broker.fxRates) {
+    // If user needs SIPP and broker has tiered FX, use the premium rate
+    if (needsSIPP && broker.fxRates.plus !== undefined) {
+      effectiveFxRate = broker.fxRates.plus;
+    }
+  }
+  if (effectiveFxRate > 0 && fxTrading !== 'rarely') {
     let fxFactor;
     switch (fxTrading) {
       case 'sometimes': fxFactor = 0.03; break;
@@ -538,7 +552,7 @@ function calculateCost(broker, portfolioValue, userAnswers) {
     if (buyingIntl && fxTrading === 'frequently') {
       fxFactor = Math.max(fxFactor, 0.12);
     }
-    fxCost = pv * broker.fxRate * fxFactor;
+    fxCost = pv * effectiveFxRate * fxFactor;
   }
   // FX dividends (HL) — only if user actually trades internationally
   if (broker.fxDividends && buyingIntl && fxTrading !== 'rarely') {
@@ -782,6 +796,11 @@ function showResults() {
     document.getElementById('whatifValue').textContent = formatCurrency(val);
     const modifiedAnswers = { ...answers, portfolioSize: val };
     recalculateAndRender(modifiedAnswers);
+    // Update URL with slider value
+    const savedPortfolio = answers.portfolioSize;
+    answers.portfolioSize = val;
+    encodeAnswersToURL();
+    answers.portfolioSize = savedPortfolio;
   };
 
   // Encode answers to URL for sharing
@@ -819,11 +838,13 @@ function renderBrokerCards(eligible, ineligible, initialShow, maxCost) {
 
   // Show/hide "show all" button
   const showAllBtn = document.getElementById('showAllBtn');
-  if (eligible.length > initialShow && !showingAll) {
-    showAllBtn.style.display = 'block';
-    showAllBtn.textContent = `Show all ${eligible.length} eligible brokers`;
-  } else {
-    showAllBtn.style.display = 'none';
+  if (showAllBtn) {
+    if (eligible.length > initialShow && !showingAll) {
+      showAllBtn.style.display = 'block';
+      showAllBtn.textContent = `Show all ${eligible.length} eligible brokers`;
+    } else {
+      showAllBtn.style.display = 'none';
+    }
   }
 
   // Update compare button
@@ -889,6 +910,15 @@ function renderBrokerCard(item, rank, maxCost) {
   const allWarnings = [...(broker.warnings || [])];
   if (eligWarnings.length > 0) {
     allWarnings.push(...eligWarnings);
+  }
+  // Warn about fee cap when user has mixed funds + ETFs/shares
+  const userInvTypes = answers.investmentTypes || ['etfs'];
+  const hasFundsAndETFs = userInvTypes.includes('funds') && (userInvTypes.includes('etfs') || userInvTypes.includes('sharesUK') || userInvTypes.includes('sharesIntl'));
+  if (broker.platformFeeCaps && hasFundsAndETFs) {
+    const capVal = broker.platformFeeCaps.isa || broker.platformFeeCaps.sipp;
+    if (capVal) {
+      allWarnings.push(`Fee cap of \u00a3${capVal} applies to ETFs/shares only \u2014 actual fee may be lower if you hold mostly ETFs`);
+    }
   }
   if (allWarnings.length > 0) {
     warningsHTML = '<div class="detail-warnings">';
