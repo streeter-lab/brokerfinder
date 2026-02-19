@@ -425,7 +425,7 @@ function calculateCost(broker, portfolioValue, userAnswers) {
   const typeCount = activeTypes.length || 1;
 
   // Allocate trades proportionally across asset types
-  const tradesPerType = Math.ceil(tradesPerYear / typeCount);
+  const tradesPerType = tradesPerYear / typeCount;
 
   if (buyingFunds && broker.fundTrade !== null) {
     let fundTradePrice;
@@ -643,14 +643,7 @@ function scoreBroker(broker, costResult, userAnswers) {
 
 function buildCalcLink(broker, costResult, userAnswers) {
   const pv = userAnswers.portfolioSize || 30000;
-  let feePercent;
-  if (broker.platformFee && broker.platformFee.type === 'fixed') {
-    feePercent = pv > 0 ? ((costResult.platformFee / pv) * 100).toFixed(2) : 0;
-  } else if (broker.platformFee && broker.platformFee.rate) {
-    feePercent = (broker.platformFee.rate * 100).toFixed(2);
-  } else {
-    feePercent = pv > 0 ? ((costResult.platformFee / pv) * 100).toFixed(2) : 0;
-  }
+  const feePercent = pv > 0 ? ((costResult.totalCost / pv) * 100).toFixed(2) : 0;
   const params = new URLSearchParams({
     start: pv,
     monthly: 500,
@@ -999,8 +992,13 @@ function animateCostBars() {
 // ═══════════════════════════════════════════════════
 // COMPARISON
 // ═══════════════════════════════════════════════════
-function toggleCompare(brokerName, checked) {
-  if (checked && compareSet.size < 3) {
+function toggleCompare(brokerName, checkbox) {
+  if (checkbox.checked && compareSet.size >= 3) {
+    checkbox.checked = false;
+    alert('You can compare up to 3 brokers at a time.');
+    return;
+  }
+  if (checkbox.checked) {
     compareSet.add(brokerName);
   } else {
     compareSet.delete(brokerName);
@@ -1151,7 +1149,7 @@ function decodeAnswersFromURL() {
   const multiFields = ['accounts', 'priorities', 'investmentTypes'];
   params.forEach((value, key) => {
     if (multiFields.includes(key)) {
-      restored[key] = value.split(',');
+      restored[key] = value ? value.split(',') : [];
     } else if (key === 'portfolioSize' && !isNaN(Number(value))) {
       restored[key] = Number(value);
     } else {
@@ -1193,6 +1191,24 @@ document.addEventListener('keydown', (e) => {
 // INITIALISE
 // ═══════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', async () => {
+  // Bind static button handlers BEFORE loading brokers to avoid race condition
+  const btnStart = document.getElementById('btnStart');
+  if (btnStart) btnStart.addEventListener('click', startWizard);
+  const btnPrev = document.getElementById('btnPrev');
+  if (btnPrev) btnPrev.addEventListener('click', prevStep);
+  const btnNext = document.getElementById('btnNext');
+  if (btnNext) btnNext.addEventListener('click', nextStep);
+  const btnChangeAnswers = document.getElementById('btnChangeAnswers');
+  if (btnChangeAnswers) btnChangeAnswers.addEventListener('click', changeAnswers);
+  const btnShareResults = document.getElementById('btnShareResults');
+  if (btnShareResults) btnShareResults.addEventListener('click', () => copyShareLink(btnShareResults));
+  const btnCompare = document.getElementById('btnCompare');
+  if (btnCompare) btnCompare.addEventListener('click', showComparison);
+  const showAllBtn = document.getElementById('showAllBtn');
+  if (showAllBtn) showAllBtn.addEventListener('click', showAllBrokers);
+  const btnCloseCompare = document.getElementById('btnCloseCompare');
+  if (btnCloseCompare) btnCloseCompare.addEventListener('click', hideComparison);
+
   await loadBrokers();
 
   // Delegate clicks on wizard option buttons
@@ -1211,24 +1227,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // Bind static button handlers
-  const btnStart = document.getElementById('btnStart');
-  if (btnStart) btnStart.addEventListener('click', startWizard);
-  const btnPrev = document.getElementById('btnPrev');
-  if (btnPrev) btnPrev.addEventListener('click', prevStep);
-  const btnNext = document.getElementById('btnNext');
-  if (btnNext) btnNext.addEventListener('click', nextStep);
-  const btnChangeAnswers = document.getElementById('btnChangeAnswers');
-  if (btnChangeAnswers) btnChangeAnswers.addEventListener('click', changeAnswers);
-  const btnShareResults = document.getElementById('btnShareResults');
-  if (btnShareResults) btnShareResults.addEventListener('click', () => copyShareLink(btnShareResults));
-  const btnCompare = document.getElementById('btnCompare');
-  if (btnCompare) btnCompare.addEventListener('click', showComparison);
-  const showAllBtn = document.getElementById('showAllBtn');
-  if (showAllBtn) showAllBtn.addEventListener('click', showAllBrokers);
-  const btnCloseCompare = document.getElementById('btnCloseCompare');
-  if (btnCloseCompare) btnCloseCompare.addEventListener('click', hideComparison);
-
   // Delegate clicks on dynamically rendered broker list
   const brokerList = document.getElementById('brokerList');
   if (brokerList) {
@@ -1246,7 +1244,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const checkbox = e.target.closest('.compare-checkbox input');
       if (checkbox) {
         const brokerName = checkbox.closest('.broker-card').dataset.broker;
-        toggleCompare(brokerName, checkbox.checked);
+        toggleCompare(brokerName, checkbox);
       }
     });
 

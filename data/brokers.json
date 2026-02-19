@@ -97,7 +97,7 @@
     "accounts": ["isa", "gia", "sipp"],
     "investmentTypes": ["etf", "shareUK", "shareIntl"],
     "platformFee": { "type": "fixed", "amount": 0 },
-    "sippFee": { "type": "fixed", "amount": 0 },
+    "sippFee": { "type": "fixed", "amount": 119.88 },
     "fundTrade": 0,
     "etfTrade": 0,
     "shareTrade": 0,
