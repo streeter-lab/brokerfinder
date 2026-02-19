@@ -100,6 +100,13 @@ function calculate() {
 function drawChart() {
   if (!chartData) return;
 
+  // Read colours from CSS custom properties
+  const styles = getComputedStyle(document.documentElement);
+  const gridColor = styles.getPropertyValue('--border').trim();
+  const labelColor = styles.getPropertyValue('--text-muted').trim();
+  const accentColor = styles.getPropertyValue('--accent').trim();
+  const textSecondary = styles.getPropertyValue('--text-secondary').trim();
+
   const maxVal = Math.max(...chartData.map(d => d.withoutFees));
   if (maxVal === 0) {
     // Nothing to chart — clear canvas and return
@@ -111,7 +118,7 @@ function drawChart() {
     canvas.height = rect.height * dpr;
     ctx.scale(dpr, dpr);
     ctx.clearRect(0, 0, rect.width, rect.height);
-    ctx.fillStyle = '#666';
+    ctx.fillStyle = labelColor;
     ctx.font = '13px "DM Sans", sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText('Enter a starting amount or monthly contribution to see the chart', rect.width / 2, rect.height / 2);
@@ -142,7 +149,7 @@ function drawChart() {
   function yPos(val) { return padding.top + chartH - (val / maxVal) * chartH; }
 
   // Grid lines
-  ctx.strokeStyle = '#2a2a2a';
+  ctx.strokeStyle = gridColor;
   ctx.lineWidth = 1;
   const gridLines = 5;
   for (let i = 0; i <= gridLines; i++) {
@@ -154,7 +161,7 @@ function drawChart() {
 
     // Y labels
     const val = maxVal * (1 - i / gridLines);
-    ctx.fillStyle = '#666';
+    ctx.fillStyle = labelColor;
     ctx.font = '11px "DM Sans", sans-serif';
     ctx.textAlign = 'right';
     ctx.fillText(formatCurrency(Math.round(val)), padding.left - 8, y + 4);
@@ -164,7 +171,7 @@ function drawChart() {
   ctx.textAlign = 'center';
   const xStep = years <= 10 ? 1 : years <= 20 ? 2 : 5;
   for (let y = 0; y <= years; y += xStep) {
-    ctx.fillStyle = '#666';
+    ctx.fillStyle = labelColor;
     ctx.fillText(`Yr ${y}`, xPos(y), h - padding.bottom + 20);
   }
 
@@ -177,7 +184,7 @@ function drawChart() {
   ctx.lineTo(xPos(years), yPos(0));
   ctx.lineTo(xPos(0), yPos(0));
   ctx.closePath();
-  ctx.fillStyle = 'rgba(46, 196, 182, 0.08)';
+  ctx.fillStyle = accentColor + '14';
   ctx.fill();
 
   // Without fees line
@@ -186,7 +193,7 @@ function drawChart() {
   for (let i = 1; i < chartData.length; i++) {
     ctx.lineTo(xPos(i), yPos(chartData[i].withoutFees));
   }
-  ctx.strokeStyle = '#666';
+  ctx.strokeStyle = labelColor;
   ctx.lineWidth = 2;
   ctx.setLineDash([6, 4]);
   ctx.stroke();
@@ -198,7 +205,7 @@ function drawChart() {
   for (let i = 1; i < chartData.length; i++) {
     ctx.lineTo(xPos(i), yPos(chartData[i].withFees));
   }
-  ctx.strokeStyle = '#2ec4b6';
+  ctx.strokeStyle = accentColor;
   ctx.lineWidth = 2.5;
   ctx.stroke();
 
@@ -208,7 +215,7 @@ function drawChart() {
   for (let i = 1; i < chartData.length; i++) {
     ctx.lineTo(xPos(i), yPos(chartData[i].contributions));
   }
-  ctx.strokeStyle = 'rgba(46, 196, 182, 0.3)';
+  ctx.strokeStyle = accentColor + '4d';
   ctx.lineWidth = 1.5;
   ctx.stroke();
 
@@ -216,19 +223,19 @@ function drawChart() {
   const legendY = 12;
   ctx.font = '11px "DM Sans", sans-serif';
 
-  ctx.strokeStyle = '#2ec4b6';
+  ctx.strokeStyle = accentColor;
   ctx.lineWidth = 2.5;
   ctx.setLineDash([]);
   ctx.beginPath();
   ctx.moveTo(padding.left, legendY);
   ctx.lineTo(padding.left + 20, legendY);
   ctx.stroke();
-  ctx.fillStyle = '#9a9590';
+  ctx.fillStyle = textSecondary;
   ctx.textAlign = 'left';
   ctx.fillText('With fees', padding.left + 25, legendY + 4);
 
   const leg2x = padding.left + 100;
-  ctx.strokeStyle = '#666';
+  ctx.strokeStyle = labelColor;
   ctx.lineWidth = 2;
   ctx.setLineDash([6, 4]);
   ctx.beginPath();
@@ -239,9 +246,9 @@ function drawChart() {
   ctx.fillText('Without fees', leg2x + 25, legendY + 4);
 
   const leg3x = leg2x + 110;
-  ctx.fillStyle = 'rgba(46, 196, 182, 0.3)';
+  ctx.fillStyle = accentColor + '4d';
   ctx.fillRect(leg3x, legendY - 5, 20, 10);
-  ctx.fillStyle = '#9a9590';
+  ctx.fillStyle = textSecondary;
   ctx.fillText('Contributions', leg3x + 25, legendY + 4);
 }
 

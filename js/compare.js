@@ -763,6 +763,21 @@ function renderBrokerCards(eligible, ineligible, initialShow, maxCost) {
     html += renderBrokerCard(item, idx + 1, maxCost);
   });
 
+  // Ineligible brokers section
+  if (ineligible.length > 0) {
+    html += `
+      <div class="ineligible-section">
+        <button class="ineligible-toggle" onclick="toggleIneligible()" aria-expanded="false">
+          <span id="ineligibleToggleText">${ineligible.length} broker${ineligible.length > 1 ? 's' : ''} excluded</span>
+          <svg class="ineligible-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="ineligible-list" id="ineligibleList" style="display:none">
+          ${ineligible.map(item => renderIneligibleCard(item)).join('')}
+        </div>
+      </div>
+    `;
+  }
+
   list.innerHTML = html;
 
   // Show/hide "show all" button
@@ -776,6 +791,30 @@ function renderBrokerCards(eligible, ineligible, initialShow, maxCost) {
 
   // Update compare button
   updateCompareButton();
+}
+
+function renderIneligibleCard(item) {
+  const { broker, eligWarnings } = item;
+  const reasons = eligWarnings.length > 0 ? eligWarnings.join(', ') : 'Does not match your criteria';
+  return `
+    <div class="broker-card ineligible">
+      <div class="card-header" style="cursor:default; opacity:0.6;">
+        <div class="card-info">
+          <h3>${broker.name}</h3>
+          <span class="broker-reason" style="color:var(--red)">${reasons}</span>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function toggleIneligible() {
+  const list = document.getElementById('ineligibleList');
+  const btn = list.previousElementSibling;
+  const isHidden = list.style.display === 'none';
+  list.style.display = isHidden ? 'block' : 'none';
+  btn.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
+  btn.querySelector('.ineligible-chevron').style.transform = isHidden ? 'rotate(180deg)' : '';
 }
 
 function renderBrokerCard(item, rank, maxCost) {
