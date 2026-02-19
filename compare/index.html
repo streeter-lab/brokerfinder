@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Compare UK Brokers — BrokerFinder</title>
+<meta name="description" content="Find the cheapest UK investment platform for your specific needs. Compare ISA, SIPP, and GIA fees across 25+ brokers with personalised cost calculations.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://brokerfinder.uk/compare/">
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <a href="/" class="logo">Broker<span>Finder</span></a>
+  <nav class="site-nav">
+    <a href="/compare/">Compare</a>
+    <a href="/calculator/">Calculator</a>
+    <a href="/faq/">FAQ</a>
+  </nav>
+</header>
+
+<!-- ════════ Hero ════════ -->
+<section id="hero" class="hero">
+  <h1>Find the <em>right</em> broker<br>for your money</h1>
+  <p>Answer a few questions and we'll calculate the true cost of every major UK investment platform — personalised to you.</p>
+  <button class="btn-start" onclick="startWizard()" aria-label="Start the questionnaire">
+    Get started
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+  </button>
+</section>
+
+<!-- ════════ Wizard ════════ -->
+<section id="wizard" class="container" role="form" aria-label="Broker questionnaire">
+  <div class="wizard-progress" id="wizardProgress" role="progressbar"></div>
+  <div id="wizardSteps"></div>
+  <div class="wizard-nav">
+    <button class="btn-wizard" id="btnPrev" onclick="prevStep()" aria-label="Previous question">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      Back
+    </button>
+    <button class="btn-wizard primary" id="btnNext" onclick="nextStep()" aria-label="Next question">
+      Next
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </button>
+  </div>
+</section>
+
+<!-- ════════ Results ════════ -->
+<section id="results" class="container" aria-label="Broker recommendations">
+  <div class="results-header">
+    <h2>Your top matches</h2>
+    <p id="resultsSummary"></p>
+  </div>
+
+  <div class="results-actions">
+    <button class="btn-action" onclick="changeAnswers()">Change my answers</button>
+    <button class="btn-action" onclick="copyShareLink(this)">Share results</button>
+    <button class="btn-action" id="btnCompare" onclick="showComparison()" style="display:none">Compare selected</button>
+  </div>
+
+  <div id="fscsNotice" class="fscs-notice" style="display:none">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+    <div>
+      <strong>FSCS note:</strong> Your portfolio exceeds £85,000. Consider spreading investments across multiple providers for full FSCS protection. Also note that Lloyds, Halifax, Bank of Scotland, and Scottish Widows share the same FSCS entity for investments.
+    </div>
+  </div>
+
+  <div class="broker-list" id="brokerList"></div>
+  <button class="show-all-btn" id="showAllBtn" onclick="showAllBrokers()">Show all brokers</button>
+
+  <!-- What-if slider -->
+  <div class="whatif-section">
+    <h3>What if your portfolio changes?</h3>
+    <div class="whatif-slider-row">
+      <span style="font-size:0.85rem;color:var(--text-secondary)">Portfolio size</span>
+      <input type="range" id="whatifSlider" min="5000" max="750000" step="5000" aria-label="Adjust portfolio size">
+      <span class="whatif-value" id="whatifValue">£50,000</span>
+    </div>
+  </div>
+</section>
+
+<!-- ════════ Comparison ════════ -->
+<section id="comparison" class="container" aria-label="Side-by-side comparison">
+  <div class="comparison-header">
+    <h2>Side-by-side comparison</h2>
+    <p>Estimated annual costs based on your inputs</p>
+  </div>
+  <div class="comparison-table-wrapper">
+    <table class="comparison-table" id="comparisonTable"></table>
+  </div>
+  <button class="btn-close-compare" onclick="hideComparison()">Close comparison</button>
+</section>
+
+<!-- ════════ Footer ════════ -->
+<footer class="site-footer">
+  <div class="container">
+    This tool is for informational purposes only and is not financial advice.<br>
+    Data sourced from Monevator broker comparison (Oct 2025 / Feb 2026 updates). Always verify current fees with your chosen provider.<br>
+    Fees change frequently. Last updated: February 2026.
+  </div>
+</footer>
+
+<script src="/js/shared.js"></script>
+<script src="/js/compare.js"></script>
+</body>
+</html>

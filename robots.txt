@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://brokerfinder.uk/sitemap.xml

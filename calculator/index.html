@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Compound Interest Calculator — BrokerFinder</title>
+<meta name="description" content="See how your investments could grow over time. Model different scenarios with contributions, growth rates, and fee impacts on your UK investment portfolio.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://brokerfinder.uk/calculator/">
+<link rel="stylesheet" href="/css/style.css">
+<style>
+/* Calculator-specific styles */
+.calc-layout {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 1.5rem 4rem;
+}
+
+.calc-inputs {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.calc-inputs h3 {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  margin-bottom: 1.25rem;
+  color: var(--text);
+}
+
+.input-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.input-group label {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-bottom: 0.4rem;
+  font-weight: 500;
+}
+
+.input-group input[type="number"] {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  padding: 0.7rem 1rem;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  transition: var(--transition);
+  width: 100%;
+}
+
+.input-group input[type="number"]:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-dim);
+}
+
+.input-group .input-hint {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
+
+.slider-group {
+  grid-column: 1 / -1;
+  margin-top: 0.5rem;
+}
+
+.slider-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.slider-row input[type="range"] {
+  flex: 1;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.slider-row .slider-value {
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--accent);
+  min-width: 80px;
+  text-align: right;
+}
+
+/* Results */
+.calc-results {
+  display: none;
+}
+
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.result-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  text-align: center;
+}
+
+.result-card.highlight {
+  border-color: var(--accent);
+  background: linear-gradient(135deg, var(--bg-card), rgba(46, 196, 182, 0.05));
+}
+
+.result-card.fee-impact {
+  border-color: var(--amber);
+  background: linear-gradient(135deg, var(--bg-card), rgba(232, 168, 56, 0.05));
+}
+
+.result-card .result-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-bottom: 0.4rem;
+}
+
+.result-card .result-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: var(--font-body);
+}
+
+.result-card.highlight .result-value { color: var(--accent); }
+.result-card.fee-impact .result-value { color: var(--amber); }
+
+.result-card .result-sub {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
+
+/* Contribution vs growth bar */
+.split-bar-container {
+  margin-bottom: 1.5rem;
+}
+
+.split-bar-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-bottom: 0.4rem;
+}
+
+.split-bar {
+  display: flex;
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--border);
+}
+
+.split-bar .bar-contrib {
+  background: var(--accent);
+  opacity: 0.4;
+  transition: width 0.5s ease;
+}
+
+.split-bar .bar-growth {
+  background: var(--accent);
+  transition: width 0.5s ease;
+}
+
+/* Chart */
+.chart-container {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+}
+
+.chart-container h3 {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+}
+
+.chart-container canvas {
+  width: 100%;
+  height: 320px;
+}
+
+@media (max-width: 640px) {
+  .input-grid { grid-template-columns: 1fr; }
+  .results-grid { grid-template-columns: 1fr; }
+  .result-card .result-value { font-size: 1.2rem; }
+  .chart-container canvas { height: 250px; }
+}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <a href="/" class="logo">Broker<span>Finder</span></a>
+  <nav class="site-nav">
+    <a href="/compare/">Compare</a>
+    <a href="/calculator/">Calculator</a>
+    <a href="/faq/">FAQ</a>
+  </nav>
+</header>
+
+<section class="page-hero">
+  <h1>Compound Interest<br><em>Calculator</em></h1>
+  <p>See how your investments could grow over time — and how much fees really cost you in the long run.</p>
+</section>
+
+<div class="calc-layout">
+  <div class="calc-inputs" id="calcForm">
+    <h3>Your scenario</h3>
+    <div class="input-grid">
+      <div class="input-group">
+        <label for="startingAmount">Starting amount (&pound;)</label>
+        <input type="number" id="startingAmount" min="0" step="1000">
+      </div>
+      <div class="input-group">
+        <label for="monthlyContribution">Monthly contribution (&pound;)</label>
+        <input type="number" id="monthlyContribution" min="0" step="50">
+      </div>
+      <div class="input-group">
+        <label for="growthRate">Annual growth rate (%)</label>
+        <input type="number" id="growthRate" min="0" max="30" step="0.5">
+        <span class="input-hint">7% is a common long-term average</span>
+      </div>
+      <div class="input-group">
+        <label for="platformFee">Platform fee (%)</label>
+        <input type="number" id="platformFee" min="0" max="5" step="0.05">
+        <span class="input-hint">Use our <a href="/compare/" style="color:var(--accent)">comparison tool</a> to find yours</span>
+      </div>
+      <div class="input-group">
+        <label for="fundOCF">Fund OCF (%)</label>
+        <input type="number" id="fundOCF" min="0" max="5" step="0.01">
+        <span class="input-hint">Ongoing charges figure of your funds</span>
+      </div>
+      <div class="input-group slider-group">
+        <label for="yearsSlider">Time period</label>
+        <div class="slider-row">
+          <span style="font-size:0.85rem;color:var(--text-muted)">1</span>
+          <input type="range" id="yearsSlider" min="1" max="40" step="1">
+          <span style="font-size:0.85rem;color:var(--text-muted)">40</span>
+          <span class="slider-value" id="yearsValue">20 years</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="calc-results" id="results">
+    <div class="results-grid">
+      <div class="result-card highlight">
+        <div class="result-label">Final portfolio value</div>
+        <div class="result-value" id="finalValue">&pound;0</div>
+        <div class="result-sub">after fees</div>
+      </div>
+      <div class="result-card">
+        <div class="result-label">Total contributions</div>
+        <div class="result-value" id="totalContributions">&pound;0</div>
+      </div>
+      <div class="result-card">
+        <div class="result-label">Investment growth</div>
+        <div class="result-value" id="totalGrowth">&pound;0</div>
+        <div class="result-sub">after fees deducted</div>
+      </div>
+    </div>
+
+    <div class="results-grid" style="grid-template-columns: 1fr 1fr;">
+      <div class="result-card fee-impact">
+        <div class="result-label">Total fees paid</div>
+        <div class="result-value" id="totalFees">&pound;0</div>
+        <div class="result-sub">platform + fund OCF</div>
+      </div>
+      <div class="result-card fee-impact">
+        <div class="result-label">Fee drag (lost growth)</div>
+        <div class="result-value" id="feeDrag">&pound;0</div>
+        <div class="result-sub">vs <span id="withoutFeesValue">&pound;0</span> without fees</div>
+      </div>
+    </div>
+
+    <div class="split-bar-container">
+      <div class="split-bar-label">
+        <span>Contributions</span>
+        <span>Growth</span>
+      </div>
+      <div class="split-bar">
+        <div class="bar-contrib" id="contribBar" style="width:50%"></div>
+        <div class="bar-growth" id="growthBar" style="width:50%"></div>
+      </div>
+    </div>
+
+    <div class="chart-container">
+      <h3>Portfolio growth over time</h3>
+      <canvas id="growthChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="container">
+    This calculator is for illustrative purposes only and is not financial advice.<br>
+    Past performance does not guarantee future returns. Actual returns will vary.
+  </div>
+</footer>
+
+<script src="/js/shared.js"></script>
+<script src="/js/calculator.js"></script>
+</body>
+</html>

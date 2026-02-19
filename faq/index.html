@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FAQ — BrokerFinder</title>
+<meta name="description" content="Common questions about choosing a UK investment platform, understanding fee structures, FSCS protection, ISAs, SIPPs, and more.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://brokerfinder.uk/faq/">
+<link rel="stylesheet" href="/css/style.css">
+<style>
+/* FAQ accordion styles */
+.faq-section {
+  margin-bottom: 2rem;
+}
+
+.faq-section h2 {
+  font-family: var(--font-heading);
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
+  color: var(--text);
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.faq-item {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  margin-bottom: 0.5rem;
+  overflow: hidden;
+  background: var(--bg-card);
+}
+
+.faq-question {
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  color: var(--text);
+  padding: 1rem 1.25rem;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  transition: var(--transition);
+}
+
+.faq-question:hover {
+  color: var(--accent);
+}
+
+.faq-question .faq-icon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  transition: transform 0.3s ease;
+}
+
+.faq-item.open .faq-question .faq-icon {
+  transform: rotate(45deg);
+}
+
+.faq-item.open .faq-question {
+  color: var(--accent);
+}
+
+.faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease, padding 0.35s ease;
+}
+
+.faq-item.open .faq-answer {
+  max-height: 600px;
+}
+
+.faq-answer-inner {
+  padding: 0 1.25rem 1.25rem;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.faq-answer-inner p {
+  margin-bottom: 0.75rem;
+}
+
+.faq-answer-inner p:last-child {
+  margin-bottom: 0;
+}
+
+.faq-answer-inner strong {
+  color: var(--text);
+}
+
+.faq-answer-inner a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.faq-answer-inner a:hover {
+  text-decoration: underline;
+}
+
+.faq-question:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <a href="/" class="logo">Broker<span>Finder</span></a>
+  <nav class="site-nav">
+    <a href="/compare/">Compare</a>
+    <a href="/calculator/">Calculator</a>
+    <a href="/faq/">FAQ</a>
+  </nav>
+</header>
+
+<section class="page-hero">
+  <h1>Frequently Asked<br><em>Questions</em></h1>
+  <p>Everything you need to know about choosing a UK investment platform, understanding fees, and using our tools.</p>
+</section>
+
+<div class="content-section">
+
+  <!-- Choosing a broker -->
+  <div class="faq-section">
+    <h2>Choosing a broker</h2>
+
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        What's the difference between a flat fee and percentage fee broker?
+        <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+      <div class="faq-answer"><div class="faq-answer-inner">
+        <p><strong>Flat fee brokers</strong> (like Interactive Investor or Lloyds) charge a fixed annual amount regardless of your portfolio size. This makes them excellent value for larger portfolios but potentially expensive for smaller ones.</p>
+        <p><strong>Percentage fee brokers</strong> (like AJ Bell or Fidelity) charge a percentage of your portfolio value, typically 0.15%&ndash;0.45%. This is cheaper for smaller portfolios but costs more as your investments grow.</p>
+        <p>There's also a third category: <strong>zero-fee brokers</strong> (like InvestEngine or Trading 212) that don't charge platform fees. They typically make money through FX spreads, securities lending, or offering a more limited range of investments.</p>
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        When does a flat fee broker become cheaper than a percentage fee broker?
+        <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+      <div class="faq-answer"><div class="faq-answer-inner">
+        <p>The crossover point depends on the specific brokers, but as a rough guide: if a flat fee broker charges &pound;72/year and a percentage broker charges 0.25%, the flat fee becomes cheaper once your portfolio exceeds &pound;28,800 (&pound;72 &divide; 0.0025).</p>
+        <p>For Interactive Investor (Core at &pound;71.88/yr) vs a 0.25% fee broker, the crossover is around &pound;29,000. Our <a href="/compare/">comparison tool</a> calculates this precisely for your situation.</p>
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        What is FSCS protection and why does it matter?
+        <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+      <div class="faq-answer"><div class="faq-answer-inner">
+        <p>The <strong>Financial Services Compensation Scheme (FSCS)</strong> protects your investments up to &pound;85,000 per person, per financial institution if your broker fails. This covers the platform going bust &mdash; not your investments falling in value (that's market risk).</p>
+        <p>Your actual investments (shares, funds, etc.) are held separately from the broker's own assets in nominee accounts, so even if the broker fails, your investments should be safe. FSCS is a backstop for the unlikely scenario where there's fraud or administrative failure.</p>
+        <p>If your portfolio exceeds &pound;85,000, consider splitting across brokers with different FSCS entities for maximum protection.</p>
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        Why do some brokers share the same FSCS protection limit?
+        <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+      <div class="faq-answer"><div class="faq-answer-inner">
+        <p>FSCS protection is per <strong>financial institution</strong>, not per brand. Some banks operate multiple investment platforms under the same banking licence.</p>
+        <p>The most notable example: <strong>Lloyds Bank, Halifax, Bank of Scotland, and Scottish Widows</strong> all share the same FSCS investment protection entity. If you have &pound;85,000 with Lloyds and &pound;85,000 with Halifax, you do NOT have &pound;170,000 of FSCS cover &mdash; it's &pound;85,000 combined.</p>
+        <p>Our comparison tool warns you about these overlaps when you compare brokers side-by-side.</p>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- Account types -->
+  <div class="faq-section">
+    <h2>Account types</h2>
+
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        What's the difference between an ISA, SIPP, GIA, JISA, and LISA?
+        <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+      <div class="faq-answer"><div class="faq-answer-inner">
+        <p><strong>Stocks & Shares ISA:</strong> Tax-free wrapper for investments. No capital gains tax or income tax on returns. &pound;20,000 annual allowance (2025/26). Most people should max this first.</p>
+        <p><strong>SIPP (Self-Invested Personal Pension):</strong> Pension wrapper with tax relief on contributions (20&ndash;45% depending on your tax band). Can't access until age 57 (rising to 58 in 2028). 25% tax-free lump sum on withdrawal.</p>
+        <p><strong>GIA (General Investment Account):</strong> Standard investment account with no tax wrapper. Subject to capital gains tax (above &pound;3,000 annual allowance) and income tax on dividends. No contribution limits.</p>
+        <p><strong>JISA (Junior ISA):</strong> Tax-free ISA for under-18s. &pound;9,000 annual allowance. Child can access at 18.</p>
+        <p><strong>LISA (Lifetime ISA):</strong> For ages 18&ndash;39. &pound;4,000 annual allowance with 25% government bonus. Can be used for first home purchase or retirement (age 60). 25% penalty for other withdrawals.</p>
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        Can I have accounts with multiple brokers?
+        <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+      <div class="faq-answer"><div class="faq-answer-inner">
+        <p>Yes. You can have a GIA with as many brokers as you like. For ISAs, you can only contribute to <strong>one Stocks & Shares ISA per tax year</strong>, but you can hold ISAs from previous years with different brokers.</p>
+        <p>For SIPPs, you can have multiple, and there's no limit on how many you contribute to in a year (subject to your annual pension allowance).</p>
+        <p>Splitting across brokers can make sense for FSCS protection diversification, or to take advantage of different brokers' strengths (e.g., one for low-cost fund investing, another for share dealing).</p>
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        What is in-specie transfer and why does it matter?
+        <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+      <div class="faq-answer"><div class="faq-answer-inner">
+        <p>An <strong>in-specie transfer</strong> means moving your actual investments (shares, funds, etc.) from one broker to another without selling them first. This avoids triggering capital gains tax events and means you stay invested during the transfer.</p>
+        <p>The alternative is a <strong>cash transfer</strong>: selling everything, transferring the cash, and rebuying. This means you're out of the market during the transfer (typically 2&ndash;6 weeks) and may crystallise taxable gains.</p>
+        <p>Most major brokers support in-specie transfers, but some newer platforms (like InvestEngine) do not allow in-specie transfers <em>out</em>. Check this before committing to a broker if you think you might move in the future.</p>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- Fees -->
+  <div class="faq-section">
+    <h2>Fees</h2>
+
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        What are platform fees, trading fees, and FX fees?
+        <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+      <div class="faq-answer"><div class="faq-answer-inner">
+        <p><strong>Platform fees</strong> (also called custody or management fees) are what the broker charges you for holding your investments. This is either a flat annual fee or a percentage of your portfolio value.</p>
+        <p><strong>Trading fees</strong> are charged each time you buy or sell an investment. These range from &pound;0 (free trading) to &pound;10+ per trade. Many brokers offer free regular investing (monthly standing order purchases) even if ad-hoc trades cost money.</p>
+        <p><strong>FX fees</strong> are charged when you buy investments denominated in a foreign currency (e.g., US shares). The broker converts your GBP and takes a spread, typically 0.15%&ndash;1.5%. This can be significant if you trade internationally.</p>
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        What is an OCF (Ongoing Charges Figure)?
+        <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+      <div class="faq-answer"><div class="faq-answer-inner">
+        <p>The <strong>OCF</strong> is the annual cost of owning a fund or ETF, charged by the fund manager (not your broker). It's deducted automatically from the fund's value, so you don't see a separate charge.</p>
+        <p>A typical global index fund has an OCF of 0.10%&ndash;0.25%. Actively managed funds can charge 0.50%&ndash;1.50%. Over decades, even small differences in OCF compound into enormous differences in returns.</p>
+        <p>Use our <a href="/calculator/">compound interest calculator</a> to see how different OCF levels affect your long-term wealth.</p>
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        Are "free" brokers really free? How do they make money?
+        <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+      <div class="faq-answer"><div class="faq-answer-inner">
+        <p>Zero-fee brokers aren't charities. Common revenue sources include:</p>
+        <p><strong>FX spreads:</strong> Charging a markup on currency conversions (even InvestEngine charges FX on non-GBP ETFs via the spread).</p>
+        <p><strong>Securities lending:</strong> Lending your shares to short-sellers and keeping a portion of the interest (Trading 212, Freetrade).</p>
+        <p><strong>Premium plans:</strong> Free basic tier with paid plans offering lower FX rates or more features (Freetrade, Revolut).</p>
+        <p><strong>Interest on cash balances:</strong> Earning interest on uninvested cash in your account.</p>
+        <p>This doesn't mean free brokers are bad &mdash; many offer genuine value. Just be aware of the trade-offs, especially around investment range and FX costs.</p>
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        What is the impact of fees on long-term returns?
+        <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+      <div class="faq-answer"><div class="faq-answer-inner">
+        <p>Fees compound just like returns &mdash; but in reverse. A seemingly small difference in fees has a massive impact over decades.</p>
+        <p><strong>Example:</strong> &pound;500/month invested over 30 years at 7% growth:</p>
+        <p>With 0.15% total fees: ~&pound;556,000<br>With 0.50% total fees: ~&pound;509,000<br>With 1.00% total fees: ~&pound;453,000</p>
+        <p>That's a <strong>&pound;103,000 difference</strong> between 0.15% and 1% fees. The money didn't disappear &mdash; it went to the platform and fund managers instead of compounding in your portfolio.</p>
+        <p>Try our <a href="/calculator/">compound interest calculator</a> to model your own scenario.</p>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- Using this tool -->
+  <div class="faq-section">
+    <h2>Using this tool</h2>
+
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        Where does the data come from?
+        <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+      <div class="faq-answer"><div class="faq-answer-inner">
+        <p>Fee data is primarily sourced from Monevator's broker comparison table (one of the most respected independent UK investing resources), cross-referenced with each broker's own fee schedules.</p>
+        <p>We cover 25+ brokers including all major UK platforms: AJ Bell, Fidelity, Hargreaves Lansdown, Vanguard, Interactive Investor, InvestEngine, Trading 212, and many more.</p>
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        How often is it updated?
+        <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+      <div class="faq-answer"><div class="faq-answer-inner">
+        <p>We aim to update fees whenever a major broker changes their pricing. The last update was <strong>February 2026</strong>, incorporating changes from October 2025 and early 2026.</p>
+        <p>Broker fees change periodically, so always verify current fees directly with your chosen provider before making decisions. We do our best to stay current but cannot guarantee real-time accuracy.</p>
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        Is this financial advice?
+        <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+      <div class="faq-answer"><div class="faq-answer-inner">
+        <p><strong>No.</strong> BrokerFinder is an informational tool to help you research and compare broker costs. It is not regulated financial advice and should not be treated as such.</p>
+        <p>The tool helps you understand the <em>cost</em> of different platforms, but choosing a broker involves many factors we can't fully account for: your tax situation, existing investments, employer pension arrangements, risk tolerance, and more.</p>
+        <p>If you're unsure, consider speaking to a qualified independent financial adviser (IFA). You can find one through <a href="https://www.unbiased.co.uk" target="_blank" rel="noopener">unbiased.co.uk</a>.</p>
+      </div></div>
+    </div>
+  </div>
+
+</div>
+
+<footer class="site-footer">
+  <div class="container">
+    This site is for informational purposes only and is not financial advice.<br>
+    Data sourced from Monevator broker comparison (Oct 2025 / Feb 2026 updates). Always verify current fees with your chosen provider.
+  </div>
+</footer>
+
+<script src="/js/shared.js"></script>
+<script>
+function toggleFaq(btn) {
+  const item = btn.closest('.faq-item');
+  const wasOpen = item.classList.contains('open');
+
+  // Close all in same section
+  item.closest('.faq-section').querySelectorAll('.faq-item.open').forEach(el => {
+    el.classList.remove('open');
+  });
+
+  // Toggle clicked
+  if (!wasOpen) {
+    item.classList.add('open');
+  }
+}
+</script>
+</body>
+</html>
