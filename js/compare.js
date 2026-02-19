@@ -1109,6 +1109,16 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
+// Keyboard support for broker card expand/collapse
+document.addEventListener('keydown', (e) => {
+  const target = e.target;
+  if (target.classList.contains('card-header') && (e.key === 'Enter' || e.key === ' ')) {
+    e.preventDefault();
+    const brokerName = target.closest('.broker-card').dataset.broker;
+    toggleDetails(brokerName);
+  }
+});
+
 // ═══════════════════════════════════════════════════
 // INITIALISE
 // ═══════════════════════════════════════════════════
