@@ -487,7 +487,7 @@ function recalculateAndRender(userAnswers) {
 
   rankedBrokers.forEach(b => {
     const costScore = 100 * (1 - b.costResult.totalCost / maxCost);
-    const normalizedPriority = 100 * (b.priorityScore / maxPriorityScore);
+    const normalizedPriority = Math.max(0, 100 * (b.priorityScore / maxPriorityScore));
     b.blendedScore = costScore * costWeight + normalizedPriority * priorityWeight;
   });
 
@@ -719,7 +719,7 @@ function renderBrokerCard(item, rank, maxCost) {
   const isCompared = compareSet.has(broker.name);
 
   return `
-    <div class="broker-card ${isTopPick ? 'top-pick' : ''}" data-broker="${broker.name}">
+    <div class="broker-card ${isTopPick ? 'top-pick' : ''}" data-broker="${broker.name.replace(/"/g, '&quot;')}">
       <div class="card-header" data-broker-name="${broker.name.replace(/"/g, '&quot;')}" tabindex="0" role="button" aria-expanded="false" aria-label="Show details for ${broker.name}">
         <span class="card-rank">${rank}</span>
         <div class="card-info">
