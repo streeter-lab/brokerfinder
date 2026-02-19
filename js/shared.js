@@ -3,6 +3,7 @@
 // ═══════════════════════════════════════════════════
 
 function formatCurrency(value) {
+  if (!isFinite(value)) return '\u00a30';
   if (value === 0) return '\u00a30';
   if (value < 0) return '-' + formatCurrency(Math.abs(value));
   if (value < 1) return '\u00a3' + value.toFixed(2);
@@ -127,3 +128,4 @@ function showTaxYearBanner() {
     banner.remove();
     try { localStorage.setItem(dismissKey, 'true'); } catch (e) { /* localStorage unavailable */ }
   });
+}

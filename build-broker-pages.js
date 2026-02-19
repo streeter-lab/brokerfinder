@@ -13,6 +13,10 @@ const ROOT = __dirname;
 const BROKERS = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'brokers.json'), 'utf8'));
 const TODAY = new Date().toISOString().slice(0, 10);
 
+// Default portfolio value used in calculator links from broker pages.
+// Must match the `start` parameter in the calculator link URL below.
+const CALC_DEFAULT_PORTFOLIO = 30000;
+
 function slugify(name) {
   return name
     .toLowerCase()
@@ -26,7 +30,8 @@ function escapeHTML(str) {
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
 const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June',
@@ -159,7 +164,7 @@ function generateBrokerPage(broker) {
   // Build calc link with platform fee
   const calcFee = broker.platformFee
     ? (broker.platformFee.type === 'fixed'
-      ? (broker.platformFee.amount > 0 ? ((broker.platformFee.amount / 30000) * 100).toFixed(2) : '0')
+      ? (broker.platformFee.amount > 0 ? ((broker.platformFee.amount / CALC_DEFAULT_PORTFOLIO) * 100).toFixed(2) : '0')
       : (broker.platformFee.rate ? (broker.platformFee.rate * 100).toFixed(2) : '0'))
     : '0';
 
@@ -494,7 +499,7 @@ ${JSON.stringify({
   <!-- CTAs -->
   <div class="broker-ctas">
     <a href="/compare/" class="broker-cta primary">See how ${escapeHTML(broker.name)} compares →</a>
-    <a href="/calculator/#start=30000&monthly=500&growth=7&fee=${calcFee}&ocf=0.15&years=20&broker=${encodeURIComponent(broker.name)}" class="broker-cta secondary">Calculate your long-term costs →</a>
+    <a href="/calculator/#start=${CALC_DEFAULT_PORTFOLIO}&monthly=500&growth=7&fee=${calcFee}&ocf=0.15&years=20&broker=${encodeURIComponent(broker.name)}" class="broker-cta secondary">Calculate your long-term costs →</a>
   </div>
 
 </div>
