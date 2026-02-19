@@ -246,7 +246,7 @@ function renderStep() {
     const isSelected = q.multi ? (selected && selected.includes(opt.value)) : selected === opt.value;
     return `
       <button class="option-btn ${q.multi ? 'multi' : ''} ${isSelected ? 'selected' : ''}"
-              onclick="selectOption('${q.id}', ${typeof opt.value === 'string' ? `'${opt.value}'` : opt.value}, ${q.multi}, ${q.maxSelect || 99})"
+              data-qid="${q.id}" data-value="${opt.value}" data-type="${typeof opt.value}" data-multi="${q.multi}" data-max="${q.maxSelect || 99}"
               aria-pressed="${isSelected}"
               role="${q.multi ? 'checkbox' : 'radio'}">
         <span class="check-indicator"></span>
@@ -789,7 +789,7 @@ function renderBrokerCards(eligible, ineligible, initialShow, maxCost) {
   if (ineligible.length > 0) {
     html += `
       <div class="ineligible-section">
-        <button class="ineligible-toggle" onclick="toggleIneligible()" aria-expanded="false">
+        <button class="ineligible-toggle" aria-expanded="false">
           <span id="ineligibleToggleText">${ineligible.length} broker${ineligible.length > 1 ? 's' : ''} excluded</span>
           <svg class="ineligible-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
         </button>
@@ -936,7 +936,7 @@ function renderBrokerCard(item, rank, maxCost) {
 
   return `
     <div class="broker-card ${isTopPick ? 'top-pick' : ''}" data-broker="${broker.name}">
-      <div class="card-header" data-broker-name="${broker.name.replace(/"/g, '&quot;')}" onclick="toggleDetails(this.dataset.brokerName)" tabindex="0" role="button" aria-expanded="false" aria-label="Show details for ${broker.name}">
+      <div class="card-header" data-broker-name="${broker.name.replace(/"/g, '&quot;')}" tabindex="0" role="button" aria-expanded="false" aria-label="Show details for ${broker.name}">
         <span class="card-rank">${rank}</span>
         <div class="card-info">
           <h3>${broker.name}</h3>
@@ -955,7 +955,7 @@ function renderBrokerCard(item, rank, maxCost) {
       <div class="card-tags">${tagsHTML}</div>
       <div class="card-compare-toggle">
         <label class="compare-checkbox">
-          <input type="checkbox" ${isCompared ? 'checked' : ''} onchange="toggleCompare(this.closest('.broker-card').dataset.broker, this.checked)">
+          <input type="checkbox" ${isCompared ? 'checked' : ''}>
           Add to comparison
         </label>
       </div>
@@ -1195,9 +1195,62 @@ document.addEventListener('keydown', (e) => {
 document.addEventListener('DOMContentLoaded', async () => {
   await loadBrokers();
 
-  // Observe broker list for cost bar animation
+  // Delegate clicks on wizard option buttons
+  const wizardSteps = document.getElementById('wizardSteps');
+  if (wizardSteps) {
+    wizardSteps.addEventListener('click', (e) => {
+      const optBtn = e.target.closest('.option-btn');
+      if (!optBtn) return;
+      const qid = optBtn.dataset.qid;
+      const rawValue = optBtn.dataset.value;
+      const valueType = optBtn.dataset.type;
+      const multi = optBtn.dataset.multi === 'true';
+      const maxSelect = parseInt(optBtn.dataset.max) || 99;
+      const value = valueType === 'number' ? Number(rawValue) : rawValue;
+      selectOption(qid, value, multi, maxSelect);
+    });
+  }
+
+  // Bind static button handlers
+  const btnStart = document.getElementById('btnStart');
+  if (btnStart) btnStart.addEventListener('click', startWizard);
+  const btnPrev = document.getElementById('btnPrev');
+  if (btnPrev) btnPrev.addEventListener('click', prevStep);
+  const btnNext = document.getElementById('btnNext');
+  if (btnNext) btnNext.addEventListener('click', nextStep);
+  const btnChangeAnswers = document.getElementById('btnChangeAnswers');
+  if (btnChangeAnswers) btnChangeAnswers.addEventListener('click', changeAnswers);
+  const btnShareResults = document.getElementById('btnShareResults');
+  if (btnShareResults) btnShareResults.addEventListener('click', () => copyShareLink(btnShareResults));
+  const btnCompare = document.getElementById('btnCompare');
+  if (btnCompare) btnCompare.addEventListener('click', showComparison);
+  const showAllBtn = document.getElementById('showAllBtn');
+  if (showAllBtn) showAllBtn.addEventListener('click', showAllBrokers);
+  const btnCloseCompare = document.getElementById('btnCloseCompare');
+  if (btnCloseCompare) btnCloseCompare.addEventListener('click', hideComparison);
+
+  // Delegate clicks on dynamically rendered broker list
   const brokerList = document.getElementById('brokerList');
   if (brokerList) {
+    brokerList.addEventListener('click', (e) => {
+      // Ineligible toggle
+      const ineligibleBtn = e.target.closest('.ineligible-toggle');
+      if (ineligibleBtn) { toggleIneligible(); return; }
+
+      // Card header toggle details
+      const cardHeader = e.target.closest('.card-header[data-broker-name]');
+      if (cardHeader) { toggleDetails(cardHeader.dataset.brokerName); return; }
+    });
+    brokerList.addEventListener('change', (e) => {
+      // Compare checkbox
+      const checkbox = e.target.closest('.compare-checkbox input');
+      if (checkbox) {
+        const brokerName = checkbox.closest('.broker-card').dataset.broker;
+        toggleCompare(brokerName, checkbox.checked);
+      }
+    });
+
+    // Observe broker list for cost bar animation
     const observer = new MutationObserver(() => animateCostBars());
     observer.observe(brokerList, { childList: true });
   }

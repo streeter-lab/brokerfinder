@@ -13,14 +13,22 @@ const defaults = {
 
 let chartData = null;
 
+function debounce(fn, delay) {
+  let timer;
+  return function() {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn.apply(this, arguments), delay);
+  };
+}
+
 function getInputs() {
   const raw = {
-    startingAmount: parseFloat(document.getElementById('startingAmount').value) || 0,
-    monthlyContribution: parseFloat(document.getElementById('monthlyContribution').value) || 0,
-    growthRate: parseFloat(document.getElementById('growthRate').value) || 0,
-    platformFee: parseFloat(document.getElementById('platformFee').value) || 0,
-    fundOCF: parseFloat(document.getElementById('fundOCF').value) || 0,
-    years: parseInt(document.getElementById('yearsSlider').value) || 20
+    startingAmount: Math.max(0, parseFloat(document.getElementById('startingAmount').value) || 0),
+    monthlyContribution: Math.max(0, parseFloat(document.getElementById('monthlyContribution').value) || 0),
+    growthRate: Math.min(30, Math.max(0, parseFloat(document.getElementById('growthRate').value) || 0)),
+    platformFee: Math.min(5, Math.max(0, parseFloat(document.getElementById('platformFee').value) || 0)),
+    fundOCF: Math.min(5, Math.max(0, parseFloat(document.getElementById('fundOCF').value) || 0)),
+    years: Math.min(40, Math.max(1, parseInt(document.getElementById('yearsSlider').value) || 20))
   };
 
   const inflationOn = document.getElementById('inflationToggle')?.checked;
@@ -160,7 +168,10 @@ function drawChart() {
   const years = chartData.length - 1;
 
   function xPos(year) { return padding.left + (year / years) * chartW; }
-  function yPos(val) { return padding.top + chartH - (val / maxVal) * chartH; }
+  function yPos(val) {
+    if (maxVal === 0 || !isFinite(val)) return padding.top + chartH;
+    return padding.top + chartH - (val / maxVal) * chartH;
+  }
 
   // Grid lines
   ctx.strokeStyle = gridColor;
@@ -271,11 +282,11 @@ function initChartTooltip() {
   const tooltip = document.getElementById('chartTooltip');
   if (!canvas || !tooltip) return;
 
-  canvas.addEventListener('mousemove', (e) => {
+  function showTooltip(clientX) {
     if (!chartData || chartData.length < 2) return;
 
     const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
+    const x = clientX - rect.left;
     const w = rect.width;
     const padding = { left: 65, right: 20 };
     const chartW = w - padding.left - padding.right;
@@ -301,11 +312,19 @@ function initChartTooltip() {
     document.getElementById('tooltipWithoutFees').textContent = 'Without fees: ' + formatCurrency(Math.round(d.withoutFees));
     document.getElementById('tooltipContribs').textContent = 'Contributed: ' + formatCurrency(Math.round(d.contributions));
     document.getElementById('tooltipFees').textContent = 'Fees paid: ' + formatCurrency(Math.round(d.fees));
-  });
+  }
 
-  canvas.addEventListener('mouseleave', () => {
+  function hideTooltip() {
     tooltip.style.display = 'none';
-  });
+  }
+
+  canvas.addEventListener('mousemove', (e) => showTooltip(e.clientX));
+  canvas.addEventListener('mouseleave', hideTooltip);
+  canvas.addEventListener('touchmove', (e) => {
+    e.preventDefault();
+    if (e.touches.length > 0) showTooltip(e.touches[0].clientX);
+  }, { passive: false });
+  canvas.addEventListener('touchend', hideTooltip);
 }
 
 function updateYearsLabel() {
@@ -398,14 +417,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // Debounced versions of calculate + URL update
+  const debouncedCalc = debounce(() => { calculate(); encodeCalcParamsToURL(); }, 150);
+
   // Auto-calculate on any input change
   document.querySelectorAll('#calcForm input').forEach(input => {
     // Skip inflation inputs — they have their own handlers
     if (input.id === 'inflationToggle' || input.id === 'inflationRate') return;
     input.addEventListener('input', () => {
-      if (input.id === 'yearsSlider') updateYearsLabel();
-      calculate();
-      encodeCalcParamsToURL();
+      if (input.id === 'yearsSlider') {
+        updateYearsLabel();
+        calculate();
+        encodeCalcParamsToURL();
+      } else {
+        debouncedCalc();
+      }
     });
   });
 
@@ -423,18 +449,20 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   if (inflationRateInput) {
     inflationRateInput.addEventListener('input', () => {
-      calculate();
-      encodeCalcParamsToURL();
+      debouncedCalc();
     });
   }
+
+  // Bind share button
+  const btnShareCalc = document.getElementById('btnShareCalc');
+  if (btnShareCalc) btnShareCalc.addEventListener('click', () => copyCalcLink(btnShareCalc));
 
   // Initial calculation
   calculate();
   if (urlParams) encodeCalcParamsToURL();
   initChartTooltip();
 
-  // Redraw chart on resize
-  window.addEventListener('resize', () => {
-    if (chartData) drawChart();
-  });
+  // Redraw chart on resize (debounced)
+  const debouncedResize = debounce(() => { if (chartData) drawChart(); }, 200);
+  window.addEventListener('resize', debouncedResize);
 });
