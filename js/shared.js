@@ -10,6 +10,39 @@ function formatCurrency(value) {
   return '\u00a3' + value.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
+// ── Theme toggle (runs immediately to prevent flash) ──
+function initTheme() {
+  const saved = localStorage.getItem('theme');
+  if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    document.documentElement.setAttribute('data-theme', 'dark');
+  }
+  updateToggleIcon();
+}
+
+function toggleTheme() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  if (isDark) {
+    document.documentElement.removeAttribute('data-theme');
+    localStorage.setItem('theme', 'light');
+  } else {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    localStorage.setItem('theme', 'dark');
+  }
+  updateToggleIcon();
+  // Redraw calculator chart if on calculator page
+  if (typeof drawChart === 'function' && chartData) drawChart();
+}
+
+function updateToggleIcon() {
+  const btn = document.getElementById('themeToggle');
+  if (!btn) return;
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  btn.textContent = isDark ? '\u2600\uFE0F' : '\uD83C\uDF19';
+}
+
+// Apply theme before page renders
+initTheme();
+
 // Set active nav link based on current path
 document.addEventListener('DOMContentLoaded', () => {
   const path = window.location.pathname;
@@ -19,4 +52,8 @@ document.addEventListener('DOMContentLoaded', () => {
       a.classList.add('active');
     }
   });
+
+  // Bind theme toggle click
+  const themeToggle = document.getElementById('themeToggle');
+  if (themeToggle) themeToggle.addEventListener('click', toggleTheme);
 });

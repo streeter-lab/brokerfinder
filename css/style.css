@@ -1,6 +1,33 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
+  --bg: #fafafa;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f5f5f5;
+  --bg-elevated: #f0f0f0;
+  --border: #e0e0e0;
+  --border-light: #d0d0d0;
+  --text: #1a1a1a;
+  --text-secondary: #555555;
+  --text-muted: #888888;
+  --accent: #1a9e92;
+  --accent-dim: rgba(46, 196, 182, 0.10);
+  --accent-hover: #25a89c;
+  --amber: #c48a1a;
+  --amber-dim: rgba(196, 138, 26, 0.12);
+  --red: #d04444;
+  --red-dim: rgba(208, 68, 68, 0.10);
+  --green: #1a8a4a;
+  --green-dim: rgba(26, 138, 74, 0.10);
+  --font-heading: 'DM Serif Display', Georgia, serif;
+  --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 2px 12px rgba(0,0,0,0.08);
+  --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-theme="dark"] {
   --bg: #0D0D0D;
   --bg-card: #161616;
   --bg-card-hover: #1c1c1c;
@@ -19,12 +46,7 @@
   --red-dim: rgba(232, 93, 93, 0.12);
   --green: #4ade80;
   --green-dim: rgba(74, 222, 128, 0.12);
-  --font-heading: 'DM Serif Display', Georgia, serif;
-  --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-  --radius: 12px;
-  --radius-sm: 8px;
   --shadow: 0 4px 24px rgba(0,0,0,0.3);
-  --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 html { scroll-behavior: smooth; }
@@ -47,7 +69,7 @@ body {
   justify-content: space-between;
   position: sticky;
   top: 0;
-  background: rgba(13,13,13,0.92);
+  background: rgba(255,255,255,0.92);
   backdrop-filter: blur(12px);
   z-index: 100;
 }
@@ -77,6 +99,8 @@ body {
 }
 .btn-theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
 
+[data-theme="dark"] .site-header { background: rgba(13,13,13,0.92); }
+
 /* ── Layout ── */
 .container { max-width: 1100px; margin: 0 auto; padding: 0 1.5rem; }
 
@@ -104,7 +128,7 @@ body {
   align-items: center;
   gap: 0.5rem;
   background: var(--accent);
-  color: #0D0D0D;
+  color: #1a1a1a;
   border: none;
   padding: 0.9rem 2rem;
   font-size: 1rem;
@@ -232,7 +256,7 @@ body {
 }
 .option-btn.selected .check-indicator::after {
   content: '\2713';
-  color: #0D0D0D;
+  color: #1a1a1a;
   font-size: 0.7rem;
   font-weight: 700;
 }
@@ -267,7 +291,7 @@ body {
 .btn-wizard:hover { border-color: var(--text-secondary); color: var(--text); }
 .btn-wizard.primary {
   background: var(--accent);
-  color: #0D0D0D;
+  color: #1a1a1a;
   border-color: var(--accent);
   font-weight: 600;
 }
