@@ -56,4 +56,23 @@ document.addEventListener('DOMContentLoaded', () => {
   // Bind theme toggle click
   const themeToggle = document.getElementById('themeToggle');
   if (themeToggle) themeToggle.addEventListener('click', toggleTheme);
+
+  // Mobile hamburger nav
+  const navToggle = document.getElementById('navToggle');
+  const siteNav = document.querySelector('.site-nav');
+  if (navToggle && siteNav) {
+    navToggle.addEventListener('click', () => {
+      const isOpen = siteNav.classList.toggle('open');
+      navToggle.classList.toggle('open', isOpen);
+      navToggle.setAttribute('aria-expanded', isOpen);
+    });
+    // Close nav when clicking a link
+    siteNav.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        siteNav.classList.remove('open');
+        navToggle.classList.remove('open');
+        navToggle.setAttribute('aria-expanded', 'false');
+      });
+    });
+  }
 });

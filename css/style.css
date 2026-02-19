@@ -694,6 +694,37 @@ body {
 }
 .site-footer a { color: var(--text-secondary); }
 
+/* ── Hamburger toggle — hidden on desktop ── */
+.nav-toggle {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.hamburger-line {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background: var(--text-secondary);
+  border-radius: 1px;
+  transition: var(--transition);
+}
+
+/* Hamburger animation when open */
+.nav-toggle.open .hamburger-line:nth-child(1) {
+  transform: rotate(45deg) translate(4px, 4px);
+}
+.nav-toggle.open .hamburger-line:nth-child(2) {
+  opacity: 0;
+}
+.nav-toggle.open .hamburger-line:nth-child(3) {
+  transform: rotate(-45deg) translate(4px, -4px);
+}
+
 /* ── Responsive ── */
 @media (max-width: 640px) {
   .step-card { padding: 1.5rem; }
@@ -722,11 +753,44 @@ body {
   .results-actions .btn-action { text-align: center; }
   .whatif-slider-row { flex-direction: column; gap: 0.5rem; }
   .comparison-table { font-size: 0.78rem; }
-  .site-header { padding: 1rem; }
+  .site-header { padding: 1rem; flex-wrap: wrap; position: relative; }
   .site-header .logo { font-size: 1.05rem; }
-  .site-nav { gap: 0; }
-  .site-nav a { font-size: 0.78rem; padding: 0.3rem 0.5rem; }
   .tools-grid { grid-template-columns: 1fr; }
+
+  /* Mobile hamburger nav */
+  .nav-toggle {
+    display: flex;
+    order: 2;
+  }
+
+  .site-nav {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    flex-direction: column;
+    padding: 0.75rem 1.5rem;
+    gap: 0.25rem;
+    box-shadow: var(--shadow);
+  }
+
+  .site-nav.open {
+    display: flex;
+  }
+
+  .site-nav a {
+    padding: 0.6rem 0.5rem;
+    font-size: 0.95rem;
+  }
+
+  .btn-theme-toggle {
+    order: 1;
+    margin-left: auto;
+    margin-right: 0.5rem;
+  }
 }
 
 /* Screen reader only */
