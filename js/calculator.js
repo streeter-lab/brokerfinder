@@ -28,7 +28,7 @@ function calculate() {
   const inputs = getInputs();
   const { startingAmount, monthlyContribution, growthRate, platformFee, fundOCF, years } = inputs;
 
-  const annualGrowth = growthRate / 100;
+  const annualGrowth = Math.max(growthRate, 0) / 100;
   const totalFeeRate = (platformFee + fundOCF) / 100;
 
   // Calculate year-by-year with fees
@@ -76,7 +76,14 @@ function calculate() {
 
   document.getElementById('finalValue').textContent = formatCurrency(Math.round(finalWithFees));
   document.getElementById('totalContributions').textContent = formatCurrency(Math.round(totalContributions));
-  document.getElementById('totalGrowth').textContent = formatCurrency(Math.round(totalGrowthWithFees));
+  document.getElementById('totalGrowth').textContent = formatCurrency(Math.round(Math.abs(totalGrowthWithFees)));
+  // Add loss indicator
+  if (totalGrowthWithFees < 0) {
+    document.getElementById('totalGrowth').textContent = '-' + formatCurrency(Math.round(Math.abs(totalGrowthWithFees)));
+    document.getElementById('totalGrowth').style.color = 'var(--red)';
+  } else {
+    document.getElementById('totalGrowth').style.color = '';
+  }
   document.getElementById('totalFees').textContent = formatCurrency(Math.round(totalFeesAccumulated));
   document.getElementById('feeDrag').textContent = formatCurrency(Math.round(feeDrag));
   document.getElementById('withoutFeesValue').textContent = formatCurrency(Math.round(finalWithoutFees));
