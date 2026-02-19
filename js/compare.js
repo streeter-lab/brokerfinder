@@ -455,11 +455,15 @@ function calculateCost(broker, portfolioValue, userAnswers) {
   }
 
   // Revolut special: 0.25% per trade after 1 free/month
-  if (broker.name === 'Revolut' && (buyingETFs || buyingShares)) {
+  if (broker.name === 'Revolut') {
+    // Reset trading cost — we calculate it all here
+    tradingCost = 0;
     const relevantTrades = (buyingETFs ? tradesPerType : 0) + (buyingShares ? tradesPerType : 0);
-    const paidTrades = Math.max(0, relevantTrades - 12); // 1 free/month
-    const avgTradeSize = pv / Math.max(relevantTrades, 1);
-    tradingCost = paidTrades * avgTradeSize * 0.0025;
+    if (relevantTrades > 0) {
+      const paidTrades = Math.max(0, relevantTrades - 12); // 1 free/month
+      const avgTradeSize = pv / Math.max(relevantTrades, 1);
+      tradingCost = paidTrades * avgTradeSize * 0.0025;
+    }
   }
 
   // Interactive Investor plan selection

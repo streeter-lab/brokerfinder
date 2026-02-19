@@ -262,7 +262,7 @@
     "platformFee": { "type": "fixed", "amount": 0 },
     "sippFee": null,
     "fundTrade": null,
-    "etfTrade": null,
+    "etfTrade": 0,
     "shareTrade": 0,
     "shareTradePercent": 0.0025,
     "freeTradesPerMonth": 1,
