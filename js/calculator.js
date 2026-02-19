@@ -372,9 +372,10 @@ function showBrokerBanner(brokerName) {
   if (existing) existing.remove();
   const banner = document.createElement('div');
   banner.className = 'broker-context-banner';
-  banner.innerHTML = `Modelling fees for <strong>${brokerName}</strong> — <a href="/compare/" style="color:var(--accent)">back to comparison</a>`;
+  banner.innerHTML = `Modelling fees for <strong id="bannerBrokerName"></strong> — <a href="/compare/" style="color:var(--accent)">back to comparison</a>`;
   const calcInputs = document.getElementById('calcForm');
   calcInputs.parentNode.insertBefore(banner, calcInputs);
+  document.querySelector('#bannerBrokerName').textContent = brokerName;
 }
 
 function copyCalcLink(btn) {
