@@ -377,6 +377,13 @@ function calculateCost(broker, portfolioValue, userAnswers) {
   if (broker.platformFeeISA && accounts.includes('isa')) {
     platformFee = calculatePlatformFee(broker.platformFeeISA, pv);
   }
+  // Per-account minimum (Dodl)
+  if (broker.platformFeePerAccount && broker.platformFee.minimum) {
+    const accountCount = accounts.filter(a => broker.accounts.includes(a)).length;
+    const minimumTotal = broker.platformFee.minimum * accountCount;
+    platformFee = Math.max(platformFee, minimumTotal);
+  }
+
   // Platform fee caps — only apply when user holds ETFs/shares/ITs/bonds (not fund-only)
   const fundsOnly = invTypes.length === 1 && invTypes[0] === 'funds';
   const capsApply = !fundsOnly;
