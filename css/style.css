@@ -637,6 +637,52 @@ body {
   color: var(--accent);
 }
 
+/* ── Ineligible brokers section ── */
+.ineligible-section {
+  margin-top: 1.5rem;
+}
+
+.ineligible-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 0.7rem 1rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.ineligible-toggle:hover {
+  border-color: var(--text-muted);
+  color: var(--text-secondary);
+}
+
+.ineligible-chevron {
+  transition: transform 0.3s ease;
+}
+
+.ineligible-list {
+  margin-top: 0.75rem;
+}
+
+.broker-card.ineligible {
+  opacity: 0.5;
+  border-style: dashed;
+}
+
+.broker-card.ineligible:hover {
+  opacity: 0.7;
+}
+
 /* ── Footer ── */
 .site-footer {
   padding: 2rem 1.5rem;
