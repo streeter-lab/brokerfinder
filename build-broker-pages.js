@@ -40,7 +40,9 @@ const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June',
 function formatVerifiedDate(ym) {
   if (!ym) return 'Unknown';
   const [year, month] = ym.split('-');
-  return `${MONTH_NAMES[parseInt(month, 10) - 1]} ${year}`;
+  const monthIdx = parseInt(month, 10) - 1;
+  if (monthIdx < 0 || monthIdx > 11) return year || 'Unknown';
+  return `${MONTH_NAMES[monthIdx]} ${year}`;
 }
 
 // ═══════════════════════════════════════════════════

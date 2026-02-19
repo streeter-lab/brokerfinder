@@ -11,6 +11,27 @@ function formatCurrency(value) {
   return '\u00a3' + (formatted.endsWith('.00') ? formatted.slice(0, -3) : formatted);
 }
 
+function escapeHTML(str) {
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function showToast(message, duration) {
+  duration = duration || 3000;
+  var existing = document.getElementById('toast-notification');
+  if (existing) existing.remove();
+  var toast = document.createElement('div');
+  toast.id = 'toast-notification';
+  toast.className = 'toast';
+  toast.textContent = message;
+  toast.setAttribute('role', 'alert');
+  document.body.appendChild(toast);
+  requestAnimationFrame(function() { toast.classList.add('visible'); });
+  setTimeout(function() {
+    toast.classList.remove('visible');
+    setTimeout(function() { toast.remove(); }, 300);
+  }, duration);
+}
+
 // ── Theme toggle (runs immediately to prevent flash) ──
 function initTheme() {
   let saved = null;

@@ -311,7 +311,9 @@ const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June',
 function formatVerifiedDate(ym) {
   if (!ym) return 'Unknown';
   const [year, month] = ym.split('-');
-  return `${MONTH_NAMES[parseInt(month, 10) - 1]} ${year}`;
+  const monthIdx = parseInt(month, 10) - 1;
+  if (monthIdx < 0 || monthIdx > 11) return year || 'Unknown';
+  return `${MONTH_NAMES[monthIdx]} ${year}`;
 }
 
 // ═══════════════════════════════════════════════════
@@ -512,6 +514,19 @@ function recalculateAndRender(userAnswers) {
   const ineligibleBrokers = rankedBrokers.filter(b => !b.eligible);
   const initialShow = 5;
 
+  if (eligibleBrokers.length === 0) {
+    document.getElementById('brokerList').innerHTML = `
+      <div class="no-results">
+        <h3>No brokers match your criteria</h3>
+        <p>Try adjusting your account types or investment preferences.</p>
+        <button class="btn-action" onclick="changeAnswers()">Change my answers</button>
+      </div>
+    `;
+    const showAllBtn = document.getElementById('showAllBtn');
+    if (showAllBtn) showAllBtn.style.display = 'none';
+    return;
+  }
+
   renderBrokerCards(eligibleBrokers, ineligibleBrokers, initialShow, maxCost);
   animateCostBars();
 }
@@ -527,22 +542,48 @@ function showResults() {
   const slider = document.getElementById('whatifSlider');
   slider.value = answers.portfolioSize;
   document.getElementById('whatifValue').textContent = formatCurrency(answers.portfolioSize);
+  let sliderTimeout;
   slider.oninput = function() {
     const val = parseInt(this.value);
     document.getElementById('whatifValue').textContent = formatCurrency(val);
-    const modifiedAnswers = { ...answers, portfolioSize: val };
-    recalculateAndRender(modifiedAnswers);
-    // Update URL with slider value
-    const savedPortfolio = answers.portfolioSize;
-    answers.portfolioSize = val;
-    encodeAnswersToURL();
-    answers.portfolioSize = savedPortfolio;
+    clearTimeout(sliderTimeout);
+    sliderTimeout = setTimeout(() => {
+      // Capture expanded card state before re-render
+      const expandedIds = new Set();
+      document.querySelectorAll('.card-details.open').forEach(el => expandedIds.add(el.id));
+
+      const modifiedAnswers = { ...answers, portfolioSize: val };
+      recalculateAndRender(modifiedAnswers);
+
+      // Restore expanded cards
+      expandedIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.classList.add('open');
+          const header = el.closest('.broker-card').querySelector('.card-header');
+          if (header) header.setAttribute('aria-expanded', 'true');
+        }
+      });
+
+      // Update URL with slider value
+      const savedPortfolio = answers.portfolioSize;
+      answers.portfolioSize = val;
+      encodeAnswersToURL();
+      answers.portfolioSize = savedPortfolio;
+    }, 150);
   };
 
   // Encode answers to URL for sharing
   encodeAnswersToURL();
 
   document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  // Move focus to results heading for screen reader users
+  const resultsHeading = document.querySelector('#results h2');
+  if (resultsHeading) {
+    resultsHeading.setAttribute('tabindex', '-1');
+    resultsHeading.focus({ preventScroll: true });
+  }
 }
 
 function renderBrokerCards(eligible, ineligible, initialShow, maxCost) {
@@ -561,7 +602,7 @@ function renderBrokerCards(eligible, ineligible, initialShow, maxCost) {
       <div class="ineligible-section">
         <button class="ineligible-toggle" aria-expanded="false">
           <span id="ineligibleToggleText">${ineligible.length} broker${ineligible.length > 1 ? 's' : ''} excluded</span>
-          <svg class="ineligible-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
+          <svg class="ineligible-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </button>
         <div class="ineligible-list" id="ineligibleList" style="display:none">
           ${ineligible.map(item => renderIneligibleCard(item)).join('')}
@@ -594,8 +635,8 @@ function renderIneligibleCard(item) {
     <div class="broker-card ineligible">
       <div class="card-header" style="cursor:default; opacity:0.6;">
         <div class="card-info">
-          <h3>${broker.name}</h3>
-          <span class="broker-reason" style="color:var(--red)">${reasons}</span>
+          <h3>${escapeHTML(broker.name)}</h3>
+          <span class="broker-reason" style="color:var(--red)">${escapeHTML(reasons)}</span>
         </div>
       </div>
     </div>
@@ -659,7 +700,7 @@ function renderBrokerCard(item, rank, maxCost) {
   if (allWarnings.length > 0) {
     warningsHTML = '<div class="detail-warnings">';
     allWarnings.forEach(w => {
-      warningsHTML += `<div class="warning-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg>${w}</div>`;
+      warningsHTML += `<div class="warning-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg>${escapeHTML(w)}</div>`;
     });
     warningsHTML += '</div>';
   }
@@ -693,7 +734,7 @@ function renderBrokerCard(item, rank, maxCost) {
       </div>
       <div class="detail-item">
         <span class="detail-label">Entry/exit fees</span>
-        <span class="detail-value">${broker.entryExit}</span>
+        <span class="detail-value">${escapeHTML(broker.entryExit)}</span>
       </div>
       <div class="detail-item">
         <span class="detail-label">Category</span>
@@ -701,15 +742,15 @@ function renderBrokerCard(item, rank, maxCost) {
       </div>
       <div class="detail-item">
         <span class="detail-label">Cash interest</span>
-        <span class="detail-value">${broker.cashInterest || 'Check with provider'}</span>
+        <span class="detail-value">${escapeHTML(broker.cashInterest || 'Check with provider')}</span>
       </div>
     </div>
     ${warningsHTML}
-    ${broker.notes ? `<div class="detail-notes">${broker.notes}</div>` : ''}
+    ${broker.notes ? `<div class="detail-notes">${escapeHTML(broker.notes)}</div>` : ''}
     ${broker.lastVerified ? `<div class="detail-verified">Fee data last verified: ${formatVerifiedDate(broker.lastVerified)}</div>` : ''}
     <div class="detail-calc-cta">
       <a href="/broker/${brokerSlug(broker.name)}/" class="btn-calc-link">
-        View full ${broker.name} fee breakdown &rarr;
+        View full ${escapeHTML(broker.name)} fee breakdown &rarr;
       </a>
       <a href="${buildCalcLink(broker, costResult, answers)}" class="btn-calc-link" style="margin-left:1.5rem">
         See long-term fee impact &rarr;
@@ -720,12 +761,12 @@ function renderBrokerCard(item, rank, maxCost) {
   const isCompared = compareSet.has(broker.name);
 
   return `
-    <div class="broker-card ${isTopPick ? 'top-pick' : ''}" data-broker="${broker.name.replace(/"/g, '&quot;')}">
-      <div class="card-header" data-broker-name="${broker.name.replace(/"/g, '&quot;')}" tabindex="0" role="button" aria-expanded="false" aria-label="Show details for ${broker.name}">
+    <div class="broker-card ${isTopPick ? 'top-pick' : ''}" data-broker="${escapeHTML(broker.name)}">
+      <div class="card-header" data-broker-name="${escapeHTML(broker.name)}" tabindex="0" role="button" aria-expanded="false" aria-label="Show details for ${escapeHTML(broker.name)}">
         <span class="card-rank">${rank}</span>
         <div class="card-info">
-          <h3>${broker.name}</h3>
-          <span class="broker-reason">${reason}</span>
+          <h3>${escapeHTML(broker.name)}</h3>
+          <span class="broker-reason">${escapeHTML(reason)}</span>
         </div>
         <div class="card-cost">
           <span class="cost-amount">${formatCurrency(costResult.totalCost)}</span>
@@ -787,7 +828,7 @@ function animateCostBars() {
 function toggleCompare(brokerName, checkbox) {
   if (checkbox.checked && compareSet.size >= 3) {
     checkbox.checked = false;
-    alert('You can compare up to 3 brokers at a time.');
+    showToast('You can compare up to 3 brokers at a time.');
     return;
   }
   if (checkbox.checked) {
@@ -830,7 +871,7 @@ function showComparison() {
   const selected = rankedBrokers.filter(b => compareSet.has(b.broker.name));
   const table = document.getElementById('comparisonTable');
 
-  const headers = selected.map(s => `<th>${s.broker.name}</th>`).join('');
+  const headers = selected.map(s => `<th>${escapeHTML(s.broker.name)}</th>`).join('');
 
   const rows = [
     { label: 'Platform fee', key: 'platformFee' },
@@ -878,8 +919,8 @@ function showComparison() {
     { label: 'Regular investing', fn: s => s.broker.regularInvesting !== null && s.broker.regularInvesting !== undefined ? (s.broker.regularInvesting === 0 ? 'Free' : formatCurrency(s.broker.regularInvesting)) : 'N/A' },
     { label: 'SIPP available', fn: s => s.broker.hasSIPP ? 'Yes' : 'No' },
     { label: 'Drawdown', fn: s => s.broker.hasDrawdown ? 'Yes' : 'No' },
-    { label: 'Entry/exit', fn: s => s.broker.entryExit },
-    { label: 'Cash interest', fn: s => s.broker.cashInterest || 'Check with provider' },
+    { label: 'Entry/exit', fn: s => escapeHTML(s.broker.entryExit) },
+    { label: 'Cash interest', fn: s => escapeHTML(s.broker.cashInterest || 'Check with provider') },
   ];
 
   extraRows.forEach(row => {
@@ -912,11 +953,11 @@ function showComparison() {
     if (names.length >= 2) {
       fscsWarningHTML += `
         <div class="fscs-notice" style="margin-top:1rem">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
             <circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>
           </svg>
           <div>
-            <strong>FSCS overlap:</strong> ${names.join(' and ')} share the same FSCS investment protection (\u00a385,000 combined limit across both). Using both does NOT give you \u00a3170,000 of protection.
+            <strong>FSCS overlap:</strong> ${names.map(escapeHTML).join(' and ')} share the same FSCS investment protection (\u00a385,000 combined limit across both). Using both does NOT give you \u00a3170,000 of protection.
           </div>
         </div>
       `;
@@ -954,12 +995,21 @@ function decodeAnswersFromURL() {
   const params = new URLSearchParams(hash);
   const restored = {};
   const multiFields = ['accounts', 'priorities', 'investmentTypes'];
+
+  // Build valid values from QUESTIONS
+  const validValues = {};
+  QUESTIONS.forEach(q => {
+    validValues[q.id] = q.options.map(o => String(o.value));
+  });
+
   params.forEach((value, key) => {
+    if (!validValues[key]) return; // Ignore unknown keys
     if (multiFields.includes(key)) {
-      restored[key] = value ? value.split(',') : [];
+      const vals = value ? value.split(',').filter(v => validValues[key].includes(v)) : [];
+      if (vals.length > 0) restored[key] = vals;
     } else if (key === 'portfolioSize' && !isNaN(Number(value))) {
       restored[key] = Number(value);
-    } else {
+    } else if (validValues[key].includes(value)) {
       restored[key] = value;
     }
   });
@@ -970,6 +1020,8 @@ function copyShareLink(btn) {
   navigator.clipboard.writeText(window.location.href).then(() => {
     btn.textContent = 'Link copied!';
     setTimeout(() => { btn.textContent = 'Share results'; }, 2000);
+  }).catch(() => {
+    showToast('Could not copy link. Please copy the URL manually.');
   });
 }
 
@@ -1064,7 +1116,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Check for URL-encoded answers (shared link)
   const saved = decodeAnswersFromURL();
-  if (saved) {
+  if (saved && dataState === 'loaded' && BROKERS.length > 0) {
     answers = saved;
     showResults();
   }
