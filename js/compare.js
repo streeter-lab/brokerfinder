@@ -82,7 +82,6 @@ function calculateTieredFee(tiers, portfolioValue) {
 const QUESTIONS = [
   {
     id: 'accounts',
-    label: 'Step 1 of 7',
     title: 'What account type(s) do you need?',
     desc: 'Select all that apply.',
     multi: true,
@@ -96,7 +95,6 @@ const QUESTIONS = [
   },
   {
     id: 'investmentTypes',
-    label: 'Step 2 of 8',
     title: 'What do you want to invest in?',
     desc: 'Select all that apply.',
     multi: true,
@@ -110,7 +108,6 @@ const QUESTIONS = [
   },
   {
     id: 'portfolioSize',
-    label: 'Step 3 of 7',
     title: 'How large is your portfolio?',
     desc: 'Or your expected portfolio. This is the biggest factor in your costs.',
     multi: false,
@@ -125,7 +122,6 @@ const QUESTIONS = [
   },
   {
     id: 'tradingFreq',
-    label: 'Step 4 of 7',
     title: 'How often do you trade?',
     desc: 'Trading costs add up. Regular investing is usually cheapest.',
     multi: false,
@@ -138,7 +134,6 @@ const QUESTIONS = [
   },
   {
     id: 'fxTrading',
-    label: 'Step 5 of 7',
     title: 'Do you trade in non-GBP currencies?',
     desc: 'For example, US shares or international ETFs requiring FX conversion.',
     multi: false,
@@ -150,7 +145,6 @@ const QUESTIONS = [
   },
   {
     id: 'priorities',
-    label: 'Step 6 of 7',
     title: 'What matters most to you?',
     desc: 'Select up to 3 priorities. We\'ll weight recommendations accordingly.',
     multi: true,
@@ -166,7 +160,6 @@ const QUESTIONS = [
   },
   {
     id: 'feeModel',
-    label: 'Step 7 of 8',
     title: 'Do you have a preference for how your broker charges?',
     desc: 'This filters which types of brokers we recommend. Not sure? Pick "No preference".',
     multi: false,
@@ -180,7 +173,6 @@ const QUESTIONS = [
   },
   {
     id: 'drawdownSoon',
-    label: 'Step 8 of 8',
     title: 'Will you need SIPP drawdown soon?',
     desc: 'This affects which platforms are suitable for you.',
     multi: false,
