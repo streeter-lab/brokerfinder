@@ -846,7 +846,7 @@ function renderBrokerCard(item, rank, maxCost) {
 
   return `
     <div class="broker-card ${isTopPick ? 'top-pick' : ''}" data-broker="${broker.name}">
-      <div class="card-header" onclick="toggleDetails('${broker.name}')" tabindex="0" role="button" aria-expanded="false" aria-label="Show details for ${broker.name}">
+      <div class="card-header" data-broker-name="${broker.name.replace(/"/g, '&quot;')}" onclick="toggleDetails(this.dataset.brokerName)" tabindex="0" role="button" aria-expanded="false" aria-label="Show details for ${broker.name}">
         <span class="card-rank">${rank}</span>
         <div class="card-info">
           <h3>${broker.name}</h3>
@@ -865,7 +865,7 @@ function renderBrokerCard(item, rank, maxCost) {
       <div class="card-tags">${tagsHTML}</div>
       <div class="card-compare-toggle">
         <label class="compare-checkbox">
-          <input type="checkbox" ${isCompared ? 'checked' : ''} onchange="toggleCompare('${broker.name}', this.checked)">
+          <input type="checkbox" ${isCompared ? 'checked' : ''} onchange="toggleCompare(this.closest('.broker-card').dataset.broker, this.checked)">
           Add to comparison
         </label>
       </div>
