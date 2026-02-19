@@ -200,6 +200,7 @@
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 1.5rem;
+  position: relative;
 }
 
 .chart-container h3 {
@@ -211,6 +212,44 @@
 .chart-container canvas {
   width: 100%;
   height: 320px;
+  cursor: crosshair;
+}
+
+.chart-tooltip {
+  position: absolute;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.6rem 0.8rem;
+  font-size: 0.78rem;
+  pointer-events: none;
+  z-index: 10;
+  min-width: 160px;
+  box-shadow: var(--shadow);
+}
+
+.tooltip-year {
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+  color: var(--text);
+}
+
+.tooltip-row {
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.tooltip-row.accent {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.tooltip-row.muted {
+  color: var(--text-muted);
+}
+
+.tooltip-row.amber {
+  color: var(--amber);
 }
 
 .broker-context-banner {
@@ -347,6 +386,13 @@
     <div class="chart-container">
       <h3>Portfolio growth over time</h3>
       <canvas id="growthChart"></canvas>
+      <div class="chart-tooltip" id="chartTooltip" style="display:none">
+        <div class="tooltip-year" id="tooltipYear"></div>
+        <div class="tooltip-row accent" id="tooltipWithFees"></div>
+        <div class="tooltip-row muted" id="tooltipWithoutFees"></div>
+        <div class="tooltip-row" id="tooltipContribs"></div>
+        <div class="tooltip-row amber" id="tooltipFees"></div>
+      </div>
     </div>
   </div>
 </div>

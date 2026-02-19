@@ -252,6 +252,48 @@ function drawChart() {
   ctx.fillText('Contributions', leg3x + 25, legendY + 4);
 }
 
+function initChartTooltip() {
+  const canvas = document.getElementById('growthChart');
+  const tooltip = document.getElementById('chartTooltip');
+  if (!canvas || !tooltip) return;
+
+  canvas.addEventListener('mousemove', (e) => {
+    if (!chartData || chartData.length < 2) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const w = rect.width;
+    const padding = { left: 65, right: 20 };
+    const chartW = w - padding.left - padding.right;
+    const years = chartData.length - 1;
+
+    const relX = x - padding.left;
+    if (relX < 0 || relX > chartW) {
+      tooltip.style.display = 'none';
+      return;
+    }
+    const yearIndex = Math.round((relX / chartW) * years);
+    const clamped = Math.max(0, Math.min(yearIndex, years));
+    const d = chartData[clamped];
+
+    const tooltipX = padding.left + (clamped / years) * chartW;
+    const flipSide = tooltipX > w * 0.65;
+    tooltip.style.display = 'block';
+    tooltip.style.left = flipSide ? (tooltipX - tooltip.offsetWidth - 12) + 'px' : (tooltipX + 12) + 'px';
+    tooltip.style.top = '40px';
+
+    document.getElementById('tooltipYear').textContent = 'Year ' + d.year;
+    document.getElementById('tooltipWithFees').textContent = 'With fees: ' + formatCurrency(Math.round(d.withFees));
+    document.getElementById('tooltipWithoutFees').textContent = 'Without fees: ' + formatCurrency(Math.round(d.withoutFees));
+    document.getElementById('tooltipContribs').textContent = 'Contributed: ' + formatCurrency(Math.round(d.contributions));
+    document.getElementById('tooltipFees').textContent = 'Fees paid: ' + formatCurrency(Math.round(d.fees));
+  });
+
+  canvas.addEventListener('mouseleave', () => {
+    tooltip.style.display = 'none';
+  });
+}
+
 function updateYearsLabel() {
   const val = document.getElementById('yearsSlider').value;
   document.getElementById('yearsValue').textContent = val + ' years';
@@ -344,6 +386,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initial calculation
   calculate();
   if (urlParams) encodeCalcParamsToURL();
+  initChartTooltip();
 
   // Redraw chart on resize
   window.addEventListener('resize', () => {
