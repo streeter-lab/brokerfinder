@@ -14,7 +14,7 @@ const defaults = {
 let chartData = null;
 
 function getInputs() {
-  return {
+  const raw = {
     startingAmount: parseFloat(document.getElementById('startingAmount').value) || 0,
     monthlyContribution: parseFloat(document.getElementById('monthlyContribution').value) || 0,
     growthRate: parseFloat(document.getElementById('growthRate').value) || 0,
@@ -22,6 +22,15 @@ function getInputs() {
     fundOCF: parseFloat(document.getElementById('fundOCF').value) || 0,
     years: parseInt(document.getElementById('yearsSlider').value) || 20
   };
+
+  const inflationOn = document.getElementById('inflationToggle')?.checked;
+  if (inflationOn) {
+    const inflationRate = parseFloat(document.getElementById('inflationRate')?.value) || 2.5;
+    raw.growthRate = Math.max(raw.growthRate - inflationRate, 0);
+    raw.inflationAdjusted = true;
+  }
+
+  return raw;
 }
 
 function calculate() {
@@ -92,6 +101,11 @@ function calculate() {
   const contribPercent = finalWithFees > 0 ? (totalContributions / finalWithFees * 100) : 0;
   document.getElementById('contribBar').style.width = Math.min(contribPercent, 100) + '%';
   document.getElementById('growthBar').style.width = Math.max(100 - contribPercent, 0) + '%';
+
+  // Update labels based on inflation toggle
+  const inflationOn = document.getElementById('inflationToggle')?.checked;
+  const realLabel = inflationOn ? ' (in today\'s money)' : '';
+  document.querySelector('.result-card.highlight .result-sub').textContent = 'after fees' + realLabel;
 
   document.getElementById('results').style.display = 'block';
   drawChart();
@@ -312,19 +326,24 @@ function decodeCalcParamsFromURL() {
   if (params.has('ocf')) result.fundOCF = parseFloat(params.get('ocf'));
   if (params.has('years')) result.years = parseInt(params.get('years'));
   if (params.has('broker')) result.brokerName = params.get('broker');
+  if (params.has('inflation')) result.inflation = parseFloat(params.get('inflation'));
   return Object.keys(result).length > 0 ? result : null;
 }
 
 function encodeCalcParamsToURL() {
-  const inputs = getInputs();
+  // Use raw input values (not inflation-adjusted) for URL
   const params = new URLSearchParams({
-    start: inputs.startingAmount,
-    monthly: inputs.monthlyContribution,
-    growth: inputs.growthRate,
-    fee: inputs.platformFee,
-    ocf: inputs.fundOCF,
-    years: inputs.years
+    start: parseFloat(document.getElementById('startingAmount').value) || 0,
+    monthly: parseFloat(document.getElementById('monthlyContribution').value) || 0,
+    growth: parseFloat(document.getElementById('growthRate').value) || 0,
+    fee: parseFloat(document.getElementById('platformFee').value) || 0,
+    ocf: parseFloat(document.getElementById('fundOCF').value) || 0,
+    years: parseInt(document.getElementById('yearsSlider').value) || 20
   });
+  const inflationOn = document.getElementById('inflationToggle')?.checked;
+  if (inflationOn) {
+    params.set('inflation', document.getElementById('inflationRate')?.value || '2.5');
+  }
   history.replaceState(null, '', '#' + params.toString());
 }
 
@@ -372,16 +391,42 @@ document.addEventListener('DOMContentLoaded', () => {
     if (urlParams.brokerName) {
       showBrokerBanner(urlParams.brokerName);
     }
+    if (urlParams.inflation !== undefined) {
+      document.getElementById('inflationToggle').checked = true;
+      document.getElementById('inflationRate').value = urlParams.inflation;
+      document.getElementById('inflationHint').style.display = 'block';
+    }
   }
 
   // Auto-calculate on any input change
   document.querySelectorAll('#calcForm input').forEach(input => {
+    // Skip inflation inputs — they have their own handlers
+    if (input.id === 'inflationToggle' || input.id === 'inflationRate') return;
     input.addEventListener('input', () => {
       if (input.id === 'yearsSlider') updateYearsLabel();
       calculate();
       encodeCalcParamsToURL();
     });
   });
+
+  // Inflation toggle and rate
+  const inflationToggle = document.getElementById('inflationToggle');
+  const inflationHint = document.getElementById('inflationHint');
+  const inflationRateInput = document.getElementById('inflationRate');
+
+  if (inflationToggle) {
+    inflationToggle.addEventListener('change', () => {
+      inflationHint.style.display = inflationToggle.checked ? 'block' : 'none';
+      calculate();
+      encodeCalcParamsToURL();
+    });
+  }
+  if (inflationRateInput) {
+    inflationRateInput.addEventListener('input', () => {
+      calculate();
+      encodeCalcParamsToURL();
+    });
+  }
 
   // Initial calculation
   calculate();
