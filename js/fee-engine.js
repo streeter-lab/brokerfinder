@@ -85,7 +85,7 @@ function calculateCost(broker, portfolioValue, userAnswers) {
   let platformFee = 0;
   if (broker.platformFee) {
     // Interactive Brokers: GIA is free, ISA is £36
-    if (broker.platformFeeGIA === 0 && accounts.length === 1 && accounts[0] === 'gia') {
+    if (broker.platformFeeGIA === 0 && !accounts.includes('isa')) {
       platformFee = 0;
     } else {
       platformFee = calculatePlatformFee(broker.platformFee, pv);
