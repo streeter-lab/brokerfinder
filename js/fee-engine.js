@@ -84,14 +84,73 @@ function calculateCost(broker, portfolioValue, userAnswers) {
   const buyingBonds = invTypes.includes('bonds');
   const buyingIntl = invTypes.includes('sharesIntl');
 
-  // ─── Platform Fee ───
+  // ─── Determine fund vs ETF/share split ───
+  const hasFundLike = invTypes.includes('funds') || invTypes.includes('bonds');
+  const hasShareLike = invTypes.includes('etfs') || invTypes.includes('sharesUK') || invTypes.includes('sharesIntl');
+
+  let fundPercent, sharePercent;
+  if (hasFundLike && hasShareLike) {
+    fundPercent = (userAnswers.assetSplit !== undefined && userAnswers.assetSplit !== null)
+      ? userAnswers.assetSplit / 100
+      : 0.5;
+    sharePercent = 1 - fundPercent;
+  } else if (hasFundLike) {
+    fundPercent = 1;
+    sharePercent = 0;
+  } else {
+    fundPercent = 0;
+    sharePercent = 1;
+  }
+
+  const fundPv = pv * fundPercent;
+  const sharePv = pv * sharePercent;
+
+  // ─── Platform Fee (with asset split) ───
   let platformFee = 0;
   if (broker.platformFee) {
     // Interactive Brokers: GIA is free, ISA is £36
     if (broker.platformFeeGIA === 0 && !accounts.includes('isa')) {
       platformFee = 0;
+    } else if (broker.platformFeeCaps && sharePercent > 0 && sharePercent < 1) {
+      // Split calculation: fund portion uncapped + share portion capped
+      const fullFee = calculatePlatformFee(broker.platformFee, pv);
+      const fundFee = fullFee * fundPercent;
+      const shareFeeRaw = fullFee * sharePercent;
+
+      // Apply cap ONLY to the share/ETF portion
+      let totalCap = 0;
+      let hasCap = false;
+      if (accounts.includes('isa') && broker.platformFeeCaps.isa) {
+        totalCap += broker.platformFeeCaps.isa; hasCap = true;
+      }
+      if (needsSIPP && broker.platformFeeCaps.sipp) {
+        totalCap += broker.platformFeeCaps.sipp; hasCap = true;
+      }
+      if (accounts.includes('lisa') && broker.platformFeeCaps.lisa) {
+        totalCap += broker.platformFeeCaps.lisa; hasCap = true;
+      }
+
+      const cappedShareFee = hasCap ? Math.min(shareFeeRaw, totalCap) : shareFeeRaw;
+      platformFee = fundFee + cappedShareFee;
     } else {
+      // No caps, or 100% one type — calculate on full PV
       platformFee = calculatePlatformFee(broker.platformFee, pv);
+
+      // Apply caps when 100% shares/ETFs (no funds/bonds)
+      if (broker.platformFeeCaps && sharePercent === 1) {
+        let totalCap = 0;
+        let hasCap = false;
+        if (accounts.includes('isa') && broker.platformFeeCaps.isa) {
+          totalCap += broker.platformFeeCaps.isa; hasCap = true;
+        }
+        if (needsSIPP && broker.platformFeeCaps.sipp) {
+          totalCap += broker.platformFeeCaps.sipp; hasCap = true;
+        }
+        if (accounts.includes('lisa') && broker.platformFeeCaps.lisa) {
+          totalCap += broker.platformFeeCaps.lisa; hasCap = true;
+        }
+        if (hasCap) platformFee = Math.min(platformFee, totalCap);
+      }
     }
   }
   // ISA-specific platform fee (Moneyfarm)
@@ -103,24 +162,6 @@ function calculateCost(broker, portfolioValue, userAnswers) {
     const accountCount = accounts.filter(a => broker.accounts.includes(a)).length;
     const minimumTotal = broker.platformFee.minimum * accountCount;
     platformFee = Math.max(platformFee, minimumTotal);
-  }
-
-  // Platform fee caps — only apply when user holds exclusively ETFs/shares (no funds or bonds)
-  const hasOnlyETFsOrShares = !invTypes.includes('funds') && !invTypes.includes('bonds');
-  const capsApply = hasOnlyETFsOrShares;
-  if (broker.platformFeeCaps && capsApply) {
-    let totalCap = 0;
-    let hasCap = false;
-    if (accounts.includes('isa') && broker.platformFeeCaps.isa) {
-      totalCap += broker.platformFeeCaps.isa; hasCap = true;
-    }
-    if (needsSIPP && broker.platformFeeCaps.sipp) {
-      totalCap += broker.platformFeeCaps.sipp; hasCap = true;
-    }
-    if (accounts.includes('lisa') && broker.platformFeeCaps.lisa) {
-      totalCap += broker.platformFeeCaps.lisa; hasCap = true;
-    }
-    if (hasCap) platformFee = Math.min(platformFee, totalCap);
   }
 
   // SIPP surcharge
@@ -290,7 +331,9 @@ function calculateCost(broker, portfolioValue, userAnswers) {
     fxCost: fc,
     drawdownCost: dc,
     totalCost: Math.round((pf + sc + tc + fc + dc) * 100) / 100,
-    fxNotDisclosed
+    fxNotDisclosed,
+    fundPv: Math.round(fundPv * 100) / 100,
+    sharePv: Math.round(sharePv * 100) / 100
   };
 }
 

@@ -72,6 +72,25 @@ const QUESTIONS = [
     ]
   },
   {
+    id: 'assetSplit',
+    title: 'How is your portfolio split?',
+    desc: 'This affects your platform fee — many brokers charge differently for funds vs ETFs and shares.',
+    multi: false,
+    conditional: (answers) => {
+      const types = answers.investmentTypes || [];
+      const hasFunds = types.includes('funds');
+      const hasETFsOrShares = types.includes('etfs') || types.includes('sharesUK') || types.includes('sharesIntl');
+      return hasFunds && hasETFsOrShares;
+    },
+    options: [
+      {value: 100, label: 'All funds (100% funds)', detail: 'No ETFs or individual shares'},
+      {value: 75, label: 'Mostly funds (~75% funds, ~25% ETFs/shares)'},
+      {value: 50, label: 'Roughly even split (~50/50)'},
+      {value: 25, label: 'Mostly ETFs/shares (~25% funds, ~75% ETFs/shares)'},
+      {value: 0, label: 'All ETFs/shares (0% funds)', detail: 'No traditional funds'}
+    ]
+  },
+  {
     id: 'portfolioSize',
     title: 'How large is your portfolio?',
     desc: 'Or your expected portfolio. This is the biggest factor in your costs.',
@@ -688,13 +707,21 @@ function renderBrokerCard(item, rank, maxCost) {
   if (eligWarnings.length > 0) {
     allWarnings.push(...eligWarnings);
   }
-  // Warn about fee cap when user has mixed funds + ETFs/shares
+  // Inform about fee cap split when user has mixed funds + ETFs/shares
   const userInvTypes = answers.investmentTypes || ['etfs'];
   const hasFundsAndETFs = userInvTypes.includes('funds') && (userInvTypes.includes('etfs') || userInvTypes.includes('sharesUK') || userInvTypes.includes('sharesIntl'));
-  if (broker.platformFeeCaps && hasFundsAndETFs) {
-    const capVal = broker.platformFeeCaps.isa || broker.platformFeeCaps.sipp;
-    if (capVal) {
-      allWarnings.push(`Fee cap of \u00a3${capVal} applies to ETFs/shares only \u2014 actual fee may be lower if you hold mostly ETFs`);
+  if (broker.platformFeeCaps && hasFundsAndETFs && costResult.fundPv > 0 && costResult.sharePv > 0) {
+    const capAccounts = [];
+    if ((answers.accounts || ['isa']).includes('isa') && broker.platformFeeCaps.isa)
+      capAccounts.push(`ISA \u00a3${broker.platformFeeCaps.isa}`);
+    if ((answers.accounts || []).includes('sipp') && broker.platformFeeCaps.sipp)
+      capAccounts.push(`SIPP \u00a3${broker.platformFeeCaps.sipp}`);
+    if ((answers.accounts || []).includes('lisa') && broker.platformFeeCaps.lisa)
+      capAccounts.push(`LISA \u00a3${broker.platformFeeCaps.lisa}`);
+    const capsStr = capAccounts.join(', ');
+    const fundPct = Math.round((costResult.fundPv / (costResult.fundPv + costResult.sharePv)) * 100);
+    if (capsStr) {
+      allWarnings.push(`Platform fee based on ${fundPct}% funds (uncapped) + ${100 - fundPct}% ETFs/shares (capped at ${capsStr})`);
     }
   }
   if (allWarnings.length > 0) {
@@ -1007,7 +1034,7 @@ function decodeAnswersFromURL() {
     if (multiFields.includes(key)) {
       const vals = value ? value.split(',').filter(v => validValues[key].includes(v)) : [];
       if (vals.length > 0) restored[key] = vals;
-    } else if (key === 'portfolioSize' && !isNaN(Number(value))) {
+    } else if ((key === 'portfolioSize' || key === 'assetSplit') && !isNaN(Number(value))) {
       restored[key] = Number(value);
     } else if (validValues[key].includes(value)) {
       restored[key] = value;
