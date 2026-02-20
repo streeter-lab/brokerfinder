@@ -1179,7 +1179,7 @@
       "type": "fixed",
       "amount": 0
     },
-    "sippExtra120Under30k": true,
+    "sippSurcharge": { "amount": 120, "belowThreshold": 30000 },
     "fundTrade": 4,
     "etfTrade": 10,
     "shareTrade": 10,
