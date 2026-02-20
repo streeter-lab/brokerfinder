@@ -129,7 +129,7 @@ function calculateCost(broker, portfolioValue, userAnswers) {
     }
     if (broker.sippExtra) sippCost += broker.sippExtra;
     if (broker.sippMin) sippCost = Math.max(sippCost, broker.sippMin);
-    if (broker.sippExtra120Under30k && pv < 30000) sippCost += 120;
+    if (broker.sippSurcharge && pv < broker.sippSurcharge.belowThreshold) sippCost += broker.sippSurcharge.amount;
   }
 
   // ─── Trading Costs ───

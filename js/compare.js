@@ -1031,6 +1031,9 @@ function copyShareLink(btn) {
 document.addEventListener('keydown', (e) => {
   if (!document.getElementById('wizard').classList.contains('active')) return;
   if (e.key === 'Enter') {
+    // Don't auto-advance if the user is pressing Enter to toggle a specific option
+    const tag = e.target.tagName.toLowerCase();
+    if (tag === 'button' || tag === 'input') return;
     const btnNext = document.getElementById('btnNext');
     if (!btnNext.disabled) nextStep();
   }
