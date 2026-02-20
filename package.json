@@ -1,0 +1,7 @@
+{
+  "name": "brokerfinder",
+  "private": true,
+  "scripts": {
+    "test": "node tests/fee-engine.test.js"
+  }
+}
