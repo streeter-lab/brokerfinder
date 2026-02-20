@@ -21,11 +21,18 @@ async function loadCheckBrokers() {
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     CHECK_BROKERS = await response.json();
     populateBrokerDropdown();
-    if (btnCheck) btnCheck.disabled = false;
+    if (btnCheck) {
+      btnCheck.disabled = false;
+      btnCheck.textContent = 'Check now';
+    }
   } catch (err) {
     console.error('Failed to load broker data:', err);
     const select = document.getElementById('checkBroker');
     select.innerHTML = '<option value="">Failed to load — please refresh</option>';
+    if (btnCheck) {
+      btnCheck.disabled = false;
+      btnCheck.textContent = 'Retry';
+    }
   }
 }
 
@@ -80,10 +87,17 @@ function calculateCompoundSavings(annualSaving, years, growthRate) {
 }
 
 function runCheck() {
+  if (CHECK_BROKERS.length === 0) {
+    loadCheckBrokers();
+    return;
+  }
   const selectedBroker = getSelectedBroker();
   const portfolioValue = getPortfolioValue();
 
-  if (portfolioValue <= 0) return;
+  if (portfolioValue <= 0) {
+    showToast('Please enter a portfolio value greater than zero.');
+    return;
+  }
 
   const allCosts = calculateAllCosts(portfolioValue);
   if (allCosts.length === 0) return;
