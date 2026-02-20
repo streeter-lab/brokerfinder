@@ -43,6 +43,9 @@ function calculateTieredFee(tiers, portfolioValue) {
       fee += remaining * tier.rate;
       break;
     }
+    if (tier.upTo == null || !isFinite(tier.upTo) || tier.rate == null || !isFinite(tier.rate)) {
+      continue;
+    }
     const tierSize = tier.upTo - prevLimit;
     const inThisTier = Math.min(remaining, tierSize);
     fee += inThisTier * tier.rate;
