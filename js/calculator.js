@@ -12,6 +12,7 @@ const defaults = {
 };
 
 let chartData = null;
+let chartPadding = { top: 30, right: 20, bottom: 40, left: 65 };
 
 function debounce(fn, delay) {
   let timer;
@@ -170,7 +171,8 @@ function drawChart() {
   ctx.font = '11px "DM Sans", sans-serif';
   const maxLabel = formatAxisLabel(Math.round(maxVal));
   const maxLabelWidth = ctx.measureText(maxLabel).width;
-  const padding = { top: 30, right: 20, bottom: 40, left: Math.max(65, maxLabelWidth + 16) };
+  chartPadding = { top: 30, right: 20, bottom: 40, left: Math.max(65, maxLabelWidth + 16) };
+  const padding = chartPadding;
   const chartW = w - padding.left - padding.right;
   const chartH = h - padding.top - padding.bottom;
 
@@ -299,7 +301,7 @@ function initChartTooltip() {
     const rect = canvas.getBoundingClientRect();
     const x = clientX - rect.left;
     const w = rect.width;
-    const padding = { left: 65, right: 20 };
+    const padding = { left: chartPadding.left, right: chartPadding.right };
     const chartW = w - padding.left - padding.right;
     const years = chartData.length - 1;
 
