@@ -337,6 +337,19 @@ body {
   font-size: 1.1rem;
 }
 
+/* ── Fee breakdown tooltips ── */
+.tooltip-enabled {
+  text-decoration: underline dotted;
+  text-decoration-color: var(--text-secondary);
+  text-underline-offset: 3px;
+  cursor: help;
+}
+.tooltip-icon {
+  font-size: 0.75em;
+  opacity: 0.6;
+  margin-left: 0.25em;
+}
+
 .wizard-nav {
   display: flex;
   justify-content: space-between;

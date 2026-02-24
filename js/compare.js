@@ -745,6 +745,20 @@ function toggleIneligible() {
   btn.querySelector('.ineligible-chevron').style.transform = isHidden ? 'rotate(180deg)' : '';
 }
 
+// TODO: Replace native title tooltips with click/tap popovers for mobile.
+// Consider a lightweight popover that toggles on tap and dismisses on outside tap.
+function formatBreakdownTooltip(breakdown, section) {
+  if (!breakdown || !breakdown[section]) return '';
+  const bd = breakdown[section];
+  if (section === 'platformFee' && Object.keys(bd.perAccount).length > 0) {
+    const lines = Object.values(bd.perAccount).map(a => a.formula);
+    lines.push('Total: ' + formatCurrency(bd.total) + '/yr');
+    return lines.join('\n');
+  }
+  if (bd.formula) return bd.formula + '\nTotal: ' + formatCurrency(bd.total) + '/yr';
+  return formatCurrency(bd.total) + '/yr';
+}
+
 function renderBrokerCard(item, rank, maxCost) {
   const { broker, costResult, reason, eligWarnings } = item;
   const isTopPick = rank <= 3;
@@ -806,24 +820,29 @@ function renderBrokerCard(item, rank, maxCost) {
     warningsHTML += '</div>';
   }
 
-  // Details grid
+  // Details grid — with breakdown tooltips
+  const bd = costResult.breakdown || {};
+  const platformTip = formatBreakdownTooltip(bd, 'platformFee');
+  const tradingTip = formatBreakdownTooltip(bd, 'tradingCost');
+  const fxTip = formatBreakdownTooltip(bd, 'fxCost');
+  const sippTip = formatBreakdownTooltip(bd, 'sippCost');
   const detailsHTML = `
     <div class="details-grid">
       <div class="detail-item">
         <span class="detail-label">Platform fee</span>
-        <span class="detail-value">${formatCurrency(costResult.platformFee)}/yr</span>
+        <span class="detail-value tooltip-enabled" title="${escapeHTML(platformTip)}">${formatCurrency(costResult.platformFee)}/yr <span class="tooltip-icon">&#9432;</span></span>
       </div>
       <div class="detail-item">
         <span class="detail-label">SIPP cost</span>
-        <span class="detail-value">${costResult.sippCost > 0 ? formatCurrency(costResult.sippCost) + '/yr' : (broker.hasSIPP ? 'Included' : 'N/A')}</span>
+        <span class="detail-value${costResult.sippCost > 0 ? ' tooltip-enabled" title="' + escapeHTML(sippTip) + '"' : '"'}>${costResult.sippCost > 0 ? formatCurrency(costResult.sippCost) + '/yr' : (broker.hasSIPP ? 'Included' : 'N/A')}${costResult.sippCost > 0 ? ' <span class="tooltip-icon">&#9432;</span>' : ''}</span>
       </div>
       <div class="detail-item">
         <span class="detail-label">Trading costs</span>
-        <span class="detail-value">${formatCurrency(costResult.tradingCost)}/yr</span>
+        <span class="detail-value tooltip-enabled" title="${escapeHTML(tradingTip)}">${formatCurrency(costResult.tradingCost)}/yr <span class="tooltip-icon">&#9432;</span></span>
       </div>
       <div class="detail-item">
         <span class="detail-label">FX costs</span>
-        <span class="detail-value">${formatCurrency(costResult.fxCost)}/yr</span>
+        <span class="detail-value tooltip-enabled" title="${escapeHTML(fxTip)}">${formatCurrency(costResult.fxCost)}/yr <span class="tooltip-icon">&#9432;</span></span>
       </div>
       <div class="detail-item">
         <span class="detail-label">FX rate</span>

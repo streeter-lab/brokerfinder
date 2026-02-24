@@ -795,6 +795,69 @@ test('Legacy answers without balances — fallback still works', () => {
 
 console.log('');
 
+// ─────────────────────────────────────────────────
+// Category J: Breakdown Object Tests
+// ─────────────────────────────────────────────────
+console.log('Breakdown Object Tests');
+
+test('calculateCost returns breakdown object', () => {
+  const broker = getBroker('AJ Bell');
+  const result = calculateCost(broker, 100000, makeAnswers({
+    portfolioSize: 100000,
+    balances: { isa: 100000 }
+  }));
+  assertTrue(result.breakdown, 'breakdown object should exist');
+  assertTrue(result.breakdown.platformFee, 'platformFee breakdown should exist');
+  assertEqual(result.breakdown.platformFee.total, result.platformFee);
+});
+
+test('Breakdown platform fee total matches result', () => {
+  const broker = getBroker('Hargreaves Lansdown');
+  const result = calculateCost(broker, 200000, makeAnswers({
+    accounts: ['isa', 'gia'],
+    investmentTypes: ['etfs'],
+    portfolioSize: 200000,
+    balances: { isa: 100000, gia: 100000 }
+  }));
+  assertEqual(result.breakdown.platformFee.total, result.platformFee);
+  assertTrue(Object.keys(result.breakdown.platformFee.perAccount).length > 0, 'per-account breakdown should exist');
+});
+
+test('Breakdown trading cost total matches result', () => {
+  const broker = getBroker('AJ Bell');
+  const result = calculateCost(broker, 50000, makeAnswers());
+  assertEqual(result.breakdown.tradingCost.total, result.tradingCost);
+  assertTrue(result.breakdown.tradingCost.formula.length > 0, 'trading formula should not be empty');
+});
+
+test('Breakdown includes FX and SIPP cost formulas', () => {
+  const broker = getBroker('AJ Bell');
+  const result = calculateCost(broker, 100000, makeAnswers({
+    accounts: ['sipp'],
+    fxTrading: 'sometimes',
+    portfolioSize: 100000
+  }));
+  assertEqual(result.breakdown.fxCost.total, result.fxCost);
+  assertEqual(result.breakdown.sippCost.total, result.sippCost);
+  assertTrue(result.breakdown.fxCost.formula.length > 0, 'FX formula should exist');
+});
+
+test('Breakdown per-account shows cap info', () => {
+  const broker = getBroker('AJ Bell');
+  const result = calculateCost(broker, 200000, makeAnswers({
+    accounts: ['isa', 'gia'],
+    investmentTypes: ['etfs'],
+    portfolioSize: 200000,
+    balances: { isa: 100000, gia: 100000 }
+  }));
+  const isaBreakdown = result.breakdown.platformFee.perAccount.isa;
+  assertTrue(isaBreakdown, 'ISA breakdown should exist');
+  assertTrue(isaBreakdown.formula.includes('capped'), 'ISA formula should mention cap');
+  assertEqual(isaBreakdown.final, 42);
+});
+
+console.log('');
+
 // ═══════════════════════════════════════════════════
 // Summary
 // ═══════════════════════════════════════════════════
