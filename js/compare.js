@@ -184,6 +184,7 @@ let answers = {};
 let rankedBrokers = [];
 let showingAll = false;
 let compareSet = new Set();
+let originalAnswers = null;
 
 // ═══════════════════════════════════════════════════
 // WIZARD LOGIC
@@ -206,6 +207,10 @@ function startWizard() {
 }
 
 function changeAnswers() {
+  // Restore original answers (before slider modifications)
+  if (originalAnswers) {
+    answers = JSON.parse(JSON.stringify(originalAnswers));
+  }
   document.getElementById('results').classList.remove('active');
   document.getElementById('comparison').classList.remove('active');
   document.getElementById('wizard').classList.add('active');
@@ -627,6 +632,9 @@ function recalculateAndRender(userAnswers) {
 }
 
 function showResults() {
+  // Save original answers before any slider modifications
+  originalAnswers = JSON.parse(JSON.stringify(answers));
+
   document.getElementById('wizard').classList.remove('active');
   document.getElementById('hero').style.display = 'none';
   document.getElementById('results').classList.add('active');
