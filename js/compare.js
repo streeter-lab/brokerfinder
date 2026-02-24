@@ -619,7 +619,7 @@ function recalculateAndRender(userAnswers) {
       <div class="no-results">
         <h3>No brokers match your criteria</h3>
         <p>Try adjusting your account types or investment preferences.</p>
-        <button class="btn-action" onclick="changeAnswers()">Change my answers</button>
+        <button class="btn-action" id="btnNoResultsChange">Change my answers</button>
       </div>
     `;
     const showAllBtn = document.getElementById('showAllBtn');
@@ -1261,6 +1261,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   const brokerList = document.getElementById('brokerList');
   if (brokerList) {
     brokerList.addEventListener('click', (e) => {
+      // No-results change answers button
+      const noResultsChange = e.target.closest('#btnNoResultsChange');
+      if (noResultsChange) { changeAnswers(); return; }
+
       // Ineligible toggle
       const ineligibleBtn = e.target.closest('.ineligible-toggle');
       if (ineligibleBtn) { toggleIneligible(); return; }
