@@ -815,7 +815,10 @@
     },
     "platformFeeCaps": {
       "isa": 42,
-      "sipp": 120
+      "sipp": 120,
+      "gia": null,
+      "lisa": null,
+      "jisa": null
     },
     "sippFee": {
       "type": "fixed",
@@ -904,7 +907,10 @@
     },
     "platformFeeCaps": {
       "isa": 90,
-      "sipp": 90
+      "sipp": 90,
+      "gia": null,
+      "lisa": null,
+      "jisa": null
     },
     "sippFee": {
       "type": "fixed",
@@ -1464,7 +1470,9 @@
     "platformFeeCaps": {
       "isa": 150,
       "sipp": 150,
-      "lisa": 45
+      "lisa": 45,
+      "gia": null,
+      "jisa": null
     },
     "sippFee": {
       "type": "fixed",
