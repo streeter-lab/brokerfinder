@@ -118,28 +118,11 @@ function calculateCost(broker, portfolioValue, userAnswers) {
       const shareFeeRaw = fullFee * sharePercent;
 
       // Apply cap ONLY to the share/ETF portion
+      // If GIA is in the mix, we can't know the per-account split → disable caps
+      const hasGIA = accounts.includes('gia');
       let totalCap = 0;
       let hasCap = false;
-      if (accounts.includes('isa') && broker.platformFeeCaps.isa) {
-        totalCap += broker.platformFeeCaps.isa; hasCap = true;
-      }
-      if (needsSIPP && broker.platformFeeCaps.sipp) {
-        totalCap += broker.platformFeeCaps.sipp; hasCap = true;
-      }
-      if (accounts.includes('lisa') && broker.platformFeeCaps.lisa) {
-        totalCap += broker.platformFeeCaps.lisa; hasCap = true;
-      }
-
-      const cappedShareFee = hasCap ? Math.min(shareFeeRaw, totalCap) : shareFeeRaw;
-      platformFee = fundFee + cappedShareFee;
-    } else {
-      // No caps, or 100% one type — calculate on full PV
-      platformFee = calculatePlatformFee(broker.platformFee, pv);
-
-      // Apply caps when 100% shares/ETFs (no funds/bonds)
-      if (broker.platformFeeCaps && sharePercent === 1) {
-        let totalCap = 0;
-        let hasCap = false;
+      if (!hasGIA) {
         if (accounts.includes('isa') && broker.platformFeeCaps.isa) {
           totalCap += broker.platformFeeCaps.isa; hasCap = true;
         }
@@ -149,9 +132,38 @@ function calculateCost(broker, portfolioValue, userAnswers) {
         if (accounts.includes('lisa') && broker.platformFeeCaps.lisa) {
           totalCap += broker.platformFeeCaps.lisa; hasCap = true;
         }
+      }
+
+      const cappedShareFee = hasCap ? Math.min(shareFeeRaw, totalCap) : shareFeeRaw;
+      platformFee = fundFee + cappedShareFee;
+    } else {
+      // No caps, or 100% one type — calculate on full PV
+      platformFee = calculatePlatformFee(broker.platformFee, pv);
+
+      // Apply caps when 100% shares/ETFs (no funds/bonds)
+      // If GIA is in the mix, we can't know the per-account split → disable caps
+      if (broker.platformFeeCaps && sharePercent === 1) {
+        const hasGIA = accounts.includes('gia');
+        let totalCap = 0;
+        let hasCap = false;
+        if (!hasGIA) {
+          if (accounts.includes('isa') && broker.platformFeeCaps.isa) {
+            totalCap += broker.platformFeeCaps.isa; hasCap = true;
+          }
+          if (needsSIPP && broker.platformFeeCaps.sipp) {
+            totalCap += broker.platformFeeCaps.sipp; hasCap = true;
+          }
+          if (accounts.includes('lisa') && broker.platformFeeCaps.lisa) {
+            totalCap += broker.platformFeeCaps.lisa; hasCap = true;
+          }
+        }
         if (hasCap) platformFee = Math.min(platformFee, totalCap);
       }
     }
+  }
+  // Regular investing waives below-threshold flat fee (e.g. Fidelity)
+  if (broker.platformFee?.regularWaivesBelow && isRegular && pv <= broker.platformFee.belowThreshold) {
+    platformFee = 0;
   }
   // ISA-specific platform fee (Moneyfarm)
   if (broker.platformFeeISA && accounts.includes('isa')) {

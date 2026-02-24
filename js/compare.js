@@ -287,6 +287,8 @@ function selectOption(qId, value, multi, maxSelect) {
     } else {
       if (answers[qId].length < maxSelect) {
         answers[qId].push(value);
+      } else {
+        showToast(`You can only select up to ${maxSelect} options`, 2000);
       }
     }
   } else {
@@ -584,11 +586,9 @@ function showResults() {
         }
       });
 
-      // Update URL with slider value
-      const savedPortfolio = answers.portfolioSize;
+      // Update URL and answers with slider value
       answers.portfolioSize = val;
       encodeAnswersToURL();
-      answers.portfolioSize = savedPortfolio;
     }, 150);
   };
 

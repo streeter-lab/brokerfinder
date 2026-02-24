@@ -571,6 +571,138 @@ test('brokerSlug utility', () => {
 
 console.log('');
 
+// ─────────────────────────────────────────────────
+// Category G: GIA Cap Leak Fix
+// ─────────────────────────────────────────────────
+console.log('GIA Cap Leak Fix');
+
+test('AJ Bell — ISA+GIA, 100% ETFs, £200k — cap should NOT apply', () => {
+  const broker = getBroker('AJ Bell');
+  const result = calculateCost(broker, 200000, makeAnswers({
+    accounts: ['isa', 'gia'],
+    investmentTypes: ['etfs'],
+    portfolioSize: 200000
+  }));
+  // GIA present → no cap → full tiered fee: 200k * 0.0025 = 500
+  assertEqual(result.platformFee, 500);
+});
+
+test('AJ Bell — ISA+GIA, 50/50 split, £200k — cap should NOT apply', () => {
+  const broker = getBroker('AJ Bell');
+  const result = calculateCost(broker, 200000, makeAnswers({
+    accounts: ['isa', 'gia'],
+    investmentTypes: ['funds', 'etfs'],
+    portfolioSize: 200000,
+    assetSplit: 50
+  }));
+  // fullFee = 500, fundFee = 250, shareFeeRaw = 250
+  // GIA present → no cap → platformFee = 250 + 250 = 500
+  assertEqual(result.platformFee, 500);
+});
+
+test('AJ Bell — ISA only, 100% ETFs, £200k — cap STILL applies', () => {
+  const broker = getBroker('AJ Bell');
+  const result = calculateCost(broker, 200000, makeAnswers({
+    accounts: ['isa'],
+    investmentTypes: ['etfs'],
+    portfolioSize: 200000
+  }));
+  // ISA only, no GIA → cap applies → min(500, 42) = 42
+  assertEqual(result.platformFee, 42);
+});
+
+test('Hargreaves Lansdown — ISA+GIA, 100% ETFs — cap should NOT apply', () => {
+  const broker = getBroker('Hargreaves Lansdown');
+  const result = calculateCost(broker, 200000, makeAnswers({
+    accounts: ['isa', 'gia'],
+    investmentTypes: ['etfs'],
+    portfolioSize: 200000
+  }));
+  // 200k tiered: 200k * 0.0035 = 700, no cap due to GIA
+  assertEqual(result.platformFee, 700);
+});
+
+test('Fidelity — ISA+GIA, 100% ETFs, £100k — cap should NOT apply', () => {
+  const broker = getBroker('Fidelity');
+  const result = calculateCost(broker, 100000, makeAnswers({
+    accounts: ['isa', 'gia'],
+    investmentTypes: ['etfs'],
+    portfolioSize: 100000
+  }));
+  // 100k * 0.0035 = 350, GIA present → no cap
+  assertEqual(result.platformFee, 350);
+});
+
+test('GIA-only — caps never applied (no ISA/SIPP/LISA caps relevant)', () => {
+  const broker = getBroker('AJ Bell');
+  const result = calculateCost(broker, 200000, makeAnswers({
+    accounts: ['gia'],
+    investmentTypes: ['etfs'],
+    portfolioSize: 200000
+  }));
+  // GIA only → hasCap never becomes true → full fee = 500
+  assertEqual(result.platformFee, 500);
+});
+
+console.log('');
+
+// ─────────────────────────────────────────────────
+// Category H: Fidelity Regular Investor Waiver
+// ─────────────────────────────────────────────────
+console.log('Fidelity Regular Investor Waiver');
+
+test('Fidelity — regular investing, £20k — fee waived to £0', () => {
+  const broker = getBroker('Fidelity');
+  const result = calculateCost(broker, 20000, makeAnswers({
+    portfolioSize: 20000,
+    tradingFreq: 'monthly'
+  }));
+  // Below threshold + regular investing → platformFee = 0
+  assertEqual(result.platformFee, 0);
+});
+
+test('Fidelity — regular investing, £25k (at threshold) — fee waived to £0', () => {
+  const broker = getBroker('Fidelity');
+  const result = calculateCost(broker, 25000, makeAnswers({
+    portfolioSize: 25000,
+    tradingFreq: 'monthly'
+  }));
+  // At threshold (<=) + regular investing → platformFee = 0
+  assertEqual(result.platformFee, 0);
+});
+
+test('Fidelity — regular investing, £30k (above threshold) — normal fee with ISA cap', () => {
+  const broker = getBroker('Fidelity');
+  const result = calculateCost(broker, 30000, makeAnswers({
+    portfolioSize: 30000,
+    tradingFreq: 'monthly'
+  }));
+  // Above threshold → tiered fee: 30k * 0.0035 = 105, ISA ETF cap = 90
+  assertEqual(result.platformFee, 90);
+});
+
+test('Fidelity — NOT regular investing, £20k — fee is £90 (no waiver)', () => {
+  const broker = getBroker('Fidelity');
+  const result = calculateCost(broker, 20000, makeAnswers({
+    portfolioSize: 20000,
+    tradingFreq: 'occasional'
+  }));
+  // Below threshold + not regular → belowAmount = £90
+  assertEqual(result.platformFee, 90);
+});
+
+test('Vanguard — regular investing, £20k — waiver does NOT apply (no flag)', () => {
+  const broker = getBroker('Vanguard Investor');
+  const result = calculateCost(broker, 20000, makeAnswers({
+    portfolioSize: 20000,
+    tradingFreq: 'monthly'
+  }));
+  // Vanguard has thresholded fee with belowAmount = 48, but NO regularWaivesBelow flag
+  assertEqual(result.platformFee, 48);
+});
+
+console.log('');
+
 // ═══════════════════════════════════════════════════
 // Summary
 // ═══════════════════════════════════════════════════
