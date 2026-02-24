@@ -844,20 +844,25 @@ function renderBrokerCard(item, rank, maxCost) {
   const tradingTip = formatBreakdownTooltip(bd, 'tradingCost');
   const fxTip = formatBreakdownTooltip(bd, 'fxCost');
   const sippTip = formatBreakdownTooltip(bd, 'sippCost');
+  const needsSIPP = (answers.accounts || []).includes('sipp');
+  const hasFX = answers.fxTrading && answers.fxTrading !== 'rarely';
+
   const detailsHTML = `
     <div class="details-grid">
       <div class="detail-item">
         <span class="detail-label">Platform fee</span>
         ${feePopoverHTML(formatCurrency(costResult.platformFee) + '/yr', platformTip)}
       </div>
+      ${needsSIPP ? `
       <div class="detail-item">
         <span class="detail-label">SIPP cost</span>
         ${feePopoverHTML(costResult.sippCost > 0 ? formatCurrency(costResult.sippCost) + '/yr' : (broker.hasSIPP ? 'Included' : 'N/A'), costResult.sippCost > 0 ? sippTip : '')}
-      </div>
+      </div>` : ''}
       <div class="detail-item">
         <span class="detail-label">Trading costs</span>
         ${feePopoverHTML(formatCurrency(costResult.tradingCost) + '/yr', tradingTip)}
       </div>
+      ${hasFX ? `
       <div class="detail-item">
         <span class="detail-label">FX costs</span>
         ${feePopoverHTML(formatCurrency(costResult.fxCost) + '/yr', fxTip)}
@@ -865,7 +870,7 @@ function renderBrokerCard(item, rank, maxCost) {
       <div class="detail-item">
         <span class="detail-label">FX rate</span>
         <span class="detail-value">${broker.fxRate === null ? 'Not disclosed' : broker.fxRate !== undefined ? (broker.fxRate * 100).toFixed(2) + '%' : 'N/A'}</span>
-      </div>
+      </div>` : ''}
       <div class="detail-item">
         <span class="detail-label">Regular investing</span>
         <span class="detail-value">${broker.regularInvesting !== null && broker.regularInvesting !== undefined ? (broker.regularInvesting === 0 ? 'Free' : formatCurrency(broker.regularInvesting) + '/trade') : 'N/A'}</span>
