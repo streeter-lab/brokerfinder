@@ -35,7 +35,7 @@ function getInputs() {
   const inflationOn = document.getElementById('inflationToggle')?.checked;
   if (inflationOn) {
     const inflationRate = parseFloat(document.getElementById('inflationRate')?.value) || 2.5;
-    raw.growthRate = Math.max(raw.growthRate - inflationRate, 0);
+    raw.growthRate = raw.growthRate - inflationRate;
     raw.inflationAdjusted = true;
   }
 
@@ -46,7 +46,7 @@ function calculate() {
   const inputs = getInputs();
   const { startingAmount, monthlyContribution, growthRate, platformFee, fundOCF, years } = inputs;
 
-  const annualGrowth = Math.max(growthRate, 0) / 100;
+  const annualGrowth = growthRate / 100;
   const totalFeeRate = (platformFee + fundOCF) / 100;
 
   // Calculate year-by-year with fees

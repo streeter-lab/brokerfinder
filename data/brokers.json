@@ -886,6 +886,7 @@
       "type": "thresholded",
       "belowThreshold": 25000,
       "belowAmount": 90,
+      "regularWaivesBelow": true,
       "tiers": [
         {
           "upTo": 250000,
