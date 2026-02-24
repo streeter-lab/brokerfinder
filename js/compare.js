@@ -650,8 +650,12 @@ function showResults() {
 
   // What-if slider — initialise and bind handler
   const slider = document.getElementById('whatifSlider');
-  slider.value = answers.portfolioSize;
-  document.getElementById('whatifValue').textContent = formatCurrency(answers.portfolioSize);
+  const pv = answers.portfolioSize;
+  slider.min = 0;
+  slider.max = Math.max(pv * 3, 500000);
+  slider.step = pv > 100000 ? 5000 : (pv > 10000 ? 1000 : 500);
+  slider.value = pv;
+  document.getElementById('whatifValue').textContent = formatCurrency(pv);
   let sliderTimeout;
   slider.oninput = function() {
     const val = parseInt(this.value);
