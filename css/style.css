@@ -337,17 +337,67 @@ body {
   font-size: 1.1rem;
 }
 
-/* ── Fee breakdown tooltips ── */
-.tooltip-enabled {
+/* ── Fee Popover Tooltips ── */
+.fee-popover-wrap {
+  position: relative;
+  display: inline;
+}
+.fee-popover-trigger {
   text-decoration: underline dotted;
   text-decoration-color: var(--text-secondary);
   text-underline-offset: 3px;
   cursor: help;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.25em;
 }
-.tooltip-icon {
+.fee-popover-trigger .tooltip-icon {
   font-size: 0.75em;
   opacity: 0.6;
-  margin-left: 0.25em;
+}
+.fee-popover {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem 1rem;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  white-space: pre-line;
+  box-shadow: var(--shadow);
+  z-index: 50;
+  min-width: 220px;
+  max-width: 320px;
+  pointer-events: none;
+}
+.fee-popover::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: var(--border);
+}
+.fee-popover.visible {
+  display: block;
+}
+/* On narrow screens, anchor left instead of center to avoid overflow */
+@media (max-width: 640px) {
+  .fee-popover {
+    left: 0;
+    transform: none;
+    max-width: calc(100vw - 3rem);
+  }
+  .fee-popover::after {
+    left: 1rem;
+    transform: none;
+  }
 }
 
 .wizard-nav {

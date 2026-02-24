@@ -160,6 +160,18 @@ const QUESTIONS = [
   }
 ];
 
+function feePopoverHTML(value, tooltip) {
+  if (!tooltip) return `<span class="detail-value">${value}</span>`;
+  return `
+    <span class="detail-value fee-popover-wrap">
+      <span class="fee-popover-trigger" tabindex="0" aria-describedby="">
+        ${value} <span class="tooltip-icon">&#9432;</span>
+      </span>
+      <span class="fee-popover" role="tooltip">${escapeHTML(tooltip)}</span>
+    </span>
+  `;
+}
+
 const ACCOUNT_LABELS = {
   isa: 'ISA', sipp: 'SIPP', gia: 'GIA', jisa: 'JISA', lisa: 'LISA'
 };
@@ -745,8 +757,6 @@ function toggleIneligible() {
   btn.querySelector('.ineligible-chevron').style.transform = isHidden ? 'rotate(180deg)' : '';
 }
 
-// TODO: Replace native title tooltips with click/tap popovers for mobile.
-// Consider a lightweight popover that toggles on tap and dismisses on outside tap.
 function formatBreakdownTooltip(breakdown, section) {
   if (!breakdown || !breakdown[section]) return '';
   const bd = breakdown[section];
@@ -830,19 +840,19 @@ function renderBrokerCard(item, rank, maxCost) {
     <div class="details-grid">
       <div class="detail-item">
         <span class="detail-label">Platform fee</span>
-        <span class="detail-value tooltip-enabled" title="${escapeHTML(platformTip)}">${formatCurrency(costResult.platformFee)}/yr <span class="tooltip-icon">&#9432;</span></span>
+        ${feePopoverHTML(formatCurrency(costResult.platformFee) + '/yr', platformTip)}
       </div>
       <div class="detail-item">
         <span class="detail-label">SIPP cost</span>
-        <span class="detail-value${costResult.sippCost > 0 ? ' tooltip-enabled" title="' + escapeHTML(sippTip) + '"' : '"'}>${costResult.sippCost > 0 ? formatCurrency(costResult.sippCost) + '/yr' : (broker.hasSIPP ? 'Included' : 'N/A')}${costResult.sippCost > 0 ? ' <span class="tooltip-icon">&#9432;</span>' : ''}</span>
+        ${feePopoverHTML(costResult.sippCost > 0 ? formatCurrency(costResult.sippCost) + '/yr' : (broker.hasSIPP ? 'Included' : 'N/A'), costResult.sippCost > 0 ? sippTip : '')}
       </div>
       <div class="detail-item">
         <span class="detail-label">Trading costs</span>
-        <span class="detail-value tooltip-enabled" title="${escapeHTML(tradingTip)}">${formatCurrency(costResult.tradingCost)}/yr <span class="tooltip-icon">&#9432;</span></span>
+        ${feePopoverHTML(formatCurrency(costResult.tradingCost) + '/yr', tradingTip)}
       </div>
       <div class="detail-item">
         <span class="detail-label">FX costs</span>
-        <span class="detail-value tooltip-enabled" title="${escapeHTML(fxTip)}">${formatCurrency(costResult.fxCost)}/yr <span class="tooltip-icon">&#9432;</span></span>
+        ${feePopoverHTML(formatCurrency(costResult.fxCost) + '/yr', fxTip)}
       </div>
       <div class="detail-item">
         <span class="detail-label">FX rate</span>
@@ -1260,10 +1270,48 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     });
 
+    // Popover toggle — delegated on brokerList
+    // Click/tap to toggle (works on mobile)
+    brokerList.addEventListener('click', (e) => {
+      const trigger = e.target.closest('.fee-popover-trigger');
+      if (trigger) {
+        e.stopPropagation();
+        const popover = trigger.nextElementSibling;
+        const isVisible = popover.classList.contains('visible');
+        // Close all open popovers first
+        document.querySelectorAll('.fee-popover.visible').forEach(p => p.classList.remove('visible'));
+        if (!isVisible) popover.classList.add('visible');
+        return;
+      }
+    });
+
+    // Hover support for desktop
+    brokerList.addEventListener('mouseenter', (e) => {
+      const trigger = e.target.closest('.fee-popover-trigger');
+      if (trigger) {
+        const popover = trigger.nextElementSibling;
+        popover.classList.add('visible');
+      }
+    }, true);
+    brokerList.addEventListener('mouseleave', (e) => {
+      const trigger = e.target.closest('.fee-popover-trigger');
+      if (trigger) {
+        const popover = trigger.nextElementSibling;
+        popover.classList.remove('visible');
+      }
+    }, true);
+
     // Observe broker list for cost bar animation
     const observer = new MutationObserver(() => animateCostBars());
     observer.observe(brokerList, { childList: true });
   }
+
+  // Close popovers when tapping outside
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.fee-popover-wrap')) {
+      document.querySelectorAll('.fee-popover.visible').forEach(p => p.classList.remove('visible'));
+    }
+  });
 
   // Check for URL-encoded answers (shared link)
   const saved = decodeAnswersFromURL();
