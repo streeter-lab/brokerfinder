@@ -21,10 +21,20 @@ function getBroker(name) {
 
 // Helper to build standard answers
 function makeAnswers(overrides = {}) {
+  const accounts = overrides.accounts || ['isa'];
+  const portfolioSize = overrides.portfolioSize || 50000;
+  // Auto-generate balances if not explicitly provided
+  const balances = overrides.balances !== undefined ? overrides.balances : (() => {
+    const b = {};
+    const perAccount = portfolioSize / accounts.length;
+    accounts.forEach(a => { b[a] = perAccount; });
+    return b;
+  })();
   return {
-    accounts: ['isa'],
+    accounts,
     investmentTypes: ['etfs'],
-    portfolioSize: 50000,
+    portfolioSize,
+    balances,
     tradingFreq: 'monthly',
     fxTrading: 'rarely',
     priorities: ['lowestFees'],
@@ -576,18 +586,20 @@ console.log('');
 // ─────────────────────────────────────────────────
 console.log('GIA Cap Leak Fix');
 
-test('AJ Bell — ISA+GIA, 100% ETFs, £200k — cap should NOT apply', () => {
+test('AJ Bell — ISA+GIA, 100% ETFs, £200k — per-account caps apply', () => {
   const broker = getBroker('AJ Bell');
   const result = calculateCost(broker, 200000, makeAnswers({
     accounts: ['isa', 'gia'],
     investmentTypes: ['etfs'],
     portfolioSize: 200000
   }));
-  // GIA present → no cap → full tiered fee: 200k * 0.0025 = 500
-  assertEqual(result.platformFee, 500);
+  // With per-account balances (100k each): total fee on 200k = 500
+  // ISA proportion 50% → 250, capped at 42. GIA 50% → 250, no cap.
+  // Total: 42 + 250 = 292
+  assertEqual(result.platformFee, 292);
 });
 
-test('AJ Bell — ISA+GIA, 50/50 split, £200k — cap should NOT apply', () => {
+test('AJ Bell — ISA+GIA, 50/50 split, £200k — per-account caps apply', () => {
   const broker = getBroker('AJ Bell');
   const result = calculateCost(broker, 200000, makeAnswers({
     accounts: ['isa', 'gia'],
@@ -595,9 +607,11 @@ test('AJ Bell — ISA+GIA, 50/50 split, £200k — cap should NOT apply', () => 
     portfolioSize: 200000,
     assetSplit: 50
   }));
-  // fullFee = 500, fundFee = 250, shareFeeRaw = 250
-  // GIA present → no cap → platformFee = 250 + 250 = 500
-  assertEqual(result.platformFee, 500);
+  // Total fee on 200k = 500. Each account gets 250.
+  // ISA: fund=125 + share=min(125,42)=42 = 167
+  // GIA: fund=125 + share=125 = 250
+  // Total: 167 + 250 = 417
+  assertEqual(result.platformFee, 417);
 });
 
 test('AJ Bell — ISA only, 100% ETFs, £200k — cap STILL applies', () => {
@@ -607,30 +621,34 @@ test('AJ Bell — ISA only, 100% ETFs, £200k — cap STILL applies', () => {
     investmentTypes: ['etfs'],
     portfolioSize: 200000
   }));
-  // ISA only, no GIA → cap applies → min(500, 42) = 42
+  // ISA only → cap applies → min(500, 42) = 42
   assertEqual(result.platformFee, 42);
 });
 
-test('Hargreaves Lansdown — ISA+GIA, 100% ETFs — cap should NOT apply', () => {
+test('Hargreaves Lansdown — ISA+GIA, 100% ETFs — per-account caps apply', () => {
   const broker = getBroker('Hargreaves Lansdown');
   const result = calculateCost(broker, 200000, makeAnswers({
     accounts: ['isa', 'gia'],
     investmentTypes: ['etfs'],
     portfolioSize: 200000
   }));
-  // 200k tiered: 200k * 0.0035 = 700, no cap due to GIA
-  assertEqual(result.platformFee, 700);
+  // Total fee on 200k: 200k * 0.0035 = 700. Each account gets 350.
+  // ISA: capped at 150. GIA: 350 (no cap).
+  // Total: 150 + 350 = 500
+  assertEqual(result.platformFee, 500);
 });
 
-test('Fidelity — ISA+GIA, 100% ETFs, £100k — cap should NOT apply', () => {
+test('Fidelity — ISA+GIA, 100% ETFs, £100k — per-account caps apply', () => {
   const broker = getBroker('Fidelity');
   const result = calculateCost(broker, 100000, makeAnswers({
     accounts: ['isa', 'gia'],
     investmentTypes: ['etfs'],
     portfolioSize: 100000
   }));
-  // 100k * 0.0035 = 350, GIA present → no cap
-  assertEqual(result.platformFee, 350);
+  // Total fee on 100k: 350. Each account gets 175.
+  // ISA: capped at 90. GIA: 175 (no cap).
+  // Total: 90 + 175 = 265
+  assertEqual(result.platformFee, 265);
 });
 
 test('GIA-only — caps never applied (no ISA/SIPP/LISA caps relevant)', () => {
@@ -699,6 +717,143 @@ test('Vanguard — regular investing, £20k — waiver does NOT apply (no flag)'
   }));
   // Vanguard has thresholded fee with belowAmount = 48, but NO regularWaivesBelow flag
   assertEqual(result.platformFee, 48);
+});
+
+console.log('');
+
+// ─────────────────────────────────────────────────
+// Category I: Per-Account Balance Tests
+// ─────────────────────────────────────────────────
+console.log('Per-Account Balance Tests');
+
+test('AJ Bell — ISA £100k + GIA £100k, 100% ETFs — ISA capped, GIA uncapped', () => {
+  const broker = getBroker('AJ Bell');
+  const result = calculateCost(broker, 200000, makeAnswers({
+    accounts: ['isa', 'gia'],
+    investmentTypes: ['etfs'],
+    portfolioSize: 200000,
+    balances: { isa: 100000, gia: 100000 }
+  }));
+  // Total fee on 200k = 500. ISA portion = 250, capped at 42. GIA = 250, no cap.
+  // Total: 42 + 250 = 292
+  assertEqual(result.platformFee, 292);
+  assertTrue(result.platformFeePerAccount.isa, 'should have ISA per-account breakdown');
+  assertEqual(result.platformFeePerAccount.isa.final, 42);
+  assertEqual(result.platformFeePerAccount.gia.final, 250);
+});
+
+test('Single ISA £50k — matches old single-PV flow', () => {
+  const broker = getBroker('AJ Bell');
+  // With balances
+  const withBalances = calculateCost(broker, 50000, makeAnswers({
+    accounts: ['isa'],
+    portfolioSize: 50000,
+    balances: { isa: 50000 }
+  }));
+  // Without balances (legacy path)
+  const withoutBalances = calculateCost(broker, 50000, makeAnswers({
+    accounts: ['isa'],
+    portfolioSize: 50000,
+    balances: null
+  }));
+  // Both should produce the same platform fee (ISA £50k, 100% ETFs → capped at 42)
+  assertEqual(withBalances.platformFee, 42);
+  assertEqual(withoutBalances.platformFee, 42);
+  assertEqual(withBalances.totalCost, withoutBalances.totalCost);
+});
+
+test('Zero SIPP balance — SIPP contributes nothing', () => {
+  const broker = getBroker('AJ Bell');
+  const result = calculateCost(broker, 100000, makeAnswers({
+    accounts: ['isa', 'sipp'],
+    investmentTypes: ['etfs'],
+    portfolioSize: 100000,
+    balances: { isa: 100000, sipp: 0 }
+  }));
+  // Only ISA has balance, capped at 42. SIPP balance is 0 → no SIPP contribution.
+  assertEqual(result.platformFee, 42);
+  assertEqual(result.sippCost, 0);
+});
+
+test('Legacy answers without balances — fallback still works', () => {
+  const broker = getBroker('AJ Bell');
+  const result = calculateCost(broker, 100000, {
+    accounts: ['isa'],
+    investmentTypes: ['etfs'],
+    portfolioSize: 100000,
+    tradingFreq: 'monthly',
+    fxTrading: 'rarely',
+    priorities: ['lowestFees'],
+    feeModel: 'noPreference'
+    // No balances key at all
+  });
+  // Legacy path: 100k * 0.0025 = 250, ISA cap = 42
+  assertEqual(result.platformFee, 42);
+  assertEqual(result.tradingCost, 18);
+  assertEqual(result.totalCost, 60);
+});
+
+console.log('');
+
+// ─────────────────────────────────────────────────
+// Category J: Breakdown Object Tests
+// ─────────────────────────────────────────────────
+console.log('Breakdown Object Tests');
+
+test('calculateCost returns breakdown object', () => {
+  const broker = getBroker('AJ Bell');
+  const result = calculateCost(broker, 100000, makeAnswers({
+    portfolioSize: 100000,
+    balances: { isa: 100000 }
+  }));
+  assertTrue(result.breakdown, 'breakdown object should exist');
+  assertTrue(result.breakdown.platformFee, 'platformFee breakdown should exist');
+  assertEqual(result.breakdown.platformFee.total, result.platformFee);
+});
+
+test('Breakdown platform fee total matches result', () => {
+  const broker = getBroker('Hargreaves Lansdown');
+  const result = calculateCost(broker, 200000, makeAnswers({
+    accounts: ['isa', 'gia'],
+    investmentTypes: ['etfs'],
+    portfolioSize: 200000,
+    balances: { isa: 100000, gia: 100000 }
+  }));
+  assertEqual(result.breakdown.platformFee.total, result.platformFee);
+  assertTrue(Object.keys(result.breakdown.platformFee.perAccount).length > 0, 'per-account breakdown should exist');
+});
+
+test('Breakdown trading cost total matches result', () => {
+  const broker = getBroker('AJ Bell');
+  const result = calculateCost(broker, 50000, makeAnswers());
+  assertEqual(result.breakdown.tradingCost.total, result.tradingCost);
+  assertTrue(result.breakdown.tradingCost.formula.length > 0, 'trading formula should not be empty');
+});
+
+test('Breakdown includes FX and SIPP cost formulas', () => {
+  const broker = getBroker('AJ Bell');
+  const result = calculateCost(broker, 100000, makeAnswers({
+    accounts: ['sipp'],
+    fxTrading: 'sometimes',
+    portfolioSize: 100000
+  }));
+  assertEqual(result.breakdown.fxCost.total, result.fxCost);
+  assertEqual(result.breakdown.sippCost.total, result.sippCost);
+  assertTrue(result.breakdown.fxCost.formula.length > 0, 'FX formula should exist');
+});
+
+test('Breakdown per-account shows cap info', () => {
+  const broker = getBroker('AJ Bell');
+  const result = calculateCost(broker, 200000, makeAnswers({
+    accounts: ['isa', 'gia'],
+    investmentTypes: ['etfs'],
+    portfolioSize: 200000,
+    balances: { isa: 100000, gia: 100000 }
+  }));
+  const isaBreakdown = result.breakdown.platformFee.perAccount.isa;
+  assertTrue(isaBreakdown, 'ISA breakdown should exist');
+  assertTrue(isaBreakdown.formula.includes('capped'), 'ISA formula should mention cap');
+  assertEqual(isaBreakdown.final, 42);
 });
 
 console.log('');

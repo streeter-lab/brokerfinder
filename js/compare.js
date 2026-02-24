@@ -91,18 +91,10 @@ const QUESTIONS = [
     ]
   },
   {
-    id: 'portfolioSize',
-    title: 'How large is your portfolio?',
-    desc: 'Or your expected portfolio. This is the biggest factor in your costs.',
-    multi: false,
-    options: [
-      {value:5000, label:'Under \u00a310,000', detail:'Just getting started'},
-      {value:30000, label:'\u00a310,000 \u2013 \u00a350,000'},
-      {value:75000, label:'\u00a350,000 \u2013 \u00a3100,000'},
-      {value:175000, label:'\u00a3100,000 \u2013 \u00a3250,000'},
-      {value:375000, label:'\u00a3250,000 \u2013 \u00a3500,000'},
-      {value:750000, label:'Over \u00a3500,000'}
-    ]
+    id: 'balances',
+    title: 'How much is in each account?',
+    desc: 'Enter the current (or expected) balance for each account. This is the biggest factor in your costs.',
+    custom: true
   },
   {
     id: 'tradingFreq',
@@ -168,6 +160,10 @@ const QUESTIONS = [
   }
 ];
 
+const ACCOUNT_LABELS = {
+  isa: 'ISA', sipp: 'SIPP', gia: 'GIA', jisa: 'JISA', lisa: 'LISA'
+};
+
 // ═══════════════════════════════════════════════════
 // APP STATE
 // ═══════════════════════════════════════════════════
@@ -229,6 +225,73 @@ function renderStep() {
 
   // Step content — dynamic label
   const stepLabel = `Step ${currentStep + 1} of ${total}`;
+  const stepsContainer = document.getElementById('wizardSteps');
+
+  // Custom balance input step
+  if (q.custom && q.id === 'balances') {
+    const selectedAccounts = answers.accounts || ['isa'];
+    const balances = answers.balances || {};
+    const total_balance = selectedAccounts.reduce((sum, a) => sum + (balances[a] || 0), 0);
+
+    let inputsHTML = selectedAccounts.map(acct => {
+      const val = balances[acct] || '';
+      return `
+        <div class="balance-input-row">
+          <label for="balance-${acct}">${ACCOUNT_LABELS[acct] || acct.toUpperCase()} balance</label>
+          <div class="balance-input-wrap">
+            <span class="balance-currency">&pound;</span>
+            <input type="number" id="balance-${acct}" data-account="${acct}"
+                   class="balance-input" min="0" step="1000"
+                   placeholder="0" value="${val}"
+                   inputmode="numeric">
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    stepsContainer.innerHTML = `
+      <div class="wizard-step active" role="group" aria-labelledby="step-title-${currentStep}">
+        <div class="step-card">
+          <div class="step-label">${stepLabel}</div>
+          <h2 id="step-title-${currentStep}">${q.title}</h2>
+          <p class="step-desc">${q.desc}</p>
+          <div class="balance-inputs">
+            ${inputsHTML}
+          </div>
+          <div class="balance-total">
+            Total portfolio: <strong>${formatCurrency(total_balance)}</strong>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Bind input events
+    stepsContainer.querySelectorAll('.balance-input').forEach(input => {
+      input.addEventListener('input', () => {
+        if (!answers.balances) answers.balances = {};
+        const acct = input.dataset.account;
+        const val = parseFloat(input.value) || 0;
+        answers.balances[acct] = val;
+        // Update total display
+        const newTotal = selectedAccounts.reduce((sum, a) => sum + (answers.balances[a] || 0), 0);
+        answers.portfolioSize = newTotal;
+        const totalEl = stepsContainer.querySelector('.balance-total strong');
+        if (totalEl) totalEl.textContent = formatCurrency(newTotal);
+        // Enable/disable next
+        const btnNext = document.getElementById('btnNext');
+        btnNext.disabled = newTotal <= 0;
+      });
+    });
+
+    // Nav buttons
+    document.getElementById('btnPrev').style.visibility = currentStep === 0 ? 'hidden' : 'visible';
+    const isLast = currentStep === total - 1;
+    const btnNext = document.getElementById('btnNext');
+    btnNext.innerHTML = isLast ? 'See results <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>' : 'Next <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+    btnNext.disabled = total_balance <= 0;
+    return;
+  }
+
   const selected = answers[q.id] || (q.multi ? [] : null);
   let optionsHTML = q.options.map(opt => {
     const isSelected = q.multi ? (selected && selected.includes(opt.value)) : selected === opt.value;
@@ -253,7 +316,6 @@ function renderStep() {
     counterHTML = `<span class="selection-counter">${count} of ${q.maxSelect} selected</span>`;
   }
 
-  const stepsContainer = document.getElementById('wizardSteps');
   stepsContainer.innerHTML = `
     <div class="wizard-step active" role="group" aria-labelledby="step-title-${currentStep}">
       <div class="step-card">
@@ -573,7 +635,18 @@ function showResults() {
       const expandedIds = new Set();
       document.querySelectorAll('.card-details.open').forEach(el => expandedIds.add(el.id));
 
-      const modifiedAnswers = { ...answers, portfolioSize: val };
+      // Scale balances proportionally when slider changes
+      let modifiedAnswers;
+      if (answers.balances && answers.portfolioSize > 0) {
+        const ratio = val / answers.portfolioSize;
+        const scaledBalances = {};
+        Object.entries(answers.balances).forEach(([acct, bal]) => {
+          scaledBalances[acct] = Math.round(bal * ratio);
+        });
+        modifiedAnswers = { ...answers, portfolioSize: val, balances: scaledBalances };
+      } else {
+        modifiedAnswers = { ...answers, portfolioSize: val };
+      }
       recalculateAndRender(modifiedAnswers);
 
       // Restore expanded cards
@@ -588,6 +661,7 @@ function showResults() {
 
       // Update URL and answers with slider value
       answers.portfolioSize = val;
+      if (modifiedAnswers.balances) answers.balances = modifiedAnswers.balances;
       encodeAnswersToURL();
     }, 150);
   };
@@ -671,6 +745,20 @@ function toggleIneligible() {
   btn.querySelector('.ineligible-chevron').style.transform = isHidden ? 'rotate(180deg)' : '';
 }
 
+// TODO: Replace native title tooltips with click/tap popovers for mobile.
+// Consider a lightweight popover that toggles on tap and dismisses on outside tap.
+function formatBreakdownTooltip(breakdown, section) {
+  if (!breakdown || !breakdown[section]) return '';
+  const bd = breakdown[section];
+  if (section === 'platformFee' && Object.keys(bd.perAccount).length > 0) {
+    const lines = Object.values(bd.perAccount).map(a => a.formula);
+    lines.push('Total: ' + formatCurrency(bd.total) + '/yr');
+    return lines.join('\n');
+  }
+  if (bd.formula) return bd.formula + '\nTotal: ' + formatCurrency(bd.total) + '/yr';
+  return formatCurrency(bd.total) + '/yr';
+}
+
 function renderBrokerCard(item, rank, maxCost) {
   const { broker, costResult, reason, eligWarnings } = item;
   const isTopPick = rank <= 3;
@@ -732,24 +820,29 @@ function renderBrokerCard(item, rank, maxCost) {
     warningsHTML += '</div>';
   }
 
-  // Details grid
+  // Details grid — with breakdown tooltips
+  const bd = costResult.breakdown || {};
+  const platformTip = formatBreakdownTooltip(bd, 'platformFee');
+  const tradingTip = formatBreakdownTooltip(bd, 'tradingCost');
+  const fxTip = formatBreakdownTooltip(bd, 'fxCost');
+  const sippTip = formatBreakdownTooltip(bd, 'sippCost');
   const detailsHTML = `
     <div class="details-grid">
       <div class="detail-item">
         <span class="detail-label">Platform fee</span>
-        <span class="detail-value">${formatCurrency(costResult.platformFee)}/yr</span>
+        <span class="detail-value tooltip-enabled" title="${escapeHTML(platformTip)}">${formatCurrency(costResult.platformFee)}/yr <span class="tooltip-icon">&#9432;</span></span>
       </div>
       <div class="detail-item">
         <span class="detail-label">SIPP cost</span>
-        <span class="detail-value">${costResult.sippCost > 0 ? formatCurrency(costResult.sippCost) + '/yr' : (broker.hasSIPP ? 'Included' : 'N/A')}</span>
+        <span class="detail-value${costResult.sippCost > 0 ? ' tooltip-enabled" title="' + escapeHTML(sippTip) + '"' : '"'}>${costResult.sippCost > 0 ? formatCurrency(costResult.sippCost) + '/yr' : (broker.hasSIPP ? 'Included' : 'N/A')}${costResult.sippCost > 0 ? ' <span class="tooltip-icon">&#9432;</span>' : ''}</span>
       </div>
       <div class="detail-item">
         <span class="detail-label">Trading costs</span>
-        <span class="detail-value">${formatCurrency(costResult.tradingCost)}/yr</span>
+        <span class="detail-value tooltip-enabled" title="${escapeHTML(tradingTip)}">${formatCurrency(costResult.tradingCost)}/yr <span class="tooltip-icon">&#9432;</span></span>
       </div>
       <div class="detail-item">
         <span class="detail-label">FX costs</span>
-        <span class="detail-value">${formatCurrency(costResult.fxCost)}/yr</span>
+        <span class="detail-value tooltip-enabled" title="${escapeHTML(fxTip)}">${formatCurrency(costResult.fxCost)}/yr <span class="tooltip-icon">&#9432;</span></span>
       </div>
       <div class="detail-item">
         <span class="detail-label">FX rate</span>
@@ -1007,7 +1100,9 @@ function hideComparison() {
 function encodeAnswersToURL() {
   const params = new URLSearchParams();
   Object.entries(answers).forEach(([key, value]) => {
-    if (Array.isArray(value)) {
+    if (key === 'balances' && value && typeof value === 'object') {
+      params.set(key, JSON.stringify(value));
+    } else if (Array.isArray(value)) {
       params.set(key, value.join(','));
     } else {
       params.set(key, String(value));
@@ -1023,23 +1118,49 @@ function decodeAnswersFromURL() {
   const restored = {};
   const multiFields = ['accounts', 'priorities', 'investmentTypes'];
 
-  // Build valid values from QUESTIONS
+  // Build valid values from QUESTIONS (skip custom steps without options)
   const validValues = {};
   QUESTIONS.forEach(q => {
-    validValues[q.id] = q.options.map(o => String(o.value));
+    if (q.options) validValues[q.id] = q.options.map(o => String(o.value));
   });
 
   params.forEach((value, key) => {
+    // Handle balances JSON
+    if (key === 'balances') {
+      try {
+        const parsed = JSON.parse(value);
+        if (parsed && typeof parsed === 'object') {
+          restored.balances = parsed;
+          restored.portfolioSize = Object.values(parsed).reduce((s, v) => s + (v || 0), 0);
+        }
+      } catch (e) { /* ignore malformed balances */ }
+      return;
+    }
+    // Handle legacy portfolioSize (for backward compat with old URLs)
+    if (key === 'portfolioSize' && !isNaN(Number(value))) {
+      if (!restored.portfolioSize) restored[key] = Number(value);
+      return;
+    }
+    if (key === 'assetSplit' && !isNaN(Number(value))) {
+      restored[key] = Number(value);
+      return;
+    }
     if (!validValues[key]) return; // Ignore unknown keys
     if (multiFields.includes(key)) {
       const vals = value ? value.split(',').filter(v => validValues[key].includes(v)) : [];
       if (vals.length > 0) restored[key] = vals;
-    } else if ((key === 'portfolioSize' || key === 'assetSplit') && !isNaN(Number(value))) {
-      restored[key] = Number(value);
     } else if (validValues[key].includes(value)) {
       restored[key] = value;
     }
   });
+
+  // Legacy backward compat: if portfolioSize exists but no balances, distribute evenly
+  if (restored.portfolioSize && !restored.balances && restored.accounts) {
+    const split = restored.portfolioSize / restored.accounts.length;
+    restored.balances = {};
+    restored.accounts.forEach(a => { restored.balances[a] = split; });
+  }
+
   return Object.keys(restored).length > 0 ? restored : null;
 }
 

@@ -57,6 +57,119 @@ function calculateTieredFee(tiers, portfolioValue) {
   return fee;
 }
 
+// NOTE: broker.accounts serves as the account type support flags (isa, gia, sipp, jisa, lisa)
+
+function describePlatformFee(feeConfig, portfolioValue) {
+  if (!feeConfig) return '£0';
+  const fmtK = (v) => v >= 1000 ? '£' + (v / 1000) + 'k' : '£' + v;
+  const fmtPct = (r) => (r * 100).toFixed(r * 100 % 1 === 0 ? 0 : 2) + '%';
+  const fmtAmt = (v) => '£' + v.toLocaleString('en-GB', { minimumFractionDigits: v % 1 === 0 ? 0 : 2, maximumFractionDigits: 2 });
+
+  switch (feeConfig.type) {
+    case 'fixed':
+      return fmtAmt(feeConfig.amount) + ' flat fee';
+    case 'percentage': {
+      let desc = fmtAmt(portfolioValue) + ' × ' + fmtPct(feeConfig.rate);
+      const raw = portfolioValue * feeConfig.rate;
+      if (feeConfig.flat_extra) desc += ' + ' + fmtAmt(feeConfig.flat_extra);
+      if (feeConfig.minimum && raw < feeConfig.minimum) desc += ' (min ' + fmtAmt(feeConfig.minimum) + ')';
+      if (feeConfig.cap) {
+        const total = feeConfig.flat_extra ? raw + feeConfig.flat_extra : raw;
+        if (total > feeConfig.cap) desc += ', capped at ' + fmtAmt(feeConfig.cap);
+      }
+      return desc;
+    }
+    case 'tiered': {
+      return describeTieredFee(feeConfig.tiers, portfolioValue, fmtK, fmtPct, fmtAmt);
+    }
+    case 'thresholded': {
+      if (portfolioValue <= feeConfig.belowThreshold) {
+        return 'Below ' + fmtAmt(feeConfig.belowThreshold) + ': ' + fmtAmt(feeConfig.belowAmount) + ' flat';
+      }
+      let desc = describeTieredFee(feeConfig.tiers, portfolioValue, fmtK, fmtPct, fmtAmt);
+      if (feeConfig.cap) {
+        const fee = calculateTieredFee(feeConfig.tiers, portfolioValue);
+        if (fee > feeConfig.cap) desc += ', capped at ' + fmtAmt(feeConfig.cap);
+      }
+      return desc;
+    }
+    default:
+      return '£0';
+  }
+}
+
+function describeTieredFee(tiers, portfolioValue, fmtK, fmtPct, fmtAmt) {
+  const parts = [];
+  let remaining = portfolioValue;
+  let prevLimit = 0;
+  for (const tier of tiers) {
+    if (remaining <= 0) break;
+    if (tier.above !== undefined) {
+      const amt = remaining * tier.rate;
+      parts.push('Above ' + fmtK(prevLimit) + ' × ' + fmtPct(tier.rate) + ' = ' + fmtAmt(Math.round(amt * 100) / 100));
+      break;
+    }
+    if (tier.upTo == null || !isFinite(tier.upTo) || tier.rate == null || !isFinite(tier.rate)) continue;
+    const tierSize = tier.upTo - prevLimit;
+    const inThisTier = Math.min(remaining, tierSize);
+    if (inThisTier > 0) {
+      const amt = inThisTier * tier.rate;
+      parts.push('First ' + fmtK(tier.upTo) + ' × ' + fmtPct(tier.rate) + ' = ' + fmtAmt(Math.round(amt * 100) / 100));
+    }
+    remaining -= inThisTier;
+    prevLimit = tier.upTo;
+  }
+  return parts.join(', ');
+}
+
+function calculatePerAccountPlatformFee(broker, balances, accounts, fundPercent, sharePercent) {
+  // Calculate the base platform fee on total PV (UK brokers charge on aggregate balance)
+  const totalPv = Object.values(balances).reduce((sum, v) => sum + (v || 0), 0);
+  if (totalPv <= 0) return { total: 0, perAccount: {} };
+
+  const baseFee = calculatePlatformFee(broker.platformFee, totalPv);
+  const perAccount = {};
+
+  // If no per-account caps, just return the base fee (no splitting needed)
+  if (!broker.platformFeeCaps || sharePercent <= 0) {
+    return { total: baseFee, perAccount: {} };
+  }
+
+  let totalPlatformFee = 0;
+  for (const acctType of accounts) {
+    const acctBalance = balances[acctType] || 0;
+    if (acctBalance <= 0) continue;
+
+    const proportion = acctBalance / totalPv;
+    const acctFee = baseFee * proportion;
+
+    // Split into fund/share portions
+    const fundFee = acctFee * fundPercent;
+    const shareFeeRaw = acctFee * sharePercent;
+
+    // Apply per-account cap to the share/ETF portion only
+    let shareFee = shareFeeRaw;
+    const acctCap = broker.platformFeeCaps[acctType];
+    if (acctCap !== null && acctCap !== undefined && acctCap > 0) {
+      shareFee = Math.min(shareFeeRaw, acctCap);
+    }
+
+    const accountFinal = fundFee + shareFee;
+    totalPlatformFee += accountFinal;
+
+    perAccount[acctType] = {
+      balance: acctBalance,
+      baseFee: Math.round(acctFee * 100) / 100,
+      fundFee: Math.round(fundFee * 100) / 100,
+      shareFeeRaw: Math.round(shareFeeRaw * 100) / 100,
+      cap: acctCap,
+      final: Math.round(accountFinal * 100) / 100
+    };
+  }
+
+  return { total: totalPlatformFee, perAccount };
+}
+
 function calculateCost(broker, portfolioValue, userAnswers) {
   const pv = portfolioValue || userAnswers.portfolioSize;
   const accounts = userAnswers.accounts || ['isa'];
@@ -65,6 +178,7 @@ function calculateCost(broker, portfolioValue, userAnswers) {
   const fxTrading = userAnswers.fxTrading || 'rarely';
   const needsSIPP = accounts.includes('sipp');
   const needsDrawdown = needsSIPP && userAnswers.drawdownSoon === 'yes';
+  const balances = userAnswers.balances || null;
 
   // Determine trades per year
   let tradesPerYear;
@@ -105,19 +219,40 @@ function calculateCost(broker, portfolioValue, userAnswers) {
   const fundPv = pv * fundPercent;
   const sharePv = pv * sharePercent;
 
-  // ─── Platform Fee (with asset split) ───
+  // ─── Breakdown tracking ───
+  const breakdown = {
+    platformFee: { perAccount: {}, formula: '', total: 0 },
+    tradingCost: { formula: '', total: 0 },
+    fxCost: { formula: '', total: 0 },
+    sippCost: { formula: '', total: 0 },
+    drawdownCost: { formula: '', total: 0 }
+  };
+
+  // ─── Platform Fee (with per-account splitting when balances provided) ───
   let platformFee = 0;
+  let platformFeePerAccount = {};
   if (broker.platformFee) {
     // Interactive Brokers: GIA is free, ISA is £36
     if (broker.platformFeeGIA === 0 && !accounts.includes('isa')) {
       platformFee = 0;
-    } else if (broker.platformFeeCaps && sharePercent > 0 && sharePercent < 1) {
-      // Split calculation: fund portion uncapped + share portion capped
+    }
+    // ISA-specific platform fee (Moneyfarm) — calculate on ISA balance if available
+    else if (broker.platformFeeISA && accounts.includes('isa')) {
+      const isaBalance = (balances && balances.isa) ? balances.isa : pv;
+      platformFee = calculatePlatformFee(broker.platformFeeISA, isaBalance);
+    }
+    // Per-account calculation when balances are provided and broker has per-account caps
+    else if (balances && broker.platformFeeCaps && sharePercent > 0) {
+      const result = calculatePerAccountPlatformFee(broker, balances, accounts, fundPercent, sharePercent);
+      platformFee = result.total;
+      platformFeePerAccount = result.perAccount;
+    }
+    // Legacy: split calculation when no balances but caps exist (fund/share split)
+    else if (broker.platformFeeCaps && sharePercent > 0 && sharePercent < 1) {
       const fullFee = calculatePlatformFee(broker.platformFee, pv);
       const fundFee = fullFee * fundPercent;
       const shareFeeRaw = fullFee * sharePercent;
 
-      // Apply cap ONLY to the share/ETF portion
       // If GIA is in the mix, we can't know the per-account split → disable caps
       const hasGIA = accounts.includes('gia');
       let totalCap = 0;
@@ -140,9 +275,8 @@ function calculateCost(broker, portfolioValue, userAnswers) {
       // No caps, or 100% one type — calculate on full PV
       platformFee = calculatePlatformFee(broker.platformFee, pv);
 
-      // Apply caps when 100% shares/ETFs (no funds/bonds)
-      // If GIA is in the mix, we can't know the per-account split → disable caps
-      if (broker.platformFeeCaps && sharePercent === 1) {
+      // Legacy: Apply caps when 100% shares/ETFs (no funds/bonds) and no balances
+      if (broker.platformFeeCaps && sharePercent === 1 && !balances) {
         const hasGIA = accounts.includes('gia');
         let totalCap = 0;
         let hasCap = false;
@@ -159,15 +293,17 @@ function calculateCost(broker, portfolioValue, userAnswers) {
         }
         if (hasCap) platformFee = Math.min(platformFee, totalCap);
       }
+      // Per-account caps with balances and 100% shares
+      else if (broker.platformFeeCaps && sharePercent === 1 && balances) {
+        const result = calculatePerAccountPlatformFee(broker, balances, accounts, fundPercent, sharePercent);
+        platformFee = result.total;
+        platformFeePerAccount = result.perAccount;
+      }
     }
   }
   // Regular investing waives below-threshold flat fee (e.g. Fidelity)
   if (broker.platformFee?.regularWaivesBelow && isRegular && pv <= broker.platformFee.belowThreshold) {
     platformFee = 0;
-  }
-  // ISA-specific platform fee (Moneyfarm)
-  if (broker.platformFeeISA && accounts.includes('isa')) {
-    platformFee = calculatePlatformFee(broker.platformFeeISA, pv);
   }
   // Per-account minimum (Dodl)
   if (broker.platformFeePerAccount && broker.platformFee && broker.platformFee.minimum) {
@@ -176,9 +312,10 @@ function calculateCost(broker, portfolioValue, userAnswers) {
     platformFee = Math.max(platformFee, minimumTotal);
   }
 
-  // SIPP surcharge
+  // SIPP surcharge — skip if SIPP balance is explicitly zero
   let sippCost = 0;
-  if (needsSIPP) {
+  const sippBalance = balances ? (balances.sipp || 0) : (needsSIPP ? pv : 0);
+  if (needsSIPP && sippBalance > 0) {
     if (broker.sippFee) {
       const sippFeeVal = calculatePlatformFee(broker.sippFee, pv);
       sippCost = sippFeeVal;
@@ -336,6 +473,64 @@ function calculateCost(broker, portfolioValue, userAnswers) {
   const fc = Math.round(fxCost * 100) / 100;
   const dc = Math.round(drawdownCost * 100) / 100;
 
+  // ─── Populate breakdown ───
+  const fmtAmt = (v) => '£' + v.toLocaleString('en-GB', { minimumFractionDigits: v % 1 === 0 ? 0 : 2, maximumFractionDigits: 2 });
+
+  // Platform fee breakdown
+  if (Object.keys(platformFeePerAccount).length > 0) {
+    const ACCT_LABELS = { isa: 'ISA', sipp: 'SIPP', gia: 'GIA', jisa: 'JISA', lisa: 'LISA' };
+    for (const [acct, info] of Object.entries(platformFeePerAccount)) {
+      const label = ACCT_LABELS[acct] || acct.toUpperCase();
+      let formula = fmtAmt(info.balance) + ' × ' + describePlatformFee(broker.platformFee, pv).split(' × ').slice(1).join(' × ');
+      if (!formula.includes('×')) formula = fmtAmt(info.baseFee) + ' (proportional share)';
+      if (info.cap !== null && info.cap !== undefined && info.cap > 0 && info.final < info.baseFee) {
+        formula = label + ': ' + fmtAmt(info.baseFee) + ', capped at ' + fmtAmt(info.cap) + ' → ' + fmtAmt(info.final);
+      } else {
+        formula = label + ': ' + fmtAmt(info.final);
+      }
+      breakdown.platformFee.perAccount[acct] = { base: info.baseFee, formula, cap: info.cap, final: info.final };
+    }
+  } else {
+    breakdown.platformFee.formula = broker.platformFee ? describePlatformFee(broker.platformFee, pv) : '£0';
+  }
+  if (broker.platformFee?.regularWaivesBelow && isRegular && pv <= broker.platformFee.belowThreshold) {
+    breakdown.platformFee.formula = '£0 (waived for regular investors below ' + fmtAmt(broker.platformFee.belowThreshold) + ')';
+  }
+  breakdown.platformFee.total = pf;
+
+  // Trading cost breakdown
+  if (tc > 0) {
+    breakdown.tradingCost.formula = tradesPerYear + ' trades/yr × ' + fmtAmt(Math.round(tc / tradesPerYear * 100) / 100) + ' avg';
+  } else {
+    breakdown.tradingCost.formula = isRegular ? '£0 (free regular investing)' : '£0';
+  }
+  breakdown.tradingCost.total = tc;
+
+  // FX cost breakdown
+  if (fc > 0) {
+    const fxPct = (effectiveFxRate * 100).toFixed(2) + '%';
+    breakdown.fxCost.formula = fmtAmt(pv) + ' × ' + fxPct + ' FX rate (estimated)';
+  } else {
+    breakdown.fxCost.formula = fxTrading === 'rarely' ? '£0 (no FX trading)' : '£0';
+  }
+  breakdown.fxCost.total = fc;
+
+  // SIPP cost breakdown
+  if (sc > 0) {
+    const parts = [];
+    if (broker.sippFee) parts.push(describePlatformFee(broker.sippFee, pv));
+    if (broker.sippExtra) parts.push(fmtAmt(broker.sippExtra) + ' SIPP surcharge');
+    if (broker.sippSurcharge && pv < broker.sippSurcharge.belowThreshold) parts.push(fmtAmt(broker.sippSurcharge.amount) + ' (below ' + fmtAmt(broker.sippSurcharge.belowThreshold) + ')');
+    breakdown.sippCost.formula = parts.length > 0 ? parts.join(' + ') : fmtAmt(sc);
+  } else {
+    breakdown.sippCost.formula = needsSIPP ? '£0' : 'N/A';
+  }
+  breakdown.sippCost.total = sc;
+
+  // Drawdown cost breakdown
+  breakdown.drawdownCost.formula = dc > 0 ? fmtAmt(dc) + '/yr drawdown fee' : (needsDrawdown ? '£0' : 'N/A');
+  breakdown.drawdownCost.total = dc;
+
   return {
     platformFee: pf,
     sippCost: sc,
@@ -345,7 +540,9 @@ function calculateCost(broker, portfolioValue, userAnswers) {
     totalCost: Math.round((pf + sc + tc + fc + dc) * 100) / 100,
     fxNotDisclosed,
     fundPv: Math.round(fundPv * 100) / 100,
-    sharePv: Math.round(sharePv * 100) / 100
+    sharePv: Math.round(sharePv * 100) / 100,
+    platformFeePerAccount,
+    breakdown
   };
 }
 
