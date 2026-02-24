@@ -629,6 +629,13 @@ function recalculateAndRender(userAnswers) {
 
   renderBrokerCards(eligibleBrokers, ineligibleBrokers, initialShow, maxCost);
   animateCostBars();
+
+  // Announce for screen readers
+  const announceEl = document.getElementById('resultsAnnounce');
+  if (announceEl) {
+    const topBroker = eligibleBrokers[0];
+    announceEl.textContent = `Results updated. ${eligibleBrokers.length} brokers found. Top recommendation: ${topBroker.broker.name} at ${formatCurrency(topBroker.costResult.totalCost)} per year.`;
+  }
 }
 
 function showResults() {
