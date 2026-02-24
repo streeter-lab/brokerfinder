@@ -287,7 +287,7 @@ function renderStep() {
       input.addEventListener('input', () => {
         if (!answers.balances) answers.balances = {};
         const acct = input.dataset.account;
-        const val = parseFloat(input.value) || 0;
+        const val = Math.max(0, parseFloat(input.value) || 0);
         answers.balances[acct] = val;
         // Update total display
         const newTotal = selectedAccounts.reduce((sum, a) => sum + (answers.balances[a] || 0), 0);
