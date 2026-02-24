@@ -160,6 +160,18 @@ const QUESTIONS = [
   }
 ];
 
+function feePopoverHTML(value, tooltip) {
+  if (!tooltip) return `<span class="detail-value">${value}</span>`;
+  return `
+    <span class="detail-value fee-popover-wrap">
+      <span class="fee-popover-trigger" tabindex="0" aria-describedby="">
+        ${value} <span class="tooltip-icon">&#9432;</span>
+      </span>
+      <span class="fee-popover" role="tooltip">${escapeHTML(tooltip)}</span>
+    </span>
+  `;
+}
+
 const ACCOUNT_LABELS = {
   isa: 'ISA', sipp: 'SIPP', gia: 'GIA', jisa: 'JISA', lisa: 'LISA'
 };
@@ -172,6 +184,7 @@ let answers = {};
 let rankedBrokers = [];
 let showingAll = false;
 let compareSet = new Set();
+let originalAnswers = null;
 
 // ═══════════════════════════════════════════════════
 // WIZARD LOGIC
@@ -194,6 +207,10 @@ function startWizard() {
 }
 
 function changeAnswers() {
+  // Restore original answers (before slider modifications)
+  if (originalAnswers) {
+    answers = JSON.parse(JSON.stringify(originalAnswers));
+  }
   document.getElementById('results').classList.remove('active');
   document.getElementById('comparison').classList.remove('active');
   document.getElementById('wizard').classList.add('active');
@@ -270,7 +287,7 @@ function renderStep() {
       input.addEventListener('input', () => {
         if (!answers.balances) answers.balances = {};
         const acct = input.dataset.account;
-        const val = parseFloat(input.value) || 0;
+        const val = Math.max(0, parseFloat(input.value) || 0);
         answers.balances[acct] = val;
         // Update total display
         const newTotal = selectedAccounts.reduce((sum, a) => sum + (answers.balances[a] || 0), 0);
@@ -602,7 +619,7 @@ function recalculateAndRender(userAnswers) {
       <div class="no-results">
         <h3>No brokers match your criteria</h3>
         <p>Try adjusting your account types or investment preferences.</p>
-        <button class="btn-action" onclick="changeAnswers()">Change my answers</button>
+        <button class="btn-action" id="btnNoResultsChange">Change my answers</button>
       </div>
     `;
     const showAllBtn = document.getElementById('showAllBtn');
@@ -612,9 +629,19 @@ function recalculateAndRender(userAnswers) {
 
   renderBrokerCards(eligibleBrokers, ineligibleBrokers, initialShow, maxCost);
   animateCostBars();
+
+  // Announce for screen readers
+  const announceEl = document.getElementById('resultsAnnounce');
+  if (announceEl) {
+    const topBroker = eligibleBrokers[0];
+    announceEl.textContent = `Results updated. ${eligibleBrokers.length} brokers found. Top recommendation: ${topBroker.broker.name} at ${formatCurrency(topBroker.costResult.totalCost)} per year.`;
+  }
 }
 
 function showResults() {
+  // Save original answers before any slider modifications
+  originalAnswers = JSON.parse(JSON.stringify(answers));
+
   document.getElementById('wizard').classList.remove('active');
   document.getElementById('hero').style.display = 'none';
   document.getElementById('results').classList.add('active');
@@ -623,8 +650,12 @@ function showResults() {
 
   // What-if slider — initialise and bind handler
   const slider = document.getElementById('whatifSlider');
-  slider.value = answers.portfolioSize;
-  document.getElementById('whatifValue').textContent = formatCurrency(answers.portfolioSize);
+  const pv = answers.portfolioSize;
+  slider.min = 0;
+  slider.max = Math.max(pv * 3, 500000);
+  slider.step = pv > 100000 ? 5000 : (pv > 10000 ? 1000 : 500);
+  slider.value = pv;
+  document.getElementById('whatifValue').textContent = formatCurrency(pv);
   let sliderTimeout;
   slider.oninput = function() {
     const val = parseInt(this.value);
@@ -745,8 +776,6 @@ function toggleIneligible() {
   btn.querySelector('.ineligible-chevron').style.transform = isHidden ? 'rotate(180deg)' : '';
 }
 
-// TODO: Replace native title tooltips with click/tap popovers for mobile.
-// Consider a lightweight popover that toggles on tap and dismisses on outside tap.
 function formatBreakdownTooltip(breakdown, section) {
   if (!breakdown || !breakdown[section]) return '';
   const bd = breakdown[section];
@@ -826,28 +855,33 @@ function renderBrokerCard(item, rank, maxCost) {
   const tradingTip = formatBreakdownTooltip(bd, 'tradingCost');
   const fxTip = formatBreakdownTooltip(bd, 'fxCost');
   const sippTip = formatBreakdownTooltip(bd, 'sippCost');
+  const needsSIPP = (answers.accounts || []).includes('sipp');
+  const hasFX = answers.fxTrading && answers.fxTrading !== 'rarely';
+
   const detailsHTML = `
     <div class="details-grid">
       <div class="detail-item">
         <span class="detail-label">Platform fee</span>
-        <span class="detail-value tooltip-enabled" title="${escapeHTML(platformTip)}">${formatCurrency(costResult.platformFee)}/yr <span class="tooltip-icon">&#9432;</span></span>
+        ${feePopoverHTML(formatCurrency(costResult.platformFee) + '/yr', platformTip)}
       </div>
+      ${needsSIPP ? `
       <div class="detail-item">
         <span class="detail-label">SIPP cost</span>
-        <span class="detail-value${costResult.sippCost > 0 ? ' tooltip-enabled" title="' + escapeHTML(sippTip) + '"' : '"'}>${costResult.sippCost > 0 ? formatCurrency(costResult.sippCost) + '/yr' : (broker.hasSIPP ? 'Included' : 'N/A')}${costResult.sippCost > 0 ? ' <span class="tooltip-icon">&#9432;</span>' : ''}</span>
-      </div>
+        ${feePopoverHTML(costResult.sippCost > 0 ? formatCurrency(costResult.sippCost) + '/yr' : (broker.hasSIPP ? 'Included' : 'N/A'), costResult.sippCost > 0 ? sippTip : '')}
+      </div>` : ''}
       <div class="detail-item">
         <span class="detail-label">Trading costs</span>
-        <span class="detail-value tooltip-enabled" title="${escapeHTML(tradingTip)}">${formatCurrency(costResult.tradingCost)}/yr <span class="tooltip-icon">&#9432;</span></span>
+        ${feePopoverHTML(formatCurrency(costResult.tradingCost) + '/yr', tradingTip)}
       </div>
+      ${hasFX ? `
       <div class="detail-item">
         <span class="detail-label">FX costs</span>
-        <span class="detail-value tooltip-enabled" title="${escapeHTML(fxTip)}">${formatCurrency(costResult.fxCost)}/yr <span class="tooltip-icon">&#9432;</span></span>
+        ${feePopoverHTML(formatCurrency(costResult.fxCost) + '/yr', fxTip)}
       </div>
       <div class="detail-item">
         <span class="detail-label">FX rate</span>
         <span class="detail-value">${broker.fxRate === null ? 'Not disclosed' : broker.fxRate !== undefined ? (broker.fxRate * 100).toFixed(2) + '%' : 'N/A'}</span>
-      </div>
+      </div>` : ''}
       <div class="detail-item">
         <span class="detail-label">Regular investing</span>
         <span class="detail-value">${broker.regularInvesting !== null && broker.regularInvesting !== undefined ? (broker.regularInvesting === 0 ? 'Free' : formatCurrency(broker.regularInvesting) + '/trade') : 'N/A'}</span>
@@ -905,6 +939,7 @@ function renderBrokerCard(item, rank, maxCost) {
           Add to comparison
         </label>
       </div>
+      ${rank === 1 ? '<span class="compare-hint" style="font-size:0.75rem; color:var(--text-muted); display:block; padding:0 1.25rem 0.5rem;">Tip: tick 2\u20133 brokers to compare side by side</span>' : ''}
       <div class="card-details" id="details-${broker.name.replace(/[^a-zA-Z0-9]/g, '')}">${detailsHTML}</div>
     </div>
   `;
@@ -1243,6 +1278,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   const brokerList = document.getElementById('brokerList');
   if (brokerList) {
     brokerList.addEventListener('click', (e) => {
+      // No-results change answers button
+      const noResultsChange = e.target.closest('#btnNoResultsChange');
+      if (noResultsChange) { changeAnswers(); return; }
+
       // Ineligible toggle
       const ineligibleBtn = e.target.closest('.ineligible-toggle');
       if (ineligibleBtn) { toggleIneligible(); return; }
@@ -1260,10 +1299,48 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     });
 
+    // Popover toggle — delegated on brokerList
+    // Click/tap to toggle (works on mobile)
+    brokerList.addEventListener('click', (e) => {
+      const trigger = e.target.closest('.fee-popover-trigger');
+      if (trigger) {
+        e.stopPropagation();
+        const popover = trigger.nextElementSibling;
+        const isVisible = popover.classList.contains('visible');
+        // Close all open popovers first
+        document.querySelectorAll('.fee-popover.visible').forEach(p => p.classList.remove('visible'));
+        if (!isVisible) popover.classList.add('visible');
+        return;
+      }
+    });
+
+    // Hover support for desktop
+    brokerList.addEventListener('mouseenter', (e) => {
+      const trigger = e.target.closest('.fee-popover-trigger');
+      if (trigger) {
+        const popover = trigger.nextElementSibling;
+        popover.classList.add('visible');
+      }
+    }, true);
+    brokerList.addEventListener('mouseleave', (e) => {
+      const trigger = e.target.closest('.fee-popover-trigger');
+      if (trigger) {
+        const popover = trigger.nextElementSibling;
+        popover.classList.remove('visible');
+      }
+    }, true);
+
     // Observe broker list for cost bar animation
     const observer = new MutationObserver(() => animateCostBars());
     observer.observe(brokerList, { childList: true });
   }
+
+  // Close popovers when tapping outside
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.fee-popover-wrap')) {
+      document.querySelectorAll('.fee-popover.visible').forEach(p => p.classList.remove('visible'));
+    }
+  });
 
   // Check for URL-encoded answers (shared link)
   const saved = decodeAnswersFromURL();

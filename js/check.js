@@ -181,7 +181,7 @@ function runCheck() {
 
     // CTAs
     checkCtas.innerHTML = `
-      <a href="/compare/#accounts=isa&investmentTypes=etfs&portfolioSize=${portfolioValue}&tradingFreq=monthly&fxTrading=rarely" class="check-cta primary">Get a personalised comparison →</a>
+      <a href="/compare/#accounts=isa&investmentTypes=etfs&balances=${encodeURIComponent(JSON.stringify({isa: portfolioValue}))}&tradingFreq=monthly&fxTrading=rarely" class="check-cta primary">Get a personalised comparison →</a>
       <a href="/broker/${brokerSlug(selectedBroker.name)}/" class="check-cta secondary">See full ${escapeHTML(selectedBroker.name)} breakdown →</a>
     `;
   } else {
@@ -207,7 +207,7 @@ function runCheck() {
     resultSavings.style.display = 'none';
 
     checkCtas.innerHTML = `
-      <a href="/compare/#accounts=isa&investmentTypes=etfs&portfolioSize=${portfolioValue}&tradingFreq=monthly&fxTrading=rarely" class="check-cta primary">Get a full comparison →</a>
+      <a href="/compare/#accounts=isa&investmentTypes=etfs&balances=${encodeURIComponent(JSON.stringify({isa: portfolioValue}))}&tradingFreq=monthly&fxTrading=rarely" class="check-cta primary">Get a full comparison →</a>
     `;
   }
 
