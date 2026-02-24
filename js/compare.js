@@ -939,6 +939,7 @@ function renderBrokerCard(item, rank, maxCost) {
           Add to comparison
         </label>
       </div>
+      ${rank === 1 ? '<span class="compare-hint" style="font-size:0.75rem; color:var(--text-muted); display:block; padding:0 1.25rem 0.5rem;">Tip: tick 2\u20133 brokers to compare side by side</span>' : ''}
       <div class="card-details" id="details-${broker.name.replace(/[^a-zA-Z0-9]/g, '')}">${detailsHTML}</div>
     </div>
   `;
