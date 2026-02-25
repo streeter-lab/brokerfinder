@@ -94,6 +94,33 @@
   color: var(--accent);
   background: var(--accent-dim);
 }
+.check-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: -0.25rem 0 1rem;
+}
+.check-pill {
+  padding: 0.5rem 1rem;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 100px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  transition: var(--transition);
+}
+.check-pill:hover,
+.check-pill.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-dim);
+}
 .btn-check {
   display: block;
   width: 100%;
@@ -307,6 +334,20 @@
       <button class="quick-amount" data-value="50000">£50k</button>
       <button class="quick-amount" data-value="100000">£100k</button>
       <button class="quick-amount" data-value="250000">£250k</button>
+    </div>
+
+    <label>Account type</label>
+    <div class="check-pills" id="checkAccountPills">
+      <button class="check-pill active" data-value="isa">ISA</button>
+      <button class="check-pill" data-value="sipp">SIPP</button>
+      <button class="check-pill" data-value="gia">GIA</button>
+    </div>
+
+    <label>Investment type</label>
+    <div class="check-pills" id="checkInvestPills">
+      <button class="check-pill active" data-value="etfs">ETFs</button>
+      <button class="check-pill" data-value="funds">Index funds</button>
+      <button class="check-pill" data-value="both">Both</button>
     </div>
 
     <button class="btn-check" id="btnCheck">Check now</button>

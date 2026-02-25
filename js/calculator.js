@@ -13,6 +13,8 @@ const defaults = {
 
 let chartData = null;
 let chartPadding = { top: 30, right: 20, bottom: 40, left: 65 };
+let CALC_BROKERS = [];
+let selectedCalcBroker = null;
 
 function debounce(fn, delay) {
   let timer;
@@ -23,13 +25,17 @@ function debounce(fn, delay) {
 }
 
 function getInputs() {
+  const fixedFeeGroup = document.getElementById('fixedFeeGroup');
+  const fixedFeeVisible = fixedFeeGroup && fixedFeeGroup.style.display !== 'none';
+
   const raw = {
     startingAmount: Math.max(0, parseFloat(document.getElementById('startingAmount').value) || 0),
     monthlyContribution: Math.max(0, parseFloat(document.getElementById('monthlyContribution').value) || 0),
     growthRate: Math.min(30, Math.max(0, parseFloat(document.getElementById('growthRate').value) || 0)),
     platformFee: Math.min(5, Math.max(0, parseFloat(document.getElementById('platformFee').value) || 0)),
     fundOCF: Math.min(5, Math.max(0, parseFloat(document.getElementById('fundOCF').value) || 0)),
-    years: Math.min(40, Math.max(1, parseInt(document.getElementById('yearsSlider').value, 10) || 20))
+    years: Math.min(40, Math.max(1, parseInt(document.getElementById('yearsSlider').value, 10) || 20)),
+    fixedAnnualFee: fixedFeeVisible ? Math.max(0, parseFloat(document.getElementById('fixedFee').value) || 0) : 0
   };
 
   const inflationOn = document.getElementById('inflationToggle')?.checked;
@@ -44,7 +50,7 @@ function getInputs() {
 
 function calculate() {
   const inputs = getInputs();
-  const { startingAmount, monthlyContribution, growthRate, platformFee, fundOCF, years } = inputs;
+  const { startingAmount, monthlyContribution, growthRate, platformFee, fundOCF, years, fixedAnnualFee } = inputs;
 
   const annualGrowth = growthRate / 100;
   const totalFeeRate = (platformFee + fundOCF) / 100;
@@ -65,7 +71,9 @@ function calculate() {
       balanceWithoutFees *= (1 + annualGrowth / 12);
 
       // Deduct fees monthly (proportional)
-      const monthlyFee = balanceWithFees * (totalFeeRate / 12);
+      const monthlyPercentFee = balanceWithFees * (totalFeeRate / 12);
+      const monthlyFixedFee = fixedAnnualFee / 12;
+      const monthlyFee = monthlyPercentFee + monthlyFixedFee;
       balanceWithFees -= monthlyFee;
       totalFeesAccumulated += monthlyFee;
 
@@ -358,6 +366,108 @@ function updateYearsLabel() {
   document.getElementById('yearsValue').textContent = val + ' years';
 }
 
+// ── Broker Dropdown ──
+async function loadCalcBrokers() {
+  try {
+    const response = await fetch('/data/brokers.json');
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    CALC_BROKERS = await response.json();
+    populateCalcBrokerDropdown();
+  } catch (err) {
+    console.error('Failed to load broker data for calculator:', err);
+  }
+}
+
+function populateCalcBrokerDropdown() {
+  const select = document.getElementById('calcBroker');
+  if (!select) return;
+  const sorted = [...CALC_BROKERS].sort((a, b) => a.name.localeCompare(b.name));
+  let html = '<option value="">Enter fee manually</option>';
+  sorted.forEach(b => {
+    html += `<option value="${brokerSlug(b.name)}">${b.name}</option>`;
+  });
+  select.innerHTML = html;
+
+  // Restore broker from URL if present
+  const urlParams = decodeCalcParamsFromURL();
+  if (urlParams && urlParams.brokerSlug) {
+    select.value = urlParams.brokerSlug;
+    if (select.value === urlParams.brokerSlug) {
+      onBrokerSelected();
+    }
+  }
+}
+
+function onBrokerSelected() {
+  const select = document.getElementById('calcBroker');
+  const slug = select.value;
+  const fixedFeeGroup = document.getElementById('fixedFeeGroup');
+  const platformFeeInput = document.getElementById('platformFee');
+  const fixedFeeInput = document.getElementById('fixedFee');
+  const hint = document.getElementById('calcBrokerHint');
+
+  if (!slug) {
+    // Manual mode
+    selectedCalcBroker = null;
+    fixedFeeGroup.style.display = 'none';
+    platformFeeInput.disabled = false;
+    fixedFeeInput.value = 0;
+    hint.textContent = 'Select a broker to auto-fill their platform fee';
+    // Remove broker banner
+    const banner = document.querySelector('.broker-context-banner');
+    if (banner) banner.remove();
+    calculate();
+    encodeCalcParamsToURL();
+    return;
+  }
+
+  const broker = CALC_BROKERS.find(b => brokerSlug(b.name) === slug);
+  if (!broker) return;
+  selectedCalcBroker = broker;
+
+  const startingAmount = Math.max(0, parseFloat(document.getElementById('startingAmount').value) || 0);
+
+  if (broker.platformFee && broker.platformFee.type === 'fixed') {
+    // Fixed-fee broker
+    let fixedAmount = broker.platformFee.amount;
+    // Interactive Investor: use Core plan
+    if (broker.plans && broker.plans.core) {
+      fixedAmount = broker.plans.core;
+      hint.textContent = `${broker.name} charges £${fixedAmount.toFixed(2)}/yr flat fee (Core plan)`;
+    } else {
+      hint.textContent = `${broker.name} charges £${fixedAmount.toFixed(2)}/yr flat fee`;
+    }
+    fixedFeeGroup.style.display = 'flex';
+    fixedFeeInput.value = fixedAmount;
+    platformFeeInput.value = 0;
+    platformFeeInput.disabled = true;
+  } else if (broker.platformFee) {
+    // Percentage / tiered / thresholded
+    const fee = calculatePlatformFee(broker.platformFee, startingAmount);
+    const effectiveRate = startingAmount > 0 ? ((fee / startingAmount) * 100) : 0;
+    platformFeeInput.value = parseFloat(effectiveRate.toFixed(4));
+    platformFeeInput.disabled = true;
+    fixedFeeGroup.style.display = 'none';
+    fixedFeeInput.value = 0;
+    if (broker.platformFee.type === 'tiered' || broker.platformFee.type === 'thresholded') {
+      hint.textContent = `Effective rate at £${startingAmount.toLocaleString('en-GB')}: ${effectiveRate.toFixed(2)}%. Actual rate varies with portfolio size.`;
+    } else {
+      hint.textContent = `${broker.name}: ${effectiveRate.toFixed(2)}% platform fee`;
+    }
+  } else {
+    // Zero-fee broker
+    platformFeeInput.value = 0;
+    platformFeeInput.disabled = true;
+    fixedFeeGroup.style.display = 'none';
+    fixedFeeInput.value = 0;
+    hint.textContent = `${broker.name} charges no platform fee`;
+  }
+
+  showBrokerBanner(broker.name);
+  calculate();
+  encodeCalcParamsToURL();
+}
+
 // ── URL Parameter Encoding/Decoding ──
 function decodeCalcParamsFromURL() {
   const hash = window.location.hash.slice(1);
@@ -395,7 +505,14 @@ function decodeCalcParamsFromURL() {
     const v = parseClamp(params.get('years'), 1, 40);
     if (v !== undefined) result.years = Math.round(v);
   }
-  if (params.has('broker')) result.brokerName = params.get('broker');
+  if (params.has('broker')) {
+    result.brokerName = params.get('broker');
+    result.brokerSlug = params.get('broker');
+  }
+  if (params.has('fixedFee')) {
+    const v = parseClamp(params.get('fixedFee'), 0, 10000);
+    if (v !== undefined) result.fixedFee = v;
+  }
   if (params.has('inflation')) {
     const v = parseClamp(params.get('inflation'), 0, 20);
     if (v !== undefined) result.inflation = v;
@@ -416,6 +533,15 @@ function encodeCalcParamsToURL() {
   const inflationOn = document.getElementById('inflationToggle')?.checked;
   if (inflationOn) {
     params.set('inflation', document.getElementById('inflationRate')?.value || '2.5');
+  }
+  const brokerSelect = document.getElementById('calcBroker');
+  if (brokerSelect && brokerSelect.value) {
+    params.set('broker', brokerSelect.value);
+  }
+  const fixedFeeGroup = document.getElementById('fixedFeeGroup');
+  if (fixedFeeGroup && fixedFeeGroup.style.display !== 'none') {
+    const fixedFee = parseFloat(document.getElementById('fixedFee').value) || 0;
+    if (fixedFee > 0) params.set('fixedFee', fixedFee);
   }
   history.replaceState(null, '', '#' + params.toString());
 }
@@ -464,7 +590,13 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('yearsSlider').value = urlParams.years;
       updateYearsLabel();
     }
-    if (urlParams.brokerName) {
+    if (urlParams.fixedFee !== undefined) {
+      document.getElementById('fixedFee').value = urlParams.fixedFee;
+      document.getElementById('fixedFeeGroup').style.display = 'flex';
+      document.getElementById('platformFee').disabled = true;
+    }
+    if (urlParams.brokerName && !urlParams.brokerSlug) {
+      // Legacy: broker name from compare tool link (no slug)
       showBrokerBanner(urlParams.brokerName);
     }
     if (urlParams.inflation !== undefined) {
@@ -474,8 +606,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // Load broker data for dropdown
+  loadCalcBrokers();
+
+  // Broker dropdown handler
+  const calcBroker = document.getElementById('calcBroker');
+  if (calcBroker) {
+    calcBroker.addEventListener('change', onBrokerSelected);
+  }
+
   // Debounced versions of calculate + URL update
   const debouncedCalc = debounce(() => { calculate(); encodeCalcParamsToURL(); }, 150);
+
+  // Recalculate effective rate when starting amount changes and a broker is selected
+  const startingAmountInput = document.getElementById('startingAmount');
+  startingAmountInput.addEventListener('input', debounce(() => {
+    if (selectedCalcBroker) onBrokerSelected();
+  }, 300));
 
   // Auto-calculate on any input change
   document.querySelectorAll('#calcForm input').forEach(input => {

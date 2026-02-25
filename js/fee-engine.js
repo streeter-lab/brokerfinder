@@ -574,6 +574,67 @@ function calculateCost(broker, portfolioValue, userAnswers) {
   };
 }
 
+// Binary search for breakeven portfolio size between two brokers
+function findBreakeven(brokerA, brokerB, userAnswers) {
+  let lo = 1000;
+  let hi = 2000000;
+
+  // Build answers for a given portfolio value, scaling balances proportionally
+  function makeTestAnswers(pv) {
+    const base = { ...userAnswers, portfolioSize: pv };
+    if (userAnswers.balances && userAnswers.portfolioSize > 0) {
+      const ratio = pv / userAnswers.portfolioSize;
+      const scaledBalances = {};
+      Object.entries(userAnswers.balances).forEach(([acct, bal]) => {
+        scaledBalances[acct] = Math.round(bal * ratio);
+      });
+      base.balances = scaledBalances;
+    } else {
+      const accounts = userAnswers.accounts || ['isa'];
+      const perAccount = pv / accounts.length;
+      const balances = {};
+      accounts.forEach(a => { balances[a] = perAccount; });
+      base.balances = balances;
+    }
+    return base;
+  }
+
+  // Check if a crossover exists (A cheaper at lo, B cheaper at hi or vice versa)
+  const loAnswers = makeTestAnswers(lo);
+  const hiAnswers = makeTestAnswers(hi);
+  const costALo = calculateCost(brokerA, lo, loAnswers).totalCost;
+  const costBLo = calculateCost(brokerB, lo, loAnswers).totalCost;
+  const costAHi = calculateCost(brokerA, hi, hiAnswers).totalCost;
+  const costBHi = calculateCost(brokerB, hi, hiAnswers).totalCost;
+
+  const diffLo = costALo - costBLo;
+  const diffHi = costAHi - costBHi;
+
+  // No crossover if same broker is cheaper (or equal) at both ends
+  if ((diffLo >= 0 && diffHi >= 0) || (diffLo <= 0 && diffHi <= 0)) {
+    return null;
+  }
+
+  // Binary search for the crossover point
+  for (let i = 0; i < 30; i++) {
+    const mid = Math.round((lo + hi) / 2);
+    const midAnswers = makeTestAnswers(mid);
+    const costAMid = calculateCost(brokerA, mid, midAnswers).totalCost;
+    const costBMid = calculateCost(brokerB, mid, midAnswers).totalCost;
+    const diffMid = costAMid - costBMid;
+
+    if ((diffLo < 0 && diffMid < 0) || (diffLo > 0 && diffMid > 0)) {
+      lo = mid;
+    } else {
+      hi = mid;
+    }
+  }
+
+  const breakeven = Math.round((lo + hi) / 2);
+  // Round to nearest £500
+  return Math.round(breakeven / 500) * 500;
+}
+
 // Utility: generate slug from broker name
 function brokerSlug(name) {
   return name

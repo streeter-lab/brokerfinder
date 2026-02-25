@@ -632,6 +632,7 @@ function recalculateAndRender(userAnswers) {
   }
 
   renderBrokerCards(eligibleBrokers, ineligibleBrokers, initialShow, maxCost);
+  renderBreakevenInsight(eligibleBrokers, userAnswers);
   animateCostBars();
 
   // Announce for screen readers
@@ -640,6 +641,66 @@ function recalculateAndRender(userAnswers) {
     const topBroker = eligibleBrokers[0];
     announceEl.textContent = `Results updated. ${eligibleBrokers.length} brokers found. Top recommendation: ${topBroker.broker.name} at ${formatCurrency(topBroker.costResult.totalCost)} per year.`;
   }
+}
+
+function renderBreakevenInsight(eligibleBrokers, userAnswers) {
+  // Remove existing banner
+  const existing = document.querySelector('.breakeven-insight');
+  if (existing) existing.remove();
+
+  if (eligibleBrokers.length < 2) return;
+
+  // Classify fee types
+  function getFeeType(broker) {
+    if (!broker.platformFee) return 'zero';
+    return broker.platformFee.type; // 'fixed', 'percentage', 'tiered', 'thresholded'
+  }
+
+  const isFlat = (type) => type === 'fixed';
+  const isPercentLike = (type) => type === 'percentage' || type === 'tiered' || type === 'thresholded';
+
+  // Find top-ranked flat-fee broker and top-ranked percentage broker
+  let topFlat = null;
+  let topPercent = null;
+  for (const entry of eligibleBrokers) {
+    const type = getFeeType(entry.broker);
+    if (!topFlat && isFlat(type)) topFlat = entry;
+    if (!topPercent && isPercentLike(type)) topPercent = entry;
+    if (topFlat && topPercent) break;
+  }
+
+  // Need both types present
+  if (!topFlat || !topPercent) return;
+
+  const breakeven = findBreakeven(topFlat.broker, topPercent.broker, userAnswers);
+  if (breakeven === null) return;
+
+  const pv = userAnswers.portfolioSize;
+  const flatName = topFlat.broker.name;
+  const pctName = topPercent.broker.name;
+  const flatCost = topFlat.costResult.totalCost;
+  const pctCost = topPercent.costResult.totalCost;
+  const saving = Math.abs(flatCost - pctCost);
+  const beLabel = formatCurrency(breakeven);
+
+  let message;
+  if (pv >= breakeven) {
+    // User is above breakeven — flat fee broker is likely cheaper
+    message = `At ${formatCurrency(pv)}, <strong>${flatName}</strong> saves you ${formatCurrency(Math.round(saving))}/yr vs <strong>${pctName}</strong>. Below <strong>${beLabel}</strong>, ${pctName} would be cheaper.`;
+  } else {
+    // User is below breakeven — percentage broker is likely cheaper
+    message = `At ${formatCurrency(pv)}, <strong>${pctName}</strong> saves you ${formatCurrency(Math.round(saving))}/yr vs <strong>${flatName}</strong>. Above <strong>${beLabel}</strong>, ${flatName} would become cheaper.`;
+  }
+
+  const banner = document.createElement('div');
+  banner.className = 'breakeven-insight';
+  banner.innerHTML = `
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+    <div>${message}</div>
+  `;
+
+  const brokerList = document.getElementById('brokerList');
+  brokerList.parentNode.insertBefore(banner, brokerList);
 }
 
 function showResults() {

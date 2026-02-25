@@ -8,14 +8,22 @@ let CHECK_BROKERS = [];
 const COMPOUND_YEARS = 20;
 const COMPOUND_GROWTH_RATE = 0.07;
 
-// Default assumptions for quick check
-const CHECK_DEFAULTS = {
-  accounts: ['isa'],
-  investmentTypes: ['etfs'],
+// Default assumptions for quick check (trading, fx, drawdown are always fixed)
+const CHECK_FIXED_DEFAULTS = {
   tradingFreq: 'monthly',
   fxTrading: 'rarely',
   drawdownSoon: 'no'
 };
+
+function getSelectedAccount() {
+  const active = document.querySelector('#checkAccountPills .check-pill.active');
+  return active ? active.dataset.value : 'isa';
+}
+
+function getSelectedInvestType() {
+  const active = document.querySelector('#checkInvestPills .check-pill.active');
+  return active ? active.dataset.value : 'etfs';
+}
 
 async function loadCheckBrokers() {
   const btnCheck = document.getElementById('btnCheck');
@@ -73,15 +81,46 @@ function getPortfolioValue() {
 }
 
 function calculateAllCosts(portfolioValue) {
+  const account = getSelectedAccount();
+  const investType = getSelectedInvestType();
+
+  // Map investment type pill to fee engine values
+  let investmentTypes;
+  let assetSplit;
+  if (investType === 'funds') {
+    investmentTypes = ['funds'];
+    assetSplit = 100;
+  } else if (investType === 'both') {
+    investmentTypes = ['etfs', 'funds'];
+    assetSplit = 50;
+  } else {
+    investmentTypes = ['etfs'];
+    assetSplit = 0;
+  }
+
+  const balances = {};
+  balances[account] = portfolioValue;
+
   const userAnswers = {
-    ...CHECK_DEFAULTS,
-    portfolioSize: portfolioValue
+    ...CHECK_FIXED_DEFAULTS,
+    accounts: [account],
+    investmentTypes,
+    assetSplit,
+    portfolioSize: portfolioValue,
+    balances
   };
+
+  // Map pill values to broker data field values
+  const accountFilter = account; // 'isa', 'sipp', 'gia' match broker.accounts
+  const investFilter = investType === 'both'
+    ? ['etf', 'fund']
+    : investType === 'funds' ? ['fund'] : ['etf'];
 
   return CHECK_BROKERS
     .filter(b => {
-      // Must support ISA and ETFs at minimum
-      return b.accounts.includes('isa') && b.investmentTypes.includes('etf');
+      const hasAccount = b.accounts.includes(accountFilter);
+      const hasInvest = investFilter.every(t => b.investmentTypes.includes(t));
+      return hasAccount && hasInvest;
     })
     .map(b => ({
       broker: b,
@@ -132,7 +171,9 @@ function runCheck() {
     // Find user's current broker cost
     const currentEntry = allCosts.find(e => e.broker.name === selectedBroker.name);
     if (!currentEntry) {
-      resultCurrent.innerHTML = `<p style="color:var(--text-secondary)">${escapeHTML(selectedBroker.name)} doesn't match the default criteria (ISA + ETFs). <a href="/compare/" style="color:var(--accent)">Try the full comparison</a> for a personalised result.</p>`;
+      const acctLabel = getSelectedAccount().toUpperCase();
+      const investLabel = getSelectedInvestType() === 'funds' ? 'Index funds' : getSelectedInvestType() === 'both' ? 'ETFs + Index funds' : 'ETFs';
+      resultCurrent.innerHTML = `<p style="color:var(--text-secondary)">${escapeHTML(selectedBroker.name)} doesn't match the selected criteria (${acctLabel} + ${investLabel}). <a href="/compare/" style="color:var(--accent)">Try the full comparison</a> for a personalised result.</p>`;
       resultRank.style.display = 'none';
       resultSavings.style.display = 'none';
       checkCtas.innerHTML = '';
@@ -199,15 +240,18 @@ function runCheck() {
     }
 
     // CTAs
+    const ctaAccount = getSelectedAccount();
+    const ctaInvest = getSelectedInvestType() === 'funds' ? 'funds' : getSelectedInvestType() === 'both' ? 'etfs,funds' : 'etfs';
+    const ctaBalances = JSON.stringify({ [ctaAccount]: portfolioValue });
     checkCtas.innerHTML = `
-      <a href="/compare/#accounts=isa&investmentTypes=etfs&balances=${encodeURIComponent(JSON.stringify({isa: portfolioValue}))}&tradingFreq=monthly&fxTrading=rarely" class="check-cta primary">Get a personalised comparison →</a>
+      <a href="/compare/#accounts=${ctaAccount}&investmentTypes=${ctaInvest}&balances=${encodeURIComponent(ctaBalances)}&tradingFreq=monthly&fxTrading=rarely" class="check-cta primary">Get a personalised comparison →</a>
       <a href="/broker/${brokerSlug(selectedBroker.name)}/" class="check-cta secondary">See full ${escapeHTML(selectedBroker.name)} breakdown →</a>
     `;
   } else {
     // "Other / I don't know"
     resultCurrent.innerHTML = `
       <p style="font-size:0.92rem;color:var(--text-secondary)">Here are the cheapest brokers for a <strong>${pvLabel}</strong> portfolio</p>
-      <p style="font-size:0.78rem;color:var(--text-muted)">Assumes: ISA, ETFs, monthly regular investing</p>
+      <p style="font-size:0.78rem;color:var(--text-muted)">Assumes: ${getSelectedAccount().toUpperCase()}, ${getSelectedInvestType() === 'funds' ? 'Index funds' : getSelectedInvestType() === 'both' ? 'ETFs + Index funds' : 'ETFs'}, monthly regular investing</p>
     `;
 
     const cheapest3 = allCosts.slice(0, 3);
@@ -225,8 +269,11 @@ function runCheck() {
 
     resultSavings.style.display = 'none';
 
+    const otherAccount = getSelectedAccount();
+    const otherInvest = getSelectedInvestType() === 'funds' ? 'funds' : getSelectedInvestType() === 'both' ? 'etfs,funds' : 'etfs';
+    const otherBalances = JSON.stringify({ [otherAccount]: portfolioValue });
     checkCtas.innerHTML = `
-      <a href="/compare/#accounts=isa&investmentTypes=etfs&balances=${encodeURIComponent(JSON.stringify({isa: portfolioValue}))}&tradingFreq=monthly&fxTrading=rarely" class="check-cta primary">Get a full comparison →</a>
+      <a href="/compare/#accounts=${otherAccount}&investmentTypes=${otherInvest}&balances=${encodeURIComponent(otherBalances)}&tradingFreq=monthly&fxTrading=rarely" class="check-cta primary">Get a full comparison →</a>
     `;
   }
 
@@ -238,9 +285,13 @@ function runCheck() {
 function updateURL() {
   const broker = document.getElementById('checkBroker').value;
   const portfolio = getPortfolioValue();
+  const account = getSelectedAccount();
+  const invest = getSelectedInvestType();
   const params = new URLSearchParams();
   if (broker) params.set('broker', broker);
   if (portfolio) params.set('portfolio', portfolio);
+  if (account !== 'isa') params.set('account', account);
+  if (invest !== 'etfs') params.set('invest', invest);
   history.replaceState(null, '', '#' + params.toString());
 }
 
@@ -255,10 +306,24 @@ function restoreFromURL() {
     document.getElementById('checkPortfolio').value = params.get('portfolio');
     highlightQuickAmount(parseInt(params.get('portfolio'), 10));
   }
+  if (params.has('account')) {
+    setActivePill('checkAccountPills', params.get('account'));
+  }
+  if (params.has('invest')) {
+    setActivePill('checkInvestPills', params.get('invest'));
+  }
   // Auto-run if both params present
   if (params.has('broker') && params.has('portfolio')) {
     setTimeout(runCheck, 100);
   }
+}
+
+function setActivePill(groupId, value) {
+  const group = document.getElementById(groupId);
+  if (!group) return;
+  group.querySelectorAll('.check-pill').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.value === value);
+  });
 }
 
 function highlightQuickAmount(val) {
@@ -284,5 +349,15 @@ document.addEventListener('DOMContentLoaded', () => {
   // Enter key triggers check
   document.getElementById('checkPortfolio').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') runCheck();
+  });
+
+  // Pill click handlers (single-select within each group)
+  document.querySelectorAll('.check-pills').forEach(group => {
+    group.querySelectorAll('.check-pill').forEach(btn => {
+      btn.addEventListener('click', () => {
+        group.querySelectorAll('.check-pill').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      });
+    });
   });
 });

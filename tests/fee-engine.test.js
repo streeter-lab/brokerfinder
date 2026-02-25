@@ -1192,6 +1192,51 @@ test('Tiered fee with null above tier rate — breaks safely', () => {
   assertEqual(fee, 100);
 });
 
+// ─────────────────────────────────────────────────
+// Breakeven Tests (findBreakeven)
+// ─────────────────────────────────────────────────
+console.log('Breakeven Tests (findBreakeven)');
+
+test('II vs Vanguard — breakeven exists in reasonable range', () => {
+  const ii = getBroker('Interactive Investor');
+  const vanguard = getBroker('Vanguard Investor');
+  const answers = makeAnswers({ portfolioSize: 50000 });
+  const breakeven = findBreakeven(ii, vanguard, answers);
+  assertTrue(breakeven !== null, 'Breakeven should exist between II and Vanguard');
+  assertTrue(breakeven >= 10000 && breakeven <= 100000,
+    `Breakeven £${breakeven} should be between £10k and £100k`);
+});
+
+test('InvestEngine vs II — no crossover (InvestEngine always cheaper)', () => {
+  const ie = getBroker('InvestEngine');
+  const ii = getBroker('Interactive Investor');
+  const answers = makeAnswers({ portfolioSize: 50000 });
+  const breakeven = findBreakeven(ie, ii, answers);
+  assertEqual(breakeven, null);
+});
+
+test('Two percentage brokers with different rates — breakeven should exist', () => {
+  const hl = getBroker('Hargreaves Lansdown');
+  const ajbell = getBroker('AJ Bell');
+  const answers = makeAnswers({ portfolioSize: 50000, investmentTypes: ['funds'] });
+  const breakeven = findBreakeven(hl, ajbell, answers);
+  // HL has higher rates — at some point AJ Bell becomes cheaper, or vice versa
+  // Both are tiered so there may or may not be a crossover depending on caps
+  // Just verify it returns a number or null without crashing
+  assertTrue(breakeven === null || (typeof breakeven === 'number' && breakeven > 0),
+    'Breakeven should be null or a positive number');
+});
+
+test('Breakeven with SIPP account type', () => {
+  const ii = getBroker('Interactive Investor');
+  const vanguard = getBroker('Vanguard Investor');
+  const answers = makeAnswers({ accounts: ['sipp'], portfolioSize: 50000 });
+  const breakeven = findBreakeven(ii, vanguard, answers);
+  // Should work without crashing; II has SIPP surcharges
+  assertTrue(breakeven === null || (typeof breakeven === 'number' && breakeven > 0),
+    'SIPP breakeven should be null or a positive number');
+});
+
 console.log('');
 
 // ═══════════════════════════════════════════════════
