@@ -121,34 +121,6 @@ const QUESTIONS = [
     ]
   },
   {
-    id: 'priorities',
-    title: 'What matters most to you?',
-    desc: 'Select up to 3 priorities. We\'ll weight recommendations accordingly.',
-    multi: true,
-    maxSelect: 3,
-    options: [
-      {value:'lowestFees', label:'Lowest fees'},
-      {value:'customerService', label:'Customer service / reputation'},
-      {value:'wideRange', label:'Wide investment range'},
-      {value:'easyToUse', label:'Easy-to-use app / website'},
-      {value:'fscs', label:'FSCS protection comfort', detail:'Prefer established, well-capitalised brokers'},
-      {value:'drawdown', label:'Drawdown / decumulation features', detail:'For SIPP drawdown in retirement'}
-    ]
-  },
-  {
-    id: 'feeModel',
-    title: 'Do you have a preference for how your broker charges?',
-    desc: 'This filters which types of brokers we recommend. Not sure? Pick "No preference".',
-    multi: false,
-    options: [
-      {value:'noPreference', label:'No preference', detail:'Show me the cheapest option regardless'},
-      {value:'zeroFee', label:'Zero / commission-free brokers', detail:'They earn from spreads, FX fees, and other services'},
-      {value:'flatFee', label:'Flat fee brokers', detail:'Fixed annual charge regardless of portfolio size \u2014 better for larger portfolios'},
-      {value:'percentageFee', label:'Percentage fee brokers', detail:'Fee scales with your portfolio \u2014 better for smaller portfolios'},
-      {value:'directFee', label:'Established direct-fee brokers only', detail:'I want to pay transparent fees to well-established providers'}
-    ]
-  },
-  {
     id: 'drawdownSoon',
     title: 'Will you need SIPP drawdown soon?',
     desc: 'This affects which platforms are suitable for you.',
@@ -481,43 +453,6 @@ function checkEligibility(broker, userAnswers) {
   return { eligible, warnings };
 }
 
-function scoreBroker(broker, costResult, userAnswers) {
-  const priorities = userAnswers.priorities || ['lowestFees'];
-  let score = 0;
-
-  // Priority bonuses — use ratings object
-  const ratings = broker.ratings || {};
-  if (priorities.includes('customerService')) score += (ratings.customerService || 0) * 8;
-  if (priorities.includes('wideRange')) score += (ratings.investmentRange || 0) * 8;
-  if (priorities.includes('easyToUse')) score += (ratings.easeOfUse || 0) * 8;
-  if (priorities.includes('fscs')) score += (ratings.established || 0) * 8;
-  if (priorities.includes('drawdown') && broker.hasDrawdown) score += 20;
-
-  // Fee model preference scoring
-  const feeModel = userAnswers.feeModel || 'noPreference';
-
-  if (feeModel === 'zeroFee') {
-    if (broker.tags.zeroFees) score += 40;
-    else score -= 15;
-  }
-  if (feeModel === 'flatFee') {
-    if (broker.category === 'flat' && !broker.tags.zeroFees) score += 35;
-    else if (broker.category === 'flat' && broker.tags.zeroFees) score += 15;
-    else score -= 10;
-  }
-  if (feeModel === 'percentageFee') {
-    if (broker.category === 'percentage') score += 35;
-    else score -= 10;
-  }
-  if (feeModel === 'directFee') {
-    if (ratings.established >= 4 && !broker.tags.zeroFees) score += 40;
-    else if (broker.tags.zeroFees) score -= 20;
-    else if (broker.category === 'trading') score -= 15;
-  }
-
-  return score;
-}
-
 function buildCalcLink(broker, costResult, userAnswers) {
   const pv = userAnswers.portfolioSize || 30000;
   const feePercent = pv > 0 ? ((costResult.totalCost / pv) * 100).toFixed(2) : 0;
@@ -571,7 +506,6 @@ function recalculateAndRender(userAnswers) {
   BROKERS.forEach(broker => {
     const { eligible, warnings: eligWarnings } = checkEligibility(broker, userAnswers);
     const costResult = calculateCost(broker, pv, userAnswers);
-    const priorityScore = scoreBroker(broker, costResult, userAnswers);
     const reason = getRecommendationReason(broker, costResult, userAnswers);
 
     rankedBrokers.push({
@@ -579,29 +513,16 @@ function recalculateAndRender(userAnswers) {
       costResult,
       eligible,
       eligWarnings,
-      priorityScore,
       reason
     });
   });
 
-  // Blended scoring: normalize cost and priority, then blend
+  // Sort: eligible first, then by lowest total cost
   const eligibleBrokers = rankedBrokers.filter(b => b.eligible);
   const maxCost = Math.max(...eligibleBrokers.map(b => b.costResult.totalCost), 1);
-  const maxPriorityScore = Math.max(...eligibleBrokers.map(b => b.priorityScore), 1);
-  const hasLowestFees = (userAnswers.priorities || []).includes('lowestFees');
-  const costWeight = hasLowestFees ? 0.8 : 0.55;
-  const priorityWeight = 1 - costWeight;
-
-  rankedBrokers.forEach(b => {
-    const costScore = 100 * (1 - b.costResult.totalCost / maxCost);
-    const normalizedPriority = Math.max(0, 100 * (b.priorityScore / maxPriorityScore));
-    b.blendedScore = costScore * costWeight + normalizedPriority * priorityWeight;
-  });
-
-  // Sort: eligible first, then by blended score (highest first)
   rankedBrokers.sort((a, b) => {
     if (a.eligible !== b.eligible) return a.eligible ? -1 : 1;
-    return b.blendedScore - a.blendedScore;
+    return a.costResult.totalCost - b.costResult.totalCost;
   });
 
   // Summary
@@ -875,18 +796,6 @@ function renderBrokerCard(item, rank, maxCost) {
   if (broker.tags.zeroFees && costResult.totalCost > 0) tagsHTML += '<span class="tag tag-green">Low fees</span>';
   if (broker.restricted) tagsHTML += '<span class="tag tag-amber">Restricted list</span>';
   if (broker.category === 'flat' && currentUserAnswers.portfolioSize >= 100000) tagsHTML += '<span class="tag tag-green">Flat fee advantage</span>';
-
-  // Fee model match tag
-  const feeModel = currentUserAnswers.feeModel || 'noPreference';
-  if (feeModel !== 'noPreference') {
-    const isMatch = (
-      (feeModel === 'zeroFee' && broker.tags.zeroFees) ||
-      (feeModel === 'flatFee' && broker.category === 'flat' && !broker.tags.zeroFees) ||
-      (feeModel === 'percentageFee' && broker.category === 'percentage') ||
-      (feeModel === 'directFee' && ratings.established >= 4 && !broker.tags.zeroFees)
-    );
-    if (isMatch) tagsHTML += '<span class="tag tag-green">Matches your fee preference</span>';
-  }
 
   // Warnings
   let warningsHTML = '';
@@ -1221,7 +1130,7 @@ function decodeAnswersFromURL() {
   if (!hash) return null;
   const params = new URLSearchParams(hash);
   const restored = {};
-  const multiFields = ['accounts', 'priorities', 'investmentTypes'];
+  const multiFields = ['accounts', 'investmentTypes'];
 
   // Build valid values from QUESTIONS (skip custom steps without options)
   const validValues = {};
