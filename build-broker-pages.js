@@ -13,6 +13,11 @@ const ROOT = __dirname;
 const BROKERS = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'brokers.json'), 'utf8'));
 const TODAY = new Date().toISOString().slice(0, 10);
 
+// Load fee engine so we can calculate accurate fees for calculator links
+// (handles all fee types: fixed, percentage, tiered, thresholded)
+const feeEngineCode = fs.readFileSync(path.join(ROOT, 'js', 'fee-engine.js'), 'utf8');
+eval(feeEngineCode);
+
 // Default portfolio value used in calculator links from broker pages.
 // Must match the `start` parameter in the calculator link URL below.
 const CALC_DEFAULT_PORTFOLIO = 30000;
@@ -163,12 +168,10 @@ function generateBrokerPage(broker) {
     return `<div class="rating-row"><span class="rating-label">${label}</span><span class="rating-dots">${ratingDots(val)}</span><span class="rating-num">${val}/5</span></div>`;
   }).join('');
 
-  // Build calc link with platform fee
-  const calcFee = broker.platformFee
-    ? (broker.platformFee.type === 'fixed'
-      ? (broker.platformFee.amount > 0 ? ((broker.platformFee.amount / CALC_DEFAULT_PORTFOLIO) * 100).toFixed(2) : '0')
-      : (broker.platformFee.rate ? (broker.platformFee.rate * 100).toFixed(2) : '0'))
-    : '0';
+  // Build calc link with platform fee — use fee engine for accurate calculation
+  // across all fee types (fixed, percentage, tiered, thresholded)
+  const calcFeeAmount = broker.platformFee ? calculatePlatformFee(broker.platformFee, CALC_DEFAULT_PORTFOLIO) : 0;
+  const calcFee = CALC_DEFAULT_PORTFOLIO > 0 ? ((calcFeeAmount / CALC_DEFAULT_PORTFOLIO) * 100).toFixed(2) : '0';
 
   return `<!DOCTYPE html>
 <html lang="en">

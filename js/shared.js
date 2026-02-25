@@ -69,6 +69,7 @@ function updateToggleIcon() {
 initTheme();
 
 // Set active nav link based on current path
+// Safe because all nav hrefs include trailing slash (e.g. '/compare/')
 document.addEventListener('DOMContentLoaded', () => {
   const path = window.location.pathname;
   document.querySelectorAll('.site-nav a').forEach(a => {
@@ -87,18 +88,59 @@ document.addEventListener('DOMContentLoaded', () => {
   const navToggle = document.getElementById('navToggle');
   const siteNav = document.querySelector('.site-nav');
   if (navToggle && siteNav) {
+    let navTrapHandler = null;
+
+    function closeNav() {
+      siteNav.classList.remove('open');
+      navToggle.classList.remove('open');
+      navToggle.setAttribute('aria-expanded', 'false');
+      if (navTrapHandler) {
+        document.removeEventListener('keydown', navTrapHandler);
+        navTrapHandler = null;
+      }
+    }
+
     navToggle.addEventListener('click', () => {
       const isOpen = siteNav.classList.toggle('open');
       navToggle.classList.toggle('open', isOpen);
       navToggle.setAttribute('aria-expanded', isOpen);
+
+      if (isOpen) {
+        // Focus first nav link
+        const firstLink = siteNav.querySelector('a');
+        if (firstLink) firstLink.focus();
+
+        // Trap focus within nav
+        navTrapHandler = (e) => {
+          if (e.key === 'Escape') {
+            closeNav();
+            navToggle.focus();
+            return;
+          }
+          if (e.key === 'Tab') {
+            const focusable = siteNav.querySelectorAll('a, button');
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+            if (e.shiftKey && document.activeElement === first) {
+              e.preventDefault();
+              navToggle.focus();
+            } else if (!e.shiftKey && document.activeElement === last) {
+              e.preventDefault();
+              first.focus();
+            }
+          }
+        };
+        document.addEventListener('keydown', navTrapHandler);
+      } else {
+        if (navTrapHandler) {
+          document.removeEventListener('keydown', navTrapHandler);
+          navTrapHandler = null;
+        }
+      }
     });
     // Close nav when clicking a link
     siteNav.querySelectorAll('a').forEach(link => {
-      link.addEventListener('click', () => {
-        siteNav.classList.remove('open');
-        navToggle.classList.remove('open');
-        navToggle.setAttribute('aria-expanded', 'false');
-      });
+      link.addEventListener('click', () => closeNav());
     });
   }
 

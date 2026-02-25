@@ -858,6 +858,220 @@ test('Breakdown per-account shows cap info', () => {
 
 console.log('');
 
+// ─────────────────────────────────────────────────
+// Category K: Threshold Edge Cases
+// ─────────────────────────────────────────────────
+console.log('Threshold Edge Cases');
+
+test('Fidelity — exactly at £25k threshold — should use below-threshold fee', () => {
+  const broker = getBroker('Fidelity');
+  const result = calculateCost(broker, 25000, makeAnswers({
+    portfolioSize: 25000,
+    tradingFreq: 'occasional'
+  }));
+  // At threshold (<=25k) → belowAmount = £90
+  assertEqual(result.platformFee, 90);
+});
+
+test('Fidelity — £25,001 (just above threshold) — should use tiered fee', () => {
+  const broker = getBroker('Fidelity');
+  const result = calculateCost(broker, 25001, makeAnswers({
+    investmentTypes: ['funds'],
+    portfolioSize: 25001,
+    tradingFreq: 'occasional'
+  }));
+  // Above threshold → 25001 * 0.0035 = 87.50 (no cap for funds)
+  assertEqual(result.platformFee, 87.50, 0.05);
+});
+
+test('Vanguard — exactly at £32k threshold', () => {
+  const broker = getBroker('Vanguard Investor');
+  const result = calculateCost(broker, 32000, makeAnswers({
+    portfolioSize: 32000
+  }));
+  // At threshold (<=32k) → belowAmount = £48
+  assertEqual(result.platformFee, 48);
+});
+
+test('Vanguard — £32,001 (just above threshold)', () => {
+  const broker = getBroker('Vanguard Investor');
+  const result = calculateCost(broker, 32001, makeAnswers({
+    portfolioSize: 32001
+  }));
+  // Above threshold → 32001 * 0.0015 = 48.00 (essentially equal, but using tiered path)
+  assertEqual(result.platformFee, 48.00, 0.05);
+});
+
+console.log('');
+
+// ─────────────────────────────────────────────────
+// Category L: LISA Cap Tests
+// ─────────────────────────────────────────────────
+console.log('LISA Cap Tests');
+
+test('Hargreaves Lansdown — LISA £50k, 100% ETFs — cap at £45', () => {
+  const broker = getBroker('Hargreaves Lansdown');
+  const result = calculateCost(broker, 50000, makeAnswers({
+    accounts: ['lisa'],
+    investmentTypes: ['etfs'],
+    portfolioSize: 50000,
+    balances: { lisa: 50000 }
+  }));
+  // 50k * 0.0045 = 225, LISA ETF cap = 45
+  assertEqual(result.platformFee, 45);
+});
+
+test('Hargreaves Lansdown — LISA £50k, 100% funds — no cap', () => {
+  const broker = getBroker('Hargreaves Lansdown');
+  const result = calculateCost(broker, 50000, makeAnswers({
+    accounts: ['lisa'],
+    investmentTypes: ['funds'],
+    portfolioSize: 50000,
+    balances: { lisa: 50000 }
+  }));
+  // 50k * 0.0045 = 225, no cap for funds
+  assertTrue(result.platformFee > 45, `LISA funds should not be capped, got ${result.platformFee}`);
+});
+
+console.log('');
+
+// ─────────────────────────────────────────────────
+// Category M: Zero-Balance Sub-account Tests
+// ─────────────────────────────────────────────────
+console.log('Zero-Balance Sub-account Tests');
+
+test('AJ Bell — ISA £100k + GIA £0 — GIA should not inflate fee', () => {
+  const broker = getBroker('AJ Bell');
+  const result = calculateCost(broker, 100000, makeAnswers({
+    accounts: ['isa', 'gia'],
+    investmentTypes: ['etfs'],
+    portfolioSize: 100000,
+    balances: { isa: 100000, gia: 0 }
+  }));
+  // Only ISA has balance → capped at 42. GIA contributes 0.
+  assertEqual(result.platformFee, 42);
+});
+
+test('Dodl — ISA £5k + SIPP £0 — should only charge minimum for ISA', () => {
+  const broker = getBroker('Dodl by AJ Bell');
+  const result = calculateCost(broker, 5000, makeAnswers({
+    accounts: ['isa', 'sipp'],
+    portfolioSize: 5000,
+    balances: { isa: 5000, sipp: 0 }
+  }));
+  // 5k * 0.0015 = 7.50, minimum 12 per account with balance
+  // Only ISA has balance → 1 account → minimum = £12
+  assertEqual(result.platformFee, 12);
+});
+
+test('Dodl — ISA £2500 + SIPP £2500 — both accounts charged minimum', () => {
+  const broker = getBroker('Dodl by AJ Bell');
+  const result = calculateCost(broker, 5000, makeAnswers({
+    accounts: ['isa', 'sipp'],
+    portfolioSize: 5000,
+    balances: { isa: 2500, sipp: 2500 }
+  }));
+  // 5k * 0.0015 = 7.50, minimum = 2 accounts * 12 = 24
+  assertEqual(result.platformFee, 24);
+});
+
+console.log('');
+
+// ─────────────────────────────────────────────────
+// Category N: Drawdown Fee Tests
+// ─────────────────────────────────────────────────
+console.log('Drawdown Fee Tests');
+
+test('Freetrade — SIPP with drawdown — £240 drawdown fee', () => {
+  const broker = getBroker('Freetrade');
+  const result = calculateCost(broker, 100000, makeAnswers({
+    accounts: ['sipp'],
+    investmentTypes: ['etfs'],
+    portfolioSize: 100000,
+    drawdownSoon: 'yes'
+  }));
+  assertEqual(result.drawdownCost, 240);
+});
+
+test('AJ Bell — SIPP with drawdown — £0 (free drawdown)', () => {
+  const broker = getBroker('AJ Bell');
+  const result = calculateCost(broker, 100000, makeAnswers({
+    accounts: ['sipp'],
+    investmentTypes: ['etfs'],
+    portfolioSize: 100000,
+    drawdownSoon: 'yes'
+  }));
+  assertEqual(result.drawdownCost, 0);
+});
+
+test('AJ Bell — SIPP without drawdown — drawdown cost is 0', () => {
+  const broker = getBroker('AJ Bell');
+  const result = calculateCost(broker, 100000, makeAnswers({
+    accounts: ['sipp'],
+    investmentTypes: ['etfs'],
+    portfolioSize: 100000,
+    drawdownSoon: 'no'
+  }));
+  assertEqual(result.drawdownCost, 0);
+});
+
+test('Hargreaves Lansdown — SIPP with drawdown — £0 (free)', () => {
+  const broker = getBroker('Hargreaves Lansdown');
+  const result = calculateCost(broker, 200000, makeAnswers({
+    accounts: ['sipp'],
+    investmentTypes: ['funds'],
+    portfolioSize: 200000,
+    drawdownSoon: 'yes'
+  }));
+  assertEqual(result.drawdownCost, 0);
+});
+
+console.log('');
+
+// ─────────────────────────────────────────────────
+// Category O: Revolut Trading Cost Sanity
+// ─────────────────────────────────────────────────
+console.log('Revolut Trading Cost Sanity');
+
+test('Revolut — monthly ETFs at £50k — £0 trading (within free allowance)', () => {
+  const broker = getBroker('Revolut');
+  const result = calculateCost(broker, 50000, makeAnswers({
+    investmentTypes: ['etfs'],
+    portfolioSize: 50000,
+    tradingFreq: 'monthly'
+  }));
+  // 12 trades/year, 1 free/month = 12 free → 0 paid trades
+  assertEqual(result.tradingCost, 0);
+});
+
+test('Revolut — active ETFs at £50k — reasonable trading cost', () => {
+  const broker = getBroker('Revolut');
+  const result = calculateCost(broker, 50000, makeAnswers({
+    investmentTypes: ['etfs'],
+    portfolioSize: 50000,
+    tradingFreq: 'active'
+  }));
+  // 30 trades/year - 12 free = 18 paid trades
+  // Active: avgTradeSize capped at £5,000 → 18 * 5000 * 0.0025 = £225
+  // Previously would have been 18 * (50000/30) * 0.0025 = £75 at 50k
+  // but at £500k would have been 18 * (500000/30) * 0.0025 = £750 (absurd)
+  assertTrue(result.tradingCost > 0, 'Should have some trading cost');
+  assertTrue(result.tradingCost < 300, `Trading cost should be reasonable, got ${result.tradingCost}`);
+});
+
+test('Revolut — monthly at £500k — trading cost stays £0 (not portfolio-proportional)', () => {
+  const broker = getBroker('Revolut');
+  const result = calculateCost(broker, 500000, makeAnswers({
+    investmentTypes: ['etfs'],
+    portfolioSize: 500000,
+    tradingFreq: 'monthly'
+  }));
+  // Monthly = 12 trades, 12 free → 0 paid
+  assertEqual(result.tradingCost, 0);
+});
+
+console.log('');
+
 // ═══════════════════════════════════════════════════
 // Summary
 // ═══════════════════════════════════════════════════
