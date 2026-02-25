@@ -35,7 +35,7 @@ function getInputs() {
   const inflationOn = document.getElementById('inflationToggle')?.checked;
   if (inflationOn) {
     const inflationRate = parseFloat(document.getElementById('inflationRate')?.value) || 2.5;
-    raw.growthRate = raw.growthRate - inflationRate;
+    raw.growthRate = (((1 + (raw.growthRate / 100)) / (1 + (inflationRate / 100))) - 1) * 100;
     raw.inflationAdjusted = true;
   }
 
