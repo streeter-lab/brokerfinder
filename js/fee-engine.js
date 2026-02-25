@@ -436,9 +436,11 @@ function calculateCost(broker, portfolioValue, userAnswers) {
 
     if (coreFee + coreTradeCost <= plusFee + plusTradeCost) {
       platformFee = coreFee;
+      breakdown.platformFee.formula = '£71.88 flat fee (Core Plan)';
       tradingCost = coreTradeCost;
     } else {
       platformFee = plusFee;
+      breakdown.platformFee.formula = '£179.88 flat fee (Plus Plan)';
       tradingCost = plusTradeCost;
     }
     if (isRegular) tradingCost = 0; // free regular investing on both plans
@@ -492,8 +494,13 @@ function calculateCost(broker, portfolioValue, userAnswers) {
     const ACCT_LABELS = { isa: 'ISA', sipp: 'SIPP', gia: 'GIA', jisa: 'JISA', lisa: 'LISA' };
     for (const [acct, info] of Object.entries(platformFeePerAccount)) {
       const label = ACCT_LABELS[acct] || acct.toUpperCase();
-      let formula = fmtAmt(info.balance) + ' × ' + describePlatformFee(broker.platformFee, pv).split(' × ').slice(1).join(' × ');
-      if (!formula.includes('×')) formula = fmtAmt(info.baseFee) + ' (proportional share)';
+      const descStr = describePlatformFee(broker.platformFee, pv);
+      let formula;
+      if (descStr.includes('×')) {
+        formula = fmtAmt(info.balance) + ' × ' + descStr.split(' × ').slice(1).join(' × ');
+      } else {
+        formula = fmtAmt(info.baseFee) + ' (proportional share)';
+      }
       if (info.cap !== null && info.cap !== undefined && info.cap > 0 && info.final < info.baseFee) {
         formula = label + ': ' + fmtAmt(info.baseFee) + ', capped at ' + fmtAmt(info.cap) + ' → ' + fmtAmt(info.final);
       } else {
@@ -502,7 +509,9 @@ function calculateCost(broker, portfolioValue, userAnswers) {
       breakdown.platformFee.perAccount[acct] = { base: info.baseFee, formula, cap: info.cap, final: info.final };
     }
   } else {
-    breakdown.platformFee.formula = broker.platformFee ? describePlatformFee(broker.platformFee, pv) : '£0';
+    if (!breakdown.platformFee.formula) {
+      breakdown.platformFee.formula = broker.platformFee ? describePlatformFee(broker.platformFee, pv) : '£0';
+    }
   }
   if (broker.platformFee?.regularWaivesBelow && isRegular && pv <= broker.platformFee.belowThreshold) {
     breakdown.platformFee.formula = '£0 (waived for regular investors below ' + fmtAmt(broker.platformFee.belowThreshold) + ')';
