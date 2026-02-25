@@ -2,6 +2,10 @@
 // FEE CALCULATION ENGINE (shared by compare.js and check.js)
 // ═══════════════════════════════════════════════════
 
+// Broker slugs for special-case logic — must match names in brokers.json
+const SLUG_REVOLUT = 'revolut';
+const SLUG_INTERACTIVE_INVESTOR = 'interactive-investor';
+
 function calculatePlatformFee(feeConfig, portfolioValue) {
   if (!feeConfig) return 0;
 
@@ -305,9 +309,13 @@ function calculateCost(broker, portfolioValue, userAnswers) {
   if (broker.platformFee?.regularWaivesBelow && isRegular && pv <= broker.platformFee.belowThreshold) {
     platformFee = 0;
   }
-  // Per-account minimum (Dodl)
+  // Per-account minimum (Dodl) — only count accounts with a positive balance
   if (broker.platformFeePerAccount && broker.platformFee && broker.platformFee.minimum) {
-    const accountCount = accounts.filter(a => broker.accounts.includes(a)).length;
+    const accountCount = accounts.filter(a => {
+      if (!broker.accounts.includes(a)) return false;
+      if (balances && balances[a] !== undefined) return balances[a] > 0;
+      return true; // If no balances provided, count all selected accounts
+    }).length;
     const minimumTotal = broker.platformFee.minimum * accountCount;
     platformFee = Math.max(platformFee, minimumTotal);
   }
@@ -388,19 +396,22 @@ function calculateCost(broker, portfolioValue, userAnswers) {
   }
 
   // Revolut special: 0.25% per trade after 1 free/month
-  if (brokerSlug(broker.name) === 'revolut') {
+  if (brokerSlug(broker.name) === SLUG_REVOLUT) {
     // Reset trading cost — we calculate it all here
     tradingCost = 0;
     const relevantTrades = (buyingETFs ? tradesPerType : 0) + (buyingShares ? tradesPerType : 0);
     if (relevantTrades > 0) {
       const paidTrades = Math.max(0, relevantTrades - 12); // 1 free/month
-      const avgTradeSize = pv / Math.max(relevantTrades, 1);
+      // Use a reasonable per-trade size: regular investors contribute a fixed amount
+      // (e.g. £500/month), not their entire portfolio each time.
+      // For ad-hoc trading, cap at £5,000 to avoid portfolio-proportional distortion.
+      const avgTradeSize = isRegular ? 500 : Math.min(pv / Math.max(relevantTrades, 1), 5000);
       tradingCost = paidTrades * avgTradeSize * 0.0025;
     }
   }
 
   // Interactive Investor plan selection
-  if (brokerSlug(broker.name) === 'interactive-investor') {
+  if (brokerSlug(broker.name) === SLUG_INTERACTIVE_INVESTOR) {
     const coreFee = broker.plans.core;
     const plusFee = broker.plans.plus;
 
@@ -499,8 +510,10 @@ function calculateCost(broker, portfolioValue, userAnswers) {
   breakdown.platformFee.total = pf;
 
   // Trading cost breakdown
-  if (tc > 0) {
+  if (tc > 0 && tradesPerYear > 0) {
     breakdown.tradingCost.formula = tradesPerYear + ' trades/yr × ' + fmtAmt(Math.round(tc / tradesPerYear * 100) / 100) + ' avg';
+  } else if (tc > 0) {
+    breakdown.tradingCost.formula = fmtAmt(tc) + ' total';
   } else {
     breakdown.tradingCost.formula = isRegular ? '£0 (free regular investing)' : '£0';
   }

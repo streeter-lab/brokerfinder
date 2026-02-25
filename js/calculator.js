@@ -94,14 +94,8 @@ function calculate() {
 
   document.getElementById('finalValue').textContent = formatCurrency(Math.round(finalWithFees));
   document.getElementById('totalContributions').textContent = formatCurrency(Math.round(totalContributions));
-  document.getElementById('totalGrowth').textContent = formatCurrency(Math.round(Math.abs(totalGrowthWithFees)));
-  // Add loss indicator
-  if (totalGrowthWithFees < 0) {
-    document.getElementById('totalGrowth').textContent = '-' + formatCurrency(Math.round(Math.abs(totalGrowthWithFees)));
-    document.getElementById('totalGrowth').style.color = 'var(--red)';
-  } else {
-    document.getElementById('totalGrowth').style.color = '';
-  }
+  document.getElementById('totalGrowth').textContent = formatCurrency(Math.round(totalGrowthWithFees));
+  document.getElementById('totalGrowth').style.color = totalGrowthWithFees < 0 ? 'var(--red)' : '';
   document.getElementById('totalFees').textContent = formatCurrency(Math.round(totalFeesAccumulated));
   document.getElementById('feeDrag').textContent = formatCurrency(Math.round(feeDrag));
   document.getElementById('withoutFeesValue').textContent = formatCurrency(Math.round(finalWithoutFees));
@@ -116,8 +110,27 @@ function calculate() {
   const realLabel = inflationOn ? ' (in today\'s money)' : '';
   document.querySelector('.result-card.highlight .result-sub').textContent = 'after fees' + realLabel;
 
+  // Negative growth warning when inflation exceeds nominal growth
+  const warningEl = document.getElementById('growthWarning');
+  if (warningEl) {
+    if (inputs.inflationAdjusted && inputs.growthRate < 0) {
+      warningEl.textContent = 'Note: Your real growth rate is negative because inflation exceeds your nominal growth rate.';
+      warningEl.style.display = 'block';
+    } else {
+      warningEl.style.display = 'none';
+    }
+  }
+
   document.getElementById('results').style.display = 'block';
   drawChart();
+
+  // Update chart accessibility label with final values
+  const canvas = document.getElementById('growthChart');
+  if (canvas && chartData) {
+    canvas.setAttribute('aria-label',
+      `Portfolio growth chart over ${years} years. Final value with fees: ${formatCurrency(Math.round(finalWithFees))}. Without fees: ${formatCurrency(Math.round(finalWithoutFees))}.`
+    );
+  }
 }
 
 function formatAxisLabel(val) {
@@ -210,7 +223,7 @@ function drawChart() {
   const xStep = years <= 10 ? 1 : years <= 20 ? 2 : 5;
   for (let y = 0; y <= years; y += xStep) {
     ctx.fillStyle = labelColor;
-    ctx.fillText(`Yr ${y}`, xPos(y), h - padding.bottom + 20);
+    ctx.fillText(y === 0 ? 'Start' : `Yr ${y}`, xPos(y), h - padding.bottom + 20);
   }
 
   // Contributions area
@@ -320,7 +333,7 @@ function initChartTooltip() {
     tooltip.style.left = flipSide ? (tooltipX - tooltip.offsetWidth - 12) + 'px' : (tooltipX + 12) + 'px';
     tooltip.style.top = '40px';
 
-    document.getElementById('tooltipYear').textContent = 'Year ' + d.year;
+    document.getElementById('tooltipYear').textContent = d.year === 0 ? 'Starting point' : 'Year ' + d.year;
     document.getElementById('tooltipWithFees').textContent = 'With fees: ' + formatCurrency(Math.round(d.withFees));
     document.getElementById('tooltipWithoutFees').textContent = 'Without fees: ' + formatCurrency(Math.round(d.withoutFees));
     document.getElementById('tooltipContribs').textContent = 'Contributed: ' + formatCurrency(Math.round(d.contributions));

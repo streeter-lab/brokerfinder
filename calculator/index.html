@@ -376,6 +376,7 @@
         <div class="input-hint" id="inflationHint" style="display:none">
           Growth rate reduced by <input type="number" id="inflationRate" value="2.5" min="0" max="10" step="0.5" style="width:60px; display:inline-block; padding:0.2rem 0.4rem; font-size:0.8rem; background:var(--bg); border:1px solid var(--border); border-radius:4px; color:var(--text); text-align:center;">% assumed inflation
         </div>
+        <div id="growthWarning" class="input-hint" style="display:none; color:var(--amber); margin-top:0.5rem;"></div>
       </div>
     </div>
   </div>
@@ -428,7 +429,7 @@
 
     <div class="chart-container">
       <h3>Portfolio growth over time</h3>
-      <canvas id="growthChart"></canvas>
+      <canvas id="growthChart" role="img" aria-label="Chart showing portfolio growth over time with and without fees"></canvas>
       <div class="chart-tooltip" id="chartTooltip" style="display:none">
         <div class="tooltip-year" id="tooltipYear"></div>
         <div class="tooltip-row accent" id="tooltipWithFees"></div>

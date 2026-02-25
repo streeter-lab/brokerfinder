@@ -4,6 +4,10 @@
 
 let CHECK_BROKERS = [];
 
+// Compound savings projection constants
+const COMPOUND_YEARS = 20;
+const COMPOUND_GROWTH_RATE = 0.07;
+
 // Default assumptions for quick check
 const CHECK_DEFAULTS = {
   accounts: ['isa'],
@@ -29,6 +33,15 @@ async function loadCheckBrokers() {
     console.error('Failed to load broker data:', err);
     const select = document.getElementById('checkBroker');
     select.innerHTML = '<option value="">Failed to load — please refresh</option>';
+    // Show visible error banner in results area
+    const resultCurrent = document.getElementById('resultCurrent');
+    if (resultCurrent) {
+      document.getElementById('checkResults').style.display = 'block';
+      resultCurrent.innerHTML = '<p style="color:var(--red);text-align:center">Could not load broker data. Please check your connection and try again.</p>';
+      document.getElementById('resultRank').style.display = 'none';
+      document.getElementById('resultSavings').style.display = 'none';
+      document.getElementById('checkCtas').innerHTML = '';
+    }
     if (btnCheck) {
       btnCheck.disabled = false;
       btnCheck.textContent = 'Retry';
@@ -168,12 +181,12 @@ function runCheck() {
     const cheapestCost = allCosts[0].cost.totalCost;
     const annualSaving = currentCost - cheapestCost;
     if (annualSaving > 0) {
-      const compoundSavings = calculateCompoundSavings(annualSaving, 20, 0.07);
+      const compoundSavings = calculateCompoundSavings(annualSaving, COMPOUND_YEARS, COMPOUND_GROWTH_RATE);
       resultSavings.style.display = 'block';
       resultSavings.innerHTML = `
         <p style="font-size:0.85rem;color:var(--text-secondary);margin:0 0 0.25rem">Switching to ${escapeHTML(allCosts[0].broker.name)} could save you</p>
         <div class="savings-big">${formatCurrency(Math.round(annualSaving))}/year</div>
-        <p>Over 20 years at 7% growth, that's <strong>${formatCurrency(Math.round(compoundSavings))}</strong> in extra returns</p>
+        <p>Over ${COMPOUND_YEARS} years at ${COMPOUND_GROWTH_RATE * 100}% growth, that's <strong>${formatCurrency(Math.round(compoundSavings))}</strong> in extra returns</p>
       `;
     } else {
       resultSavings.style.display = 'none';

@@ -5,6 +5,7 @@
 
 let BROKERS = [];
 let dataState = 'loading'; // 'loading' | 'loaded' | 'failed'
+let currentUserAnswers = null; // Set by recalculateAndRender, used by renderBrokerCard
 
 // ═══════════════════════════════════════════════════
 // DATA LOADING
@@ -238,7 +239,9 @@ function renderStep() {
     if (i > 0) progressHTML += `<div class="progress-line ${i <= currentStep ? 'done' : ''}"></div>`;
     progressHTML += `<div class="progress-dot ${i === currentStep ? 'active' : i < currentStep ? 'done' : ''}"></div>`;
   }
-  document.getElementById('wizardProgress').innerHTML = progressHTML;
+  const progressEl = document.getElementById('wizardProgress');
+  progressEl.innerHTML = progressHTML;
+  progressEl.setAttribute('aria-label', `Step ${currentStep + 1} of ${total}`);
 
   // Step content — dynamic label
   const stepLabel = `Step ${currentStep + 1} of ${total}`;
@@ -557,6 +560,7 @@ function getRecommendationReason(broker, costResult, userAnswers) {
 // RESULTS RENDERING
 // ═══════════════════════════════════════════════════
 function recalculateAndRender(userAnswers) {
+  currentUserAnswers = userAnswers;
   const pv = userAnswers.portfolioSize;
 
   // FSCS notice
@@ -651,7 +655,7 @@ function showResults() {
   // What-if slider — initialise and bind handler
   const slider = document.getElementById('whatifSlider');
   const pv = answers.portfolioSize;
-  slider.min = 0;
+  slider.min = 1000;
   slider.max = Math.max(pv * 3, 500000);
   slider.step = pv > 100000 ? 5000 : (pv > 10000 ? 1000 : 500);
   slider.value = pv;
@@ -804,10 +808,10 @@ function renderBrokerCard(item, rank, maxCost) {
   if (broker.tags.easyToUse) tagsHTML += '<span class="tag tag-accent">Easy to use</span>';
   if (broker.tags.zeroFees && costResult.totalCost > 0) tagsHTML += '<span class="tag tag-green">Low fees</span>';
   if (broker.restricted) tagsHTML += '<span class="tag tag-amber">Restricted list</span>';
-  if (broker.category === 'flat' && answers.portfolioSize >= 100000) tagsHTML += '<span class="tag tag-green">Flat fee advantage</span>';
+  if (broker.category === 'flat' && currentUserAnswers.portfolioSize >= 100000) tagsHTML += '<span class="tag tag-green">Flat fee advantage</span>';
 
   // Fee model match tag
-  const feeModel = answers.feeModel || 'noPreference';
+  const feeModel = currentUserAnswers.feeModel || 'noPreference';
   if (feeModel !== 'noPreference') {
     const isMatch = (
       (feeModel === 'zeroFee' && broker.tags.zeroFees) ||
@@ -825,15 +829,15 @@ function renderBrokerCard(item, rank, maxCost) {
     allWarnings.push(...eligWarnings);
   }
   // Inform about fee cap split when user has mixed funds + ETFs/shares
-  const userInvTypes = answers.investmentTypes || ['etfs'];
+  const userInvTypes = currentUserAnswers.investmentTypes || ['etfs'];
   const hasFundsAndETFs = userInvTypes.includes('funds') && (userInvTypes.includes('etfs') || userInvTypes.includes('sharesUK') || userInvTypes.includes('sharesIntl'));
   if (broker.platformFeeCaps && hasFundsAndETFs && costResult.fundPv > 0 && costResult.sharePv > 0) {
     const capAccounts = [];
-    if ((answers.accounts || ['isa']).includes('isa') && broker.platformFeeCaps.isa)
+    if ((currentUserAnswers.accounts || ['isa']).includes('isa') && broker.platformFeeCaps.isa)
       capAccounts.push(`ISA \u00a3${broker.platformFeeCaps.isa}`);
-    if ((answers.accounts || []).includes('sipp') && broker.platformFeeCaps.sipp)
+    if ((currentUserAnswers.accounts || []).includes('sipp') && broker.platformFeeCaps.sipp)
       capAccounts.push(`SIPP \u00a3${broker.platformFeeCaps.sipp}`);
-    if ((answers.accounts || []).includes('lisa') && broker.platformFeeCaps.lisa)
+    if ((currentUserAnswers.accounts || []).includes('lisa') && broker.platformFeeCaps.lisa)
       capAccounts.push(`LISA \u00a3${broker.platformFeeCaps.lisa}`);
     const capsStr = capAccounts.join(', ');
     const fundPct = Math.round((costResult.fundPv / (costResult.fundPv + costResult.sharePv)) * 100);
@@ -855,8 +859,8 @@ function renderBrokerCard(item, rank, maxCost) {
   const tradingTip = formatBreakdownTooltip(bd, 'tradingCost');
   const fxTip = formatBreakdownTooltip(bd, 'fxCost');
   const sippTip = formatBreakdownTooltip(bd, 'sippCost');
-  const needsSIPP = (answers.accounts || []).includes('sipp');
-  const hasFX = answers.fxTrading && answers.fxTrading !== 'rarely';
+  const needsSIPP = (currentUserAnswers.accounts || []).includes('sipp');
+  const hasFX = currentUserAnswers.fxTrading && currentUserAnswers.fxTrading !== 'rarely';
 
   const detailsHTML = `
     <div class="details-grid">
@@ -940,13 +944,13 @@ function renderBrokerCard(item, rank, maxCost) {
         </label>
       </div>
       ${rank === 1 ? '<span class="compare-hint" style="font-size:0.75rem; color:var(--text-muted); display:block; padding:0 1.25rem 0.5rem;">Tip: tick 2\u20133 brokers to compare side by side</span>' : ''}
-      <div class="card-details" id="details-${broker.name.replace(/[^a-zA-Z0-9]/g, '')}">${detailsHTML}</div>
+      <div class="card-details" id="details-${brokerSlug(broker.name)}">${detailsHTML}</div>
     </div>
   `;
 }
 
 function toggleDetails(brokerName) {
-  const id = 'details-' + brokerName.replace(/[^a-zA-Z0-9]/g, '');
+  const id = 'details-' + brokerSlug(brokerName);
   const el = document.getElementById(id);
   const card = el.closest('.broker-card');
   const header = card.querySelector('.card-header');
@@ -1202,6 +1206,8 @@ function decodeAnswersFromURL() {
 function copyShareLink(btn) {
   navigator.clipboard.writeText(window.location.href).then(() => {
     btn.textContent = 'Link copied!';
+    const announce = document.getElementById('resultsAnnounce');
+    if (announce) announce.textContent = 'Share link copied to clipboard';
     setTimeout(() => { btn.textContent = 'Share results'; }, 2000);
   }).catch(() => {
     showToast('Could not copy link. Please copy the URL manually.');
@@ -1311,6 +1317,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.querySelectorAll('.fee-popover.visible').forEach(p => p.classList.remove('visible'));
         if (!isVisible) popover.classList.add('visible');
         return;
+      }
+    });
+
+    // Keyboard support for fee popovers (Enter/Space)
+    brokerList.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        const trigger = e.target.closest('.fee-popover-trigger');
+        if (trigger) {
+          e.preventDefault();
+          const popover = trigger.nextElementSibling;
+          const isVisible = popover.classList.contains('visible');
+          document.querySelectorAll('.fee-popover.visible').forEach(p => p.classList.remove('visible'));
+          if (!isVisible) popover.classList.add('visible');
+        }
       }
     });
 
