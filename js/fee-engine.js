@@ -44,7 +44,8 @@ function calculateTieredFee(tiers, portfolioValue) {
   for (const tier of tiers) {
     if (tier.above !== undefined) {
       // Final tier — everything above previous
-      fee += remaining * tier.rate;
+      if (tier.rate == null || !isFinite(tier.rate)) break;
+      fee += Math.round(remaining * tier.rate * 100) / 100;
       break;
     }
     if (tier.upTo == null || !isFinite(tier.upTo) || tier.rate == null || !isFinite(tier.rate)) {
@@ -52,7 +53,7 @@ function calculateTieredFee(tiers, portfolioValue) {
     }
     const tierSize = tier.upTo - prevLimit;
     const inThisTier = Math.min(remaining, tierSize);
-    fee += inThisTier * tier.rate;
+    fee += Math.round(inThisTier * tier.rate * 100) / 100;
     remaining -= inThisTier;
     prevLimit = tier.upTo;
     if (remaining <= 0) break;
@@ -109,6 +110,7 @@ function describeTieredFee(tiers, portfolioValue, fmtK, fmtPct, fmtAmt) {
   for (const tier of tiers) {
     if (remaining <= 0) break;
     if (tier.above !== undefined) {
+      if (tier.rate == null || !isFinite(tier.rate)) break;
       const amt = remaining * tier.rate;
       parts.push('Above ' + fmtK(prevLimit) + ' × ' + fmtPct(tier.rate) + ' = ' + fmtAmt(Math.round(amt * 100) / 100));
       break;
@@ -237,12 +239,12 @@ function calculateCost(broker, portfolioValue, userAnswers) {
   let platformFeePerAccount = {};
   if (broker.platformFee) {
     // Interactive Brokers: GIA is free, ISA is £36
-    if (broker.platformFeeGIA === 0 && !accounts.includes('isa')) {
+    if (broker.platformFeeGIA === 0 && accounts.length === 1 && accounts[0] === 'gia') {
       platformFee = 0;
     }
     // ISA-specific platform fee (Moneyfarm) — calculate on ISA balance if available
     else if (broker.platformFeeISA && accounts.includes('isa')) {
-      const isaBalance = (balances && balances.isa) ? balances.isa : pv;
+      const isaBalance = (balances && balances.isa) ? balances.isa : (accounts.length > 1 ? pv / accounts.length : pv);
       platformFee = calculatePlatformFee(broker.platformFeeISA, isaBalance);
     }
     // Per-account calculation when balances are provided and broker has per-account caps
@@ -376,8 +378,12 @@ function calculateCost(broker, portfolioValue, userAnswers) {
       } else {
         sharePrice = broker.shareTrade !== null ? broker.shareTrade : (broker.etfTrade !== null ? broker.etfTrade : 0);
         // GIA-specific share trading fees
-        if (accounts.includes('gia') && !accounts.includes('isa') && broker.shareTradeGIA_UK) {
-          sharePrice = broker.shareTradeGIA_UK;
+        if (accounts.includes('gia') && !accounts.includes('isa')) {
+          if (buyingIntl && broker.shareTradeGIA_US) {
+            sharePrice = broker.shareTradeGIA_US;
+          } else if (broker.shareTradeGIA_UK) {
+            sharePrice = broker.shareTradeGIA_UK;
+          }
         }
       }
       tradingCost += sharePrice * tradesPerType;

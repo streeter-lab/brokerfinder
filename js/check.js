@@ -69,7 +69,7 @@ function getSelectedBroker() {
 }
 
 function getPortfolioValue() {
-  return Math.max(0, parseInt(document.getElementById('checkPortfolio').value) || 0);
+  return Math.max(0, parseInt(document.getElementById('checkPortfolio').value, 10) || 0);
 }
 
 function calculateAllCosts(portfolioValue) {
@@ -161,8 +161,11 @@ function runCheck() {
       : cheapest3;
 
     resultRank.style.display = 'block';
+    const rankMessage = cheaperCount === 0
+      ? `<p>You have the <strong>cheapest option</strong> among ${total} eligible brokers!</p>`
+      : `<p>You're paying more than <strong>${cheaperCount}</strong> out of <strong>${total}</strong> eligible brokers.</p>`;
     resultRank.innerHTML = `
-      <p>You're paying more than <strong>${cheaperCount}</strong> out of <strong>${total}</strong> eligible brokers.</p>
+      ${rankMessage}
       <div class="rank-bar"><div class="rank-bar-fill ${barClass}" style="width:${rankPct}%"></div></div>
       <span class="sr-only">${rankPct <= 33 ? 'Good value' : rankPct <= 66 ? 'Average value' : 'Expensive'}</span>
       ${alternatives.length > 0 ? `
@@ -247,7 +250,7 @@ function restoreFromURL() {
   }
   if (params.has('portfolio')) {
     document.getElementById('checkPortfolio').value = params.get('portfolio');
-    highlightQuickAmount(parseInt(params.get('portfolio')));
+    highlightQuickAmount(parseInt(params.get('portfolio'), 10));
   }
   // Auto-run if both params present
   if (params.has('broker') && params.has('portfolio')) {
@@ -257,7 +260,7 @@ function restoreFromURL() {
 
 function highlightQuickAmount(val) {
   document.querySelectorAll('.quick-amount').forEach(btn => {
-    btn.classList.toggle('active', parseInt(btn.dataset.value) === val);
+    btn.classList.toggle('active', parseInt(btn.dataset.value, 10) === val);
   });
 }
 
@@ -271,7 +274,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.quick-amount').forEach(btn => {
     btn.addEventListener('click', () => {
       document.getElementById('checkPortfolio').value = btn.dataset.value;
-      highlightQuickAmount(parseInt(btn.dataset.value));
+      highlightQuickAmount(parseInt(btn.dataset.value, 10));
     });
   });
 

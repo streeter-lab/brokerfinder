@@ -178,15 +178,16 @@ function showTaxYearBanner() {
   const banner = document.createElement('div');
   banner.className = 'tax-year-banner';
   banner.id = 'taxYearBanner';
+  const daysLabel = daysAway === 0 ? 'today' : `${daysAway} day${daysAway !== 1 ? 's' : ''} away`;
   banner.innerHTML = `
-    <span>\u{1F550} The ISA deadline is <strong>5 April ${taxYear}</strong> \u2014 ${daysAway} day${daysAway !== 1 ? 's' : ''} away.
+    <span>\u{1F550} The ISA deadline is <strong>5 April ${taxYear}</strong> \u2014 ${daysLabel}.
     <a href="/compare/">Find the right broker</a> before the tax year ends.</span>
     <button class="banner-dismiss" aria-label="Dismiss">&times;</button>
   `;
 
   const header = document.querySelector('.site-header');
-  if (header && header.nextSibling) {
-    header.parentNode.insertBefore(banner, header.nextSibling);
+  if (header) {
+    header.insertAdjacentElement('afterend', banner);
   }
 
   banner.querySelector('.banner-dismiss').addEventListener('click', () => {

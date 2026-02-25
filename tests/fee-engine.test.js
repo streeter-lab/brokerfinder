@@ -1072,6 +1072,128 @@ test('Revolut — monthly at £500k — trading cost stays £0 (not portfolio-pr
 
 console.log('');
 
+// ─────────────────────────────────────────────────
+// Category P: Bug Fix Regression Tests
+// ─────────────────────────────────────────────────
+console.log('Bug Fix Regression Tests');
+
+test('Moneyfarm ISA+GIA without balances — ISA fee uses split, not full PV', () => {
+  const broker = getBroker('Moneyfarm Share Investing');
+  const result = calculateCost(broker, 60000, makeAnswers({
+    accounts: ['isa', 'gia'],
+    investmentTypes: ['etfs'],
+    portfolioSize: 60000,
+    balances: null
+  }));
+  // Without balances, ISA balance should be 60k/2 = 30k (not 60k)
+  // 30k * 0.0035 = 105, capped at 45
+  // Previously would have used full 60k: 60k * 0.0035 = 210, capped at 45 (same due to cap)
+  // Test with smaller value to see the difference
+  const result2 = calculateCost(broker, 20000, makeAnswers({
+    accounts: ['isa', 'gia'],
+    investmentTypes: ['etfs'],
+    portfolioSize: 20000,
+    balances: null
+  }));
+  // ISA balance = 20k/2 = 10k → 10k * 0.0035 = 35 (under cap)
+  assertEqual(result2.platformFee, 35);
+});
+
+test('Moneyfarm ISA+GIA with explicit balances — uses ISA balance', () => {
+  const broker = getBroker('Moneyfarm Share Investing');
+  const result = calculateCost(broker, 20000, makeAnswers({
+    accounts: ['isa', 'gia'],
+    investmentTypes: ['etfs'],
+    portfolioSize: 20000,
+    balances: { isa: 15000, gia: 5000 }
+  }));
+  // ISA balance = 15k → 15k * 0.0035 = 52.50, capped at 45
+  assertEqual(result.platformFee, 45);
+});
+
+test('Moneyfarm ISA-only without balances — uses full PV', () => {
+  const broker = getBroker('Moneyfarm Share Investing');
+  const result = calculateCost(broker, 10000, makeAnswers({
+    accounts: ['isa'],
+    investmentTypes: ['etfs'],
+    portfolioSize: 10000,
+    balances: null
+  }));
+  // ISA only → full PV = 10k → 10k * 0.0035 = 35
+  assertEqual(result.platformFee, 35);
+});
+
+test('Interactive Brokers SIPP-only — should NOT zero platform fee', () => {
+  const broker = getBroker('Interactive Brokers');
+  const result = calculateCost(broker, 50000, makeAnswers({
+    accounts: ['sipp'],
+    portfolioSize: 50000
+  }));
+  // SIPP-only: platformFeeGIA=0 but accounts is ['sipp'], not ['gia']
+  // Should charge the fixed £36 platform fee
+  assertEqual(result.platformFee, 36);
+});
+
+test('Interactive Brokers ISA+GIA — should charge platform fee', () => {
+  const broker = getBroker('Interactive Brokers');
+  const result = calculateCost(broker, 50000, makeAnswers({
+    accounts: ['isa', 'gia'],
+    portfolioSize: 50000
+  }));
+  // Has ISA, so not GIA-only → charge platform fee
+  assertEqual(result.platformFee, 36);
+});
+
+test('Lightyear GIA with international shares — uses US rate', () => {
+  const broker = getBroker('Lightyear');
+  const result = calculateCost(broker, 50000, makeAnswers({
+    accounts: ['gia'],
+    investmentTypes: ['sharesIntl'],
+    portfolioSize: 50000,
+    tradingFreq: 'occasional'
+  }));
+  // GIA-only + international shares → shareTradeGIA_US = 0.001
+  // 9 trades/year * £0.001 = £0.009 ≈ 0.01
+  assertTrue(result.tradingCost < 0.05, `Expected near-zero US share trade cost, got ${result.tradingCost}`);
+});
+
+test('Lightyear GIA with UK shares — uses UK rate', () => {
+  const broker = getBroker('Lightyear');
+  const result = calculateCost(broker, 50000, makeAnswers({
+    accounts: ['gia'],
+    investmentTypes: ['sharesUK'],
+    portfolioSize: 50000,
+    tradingFreq: 'occasional'
+  }));
+  // GIA-only + UK shares → shareTradeGIA_UK = 1
+  // 9 trades/year * £1 = £9
+  assertEqual(result.tradingCost, 9);
+});
+
+test('Tiered fee with invalid above tier rate — breaks safely', () => {
+  const tiers = [
+    { upTo: 250000, rate: 0.0025 },
+    { above: true, rate: undefined }
+  ];
+  const fee = calculateTieredFee(tiers, 300000);
+  // Should stop at the above tier since rate is undefined
+  // Only first tier applies: 250k * 0.0025 = 625
+  assertEqual(fee, 625);
+});
+
+test('Tiered fee with null above tier rate — breaks safely', () => {
+  const tiers = [
+    { upTo: 100000, rate: 0.001 },
+    { above: true, rate: null }
+  ];
+  const fee = calculateTieredFee(tiers, 150000);
+  // above tier has null rate → should break
+  // Only first tier: 100k * 0.001 = 100
+  assertEqual(fee, 100);
+});
+
+console.log('');
+
 // ═══════════════════════════════════════════════════
 // Summary
 // ═══════════════════════════════════════════════════
