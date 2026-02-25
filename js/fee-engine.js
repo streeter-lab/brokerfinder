@@ -311,15 +311,28 @@ function calculateCost(broker, portfolioValue, userAnswers) {
   if (broker.platformFee?.regularWaivesBelow && isRegular && pv <= broker.platformFee.belowThreshold) {
     platformFee = 0;
   }
-  // Per-account minimum (Dodl) — only count accounts with a positive balance
+  // Per-account minimum (Dodl) — apply minimum to each account individually
   if (broker.platformFeePerAccount && broker.platformFee && broker.platformFee.minimum) {
-    const accountCount = accounts.filter(a => {
-      if (!broker.accounts.includes(a)) return false;
-      if (balances && balances[a] !== undefined) return balances[a] > 0;
-      return true; // If no balances provided, count all selected accounts
-    }).length;
-    const minimumTotal = broker.platformFee.minimum * accountCount;
-    platformFee = Math.max(platformFee, minimumTotal);
+    const minPerAccount = broker.platformFee.minimum;
+    if (balances) {
+      // With balances: calculate per-account fee and apply minimum to each
+      const totalPv = Object.values(balances).reduce((sum, v) => sum + (v || 0), 0);
+      let perAccountTotal = 0;
+      for (const acct of accounts) {
+        if (!broker.accounts.includes(acct)) continue;
+        const acctBal = balances[acct] || 0;
+        if (acctBal <= 0) continue;
+        const proportion = totalPv > 0 ? acctBal / totalPv : 0;
+        const acctFee = platformFee * proportion;
+        perAccountTotal += Math.max(acctFee, minPerAccount);
+      }
+      platformFee = perAccountTotal;
+    } else {
+      // Without balances: count eligible accounts and use aggregate minimum
+      const accountCount = accounts.filter(a => broker.accounts.includes(a)).length;
+      const minimumTotal = minPerAccount * accountCount;
+      platformFee = Math.max(platformFee, minimumTotal);
+    }
   }
 
   // SIPP surcharge — skip if SIPP balance is explicitly zero
@@ -372,21 +385,27 @@ function calculateCost(broker, portfolioValue, userAnswers) {
   if (buyingShares) {
     const supportsShares = broker.investmentTypes.includes('shareUK') || broker.investmentTypes.includes('shareIntl');
     if (supportsShares && (broker.shareTrade !== null || broker.etfTrade !== null)) {
-      let sharePrice;
       if (isRegular && broker.regularInvesting !== null && broker.regularInvesting !== undefined) {
-        sharePrice = broker.regularInvesting;
-      } else {
-        sharePrice = broker.shareTrade !== null ? broker.shareTrade : (broker.etfTrade !== null ? broker.etfTrade : 0);
-        // GIA-specific share trading fees
-        if (accounts.includes('gia') && !accounts.includes('isa')) {
-          if (buyingIntl && broker.shareTradeGIA_US) {
-            sharePrice = broker.shareTradeGIA_US;
-          } else if (broker.shareTradeGIA_UK) {
-            sharePrice = broker.shareTradeGIA_UK;
-          }
+        tradingCost += broker.regularInvesting * tradesPerType;
+      } else if (accounts.includes('gia') && !accounts.includes('isa') && (broker.shareTradeGIA_UK || broker.shareTradeGIA_US)) {
+        // GIA-specific share trading fees — split between UK and intl when both selected
+        const buyingUK = invTypes.includes('sharesUK');
+        if (buyingUK && buyingIntl && broker.shareTradeGIA_UK && broker.shareTradeGIA_US) {
+          // Half trades at UK rate, half at US rate
+          tradingCost += broker.shareTradeGIA_UK * (tradesPerType / 2);
+          tradingCost += broker.shareTradeGIA_US * (tradesPerType / 2);
+        } else if (buyingIntl && broker.shareTradeGIA_US) {
+          tradingCost += broker.shareTradeGIA_US * tradesPerType;
+        } else if (broker.shareTradeGIA_UK) {
+          tradingCost += broker.shareTradeGIA_UK * tradesPerType;
+        } else {
+          const sharePrice = broker.shareTrade !== null ? broker.shareTrade : (broker.etfTrade !== null ? broker.etfTrade : 0);
+          tradingCost += sharePrice * tradesPerType;
         }
+      } else {
+        const sharePrice = broker.shareTrade !== null ? broker.shareTrade : (broker.etfTrade !== null ? broker.etfTrade : 0);
+        tradingCost += sharePrice * tradesPerType;
       }
-      tradingCost += sharePrice * tradesPerType;
     }
   }
 

@@ -32,7 +32,7 @@ function getInputs() {
     startingAmount: Math.max(0, parseFloat(document.getElementById('startingAmount').value) || 0),
     monthlyContribution: Math.max(0, parseFloat(document.getElementById('monthlyContribution').value) || 0),
     growthRate: Math.min(30, Math.max(0, parseFloat(document.getElementById('growthRate').value) || 0)),
-    platformFee: Math.min(5, Math.max(0, parseFloat(document.getElementById('platformFee').value) || 0)),
+    platformFee: document.getElementById('platformFee').disabled ? 0 : Math.min(5, Math.max(0, parseFloat(document.getElementById('platformFee').value) || 0)),
     fundOCF: Math.min(5, Math.max(0, parseFloat(document.getElementById('fundOCF').value) || 0)),
     years: Math.min(40, Math.max(1, parseInt(document.getElementById('yearsSlider').value, 10) || 20)),
     fixedAnnualFee: fixedFeeVisible ? Math.max(0, parseFloat(document.getElementById('fixedFee').value) || 0) : 0
@@ -388,12 +388,16 @@ function populateCalcBrokerDropdown() {
   });
   select.innerHTML = html;
 
-  // Restore broker from URL if present
-  const urlParams = decodeCalcParamsFromURL();
-  if (urlParams && urlParams.brokerSlug) {
-    select.value = urlParams.brokerSlug;
-    if (select.value === urlParams.brokerSlug) {
-      onBrokerSelected();
+  // Restore broker from URL if present (re-read because brokers load async after DOMContentLoaded)
+  const hash = window.location.hash.slice(1);
+  if (hash) {
+    const params = new URLSearchParams(hash);
+    if (params.has('broker')) {
+      const slug = typeof brokerSlug === 'function' ? brokerSlug(params.get('broker')) : params.get('broker');
+      select.value = slug;
+      if (select.value === slug) {
+        onBrokerSelected();
+      }
     }
   }
 }
@@ -506,8 +510,10 @@ function decodeCalcParamsFromURL() {
     if (v !== undefined) result.years = Math.round(v);
   }
   if (params.has('broker')) {
-    result.brokerName = params.get('broker');
-    result.brokerSlug = params.get('broker');
+    const raw = params.get('broker');
+    result.brokerName = raw;
+    // Slugify to match dropdown option values (handles both "Hargreaves Lansdown" and "hargreaves-lansdown")
+    result.brokerSlug = typeof brokerSlug === 'function' ? brokerSlug(raw) : raw;
   }
   if (params.has('fixedFee')) {
     const v = parseClamp(params.get('fixedFee'), 0, 10000);
@@ -593,10 +599,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (urlParams.fixedFee !== undefined) {
       document.getElementById('fixedFee').value = urlParams.fixedFee;
       document.getElementById('fixedFeeGroup').style.display = 'flex';
+      document.getElementById('platformFee').value = 0;
       document.getElementById('platformFee').disabled = true;
     }
-    if (urlParams.brokerName && !urlParams.brokerSlug) {
-      // Legacy: broker name from compare tool link (no slug)
+    if (urlParams.brokerName) {
+      // Show banner immediately; dropdown selection will be restored after brokers load
       showBrokerBanner(urlParams.brokerName);
     }
     if (urlParams.inflation !== undefined) {
@@ -621,13 +628,18 @@ document.addEventListener('DOMContentLoaded', () => {
   // Recalculate effective rate when starting amount changes and a broker is selected
   const startingAmountInput = document.getElementById('startingAmount');
   startingAmountInput.addEventListener('input', debounce(() => {
-    if (selectedCalcBroker) onBrokerSelected();
-  }, 300));
+    if (selectedCalcBroker) {
+      onBrokerSelected(); // updates fee + calls calculate() + encodeCalcParamsToURL()
+    } else {
+      calculate();
+      encodeCalcParamsToURL();
+    }
+  }, 150));
 
   // Auto-calculate on any input change
   document.querySelectorAll('#calcForm input').forEach(input => {
-    // Skip inflation inputs — they have their own handlers
-    if (input.id === 'inflationToggle' || input.id === 'inflationRate') return;
+    // Skip inputs with their own dedicated handlers
+    if (input.id === 'inflationToggle' || input.id === 'inflationRate' || input.id === 'startingAmount') return;
     input.addEventListener('input', () => {
       if (input.id === 'yearsSlider') {
         updateYearsLabel();

@@ -683,13 +683,18 @@ function renderBreakevenInsight(eligibleBrokers, userAnswers) {
   const saving = Math.abs(flatCost - pctCost);
   const beLabel = formatCurrency(breakeven);
 
+  // Determine which broker is actually cheaper at the user's current PV
+  const cheaperNow = flatCost <= pctCost ? flatName : pctName;
+  const otherBroker = flatCost <= pctCost ? pctName : flatName;
+
   let message;
-  if (pv >= breakeven) {
-    // User is above breakeven — flat fee broker is likely cheaper
-    message = `At ${formatCurrency(pv)}, <strong>${flatName}</strong> saves you ${formatCurrency(Math.round(saving))}/yr vs <strong>${pctName}</strong>. Below <strong>${beLabel}</strong>, ${pctName} would be cheaper.`;
+  if (Math.round(saving) === 0) {
+    // User is at or very near the breakeven point
+    message = `At ${formatCurrency(pv)}, <strong>${flatName}</strong> and <strong>${pctName}</strong> cost about the same. This is the crossover point — below <strong>${beLabel}</strong> one is cheaper, above it the other is.`;
+  } else if (pv >= breakeven) {
+    message = `At ${formatCurrency(pv)}, <strong>${cheaperNow}</strong> saves you ${formatCurrency(Math.round(saving))}/yr vs <strong>${otherBroker}</strong>. Below <strong>${beLabel}</strong>, ${otherBroker} would be cheaper.`;
   } else {
-    // User is below breakeven — percentage broker is likely cheaper
-    message = `At ${formatCurrency(pv)}, <strong>${pctName}</strong> saves you ${formatCurrency(Math.round(saving))}/yr vs <strong>${flatName}</strong>. Above <strong>${beLabel}</strong>, ${flatName} would become cheaper.`;
+    message = `At ${formatCurrency(pv)}, <strong>${cheaperNow}</strong> saves you ${formatCurrency(Math.round(saving))}/yr vs <strong>${otherBroker}</strong>. Above <strong>${beLabel}</strong>, ${otherBroker} would become cheaper.`;
   }
 
   const banner = document.createElement('div');

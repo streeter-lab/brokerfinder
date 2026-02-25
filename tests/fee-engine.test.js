@@ -975,6 +975,20 @@ test('Dodl — ISA £2500 + SIPP £2500 — both accounts charged minimum', () =
   assertEqual(result.platformFee, 24);
 });
 
+test('Dodl — lopsided balances: SIPP £20k + ISA £1k — per-account minimum applied individually', () => {
+  const broker = getBroker('Dodl by AJ Bell');
+  const result = calculateCost(broker, 21000, makeAnswers({
+    accounts: ['isa', 'sipp'],
+    portfolioSize: 21000,
+    balances: { sipp: 20000, isa: 1000 }
+  }));
+  // Total: 21k * 0.0015 = 31.50
+  // SIPP share: 20/21 * 31.50 = 30.00 (above £12 min, keeps)
+  // ISA share: 1/21 * 31.50 = 1.50 (below £12 min, bumped to £12)
+  // Total = 30 + 12 = 42
+  assertEqual(result.platformFee, 42);
+});
+
 console.log('');
 
 // ─────────────────────────────────────────────────
@@ -1168,6 +1182,21 @@ test('Lightyear GIA with UK shares — uses UK rate', () => {
   // GIA-only + UK shares → shareTradeGIA_UK = 1
   // 9 trades/year * £1 = £9
   assertEqual(result.tradingCost, 9);
+});
+
+test('Lightyear GIA with UK + Intl shares — splits trades between UK and US rates', () => {
+  const broker = getBroker('Lightyear');
+  const result = calculateCost(broker, 50000, makeAnswers({
+    accounts: ['gia'],
+    investmentTypes: ['sharesUK', 'sharesIntl'],
+    portfolioSize: 50000,
+    tradingFreq: 'occasional'
+  }));
+  // 9 trades/year, 1 type count for "shares" → 9 tradesPerType
+  // Half at UK rate (£1), half at US rate (£0.001)
+  // 4.5 * £1 + 4.5 * £0.001 = £4.50 + £0.0045 ≈ £4.50
+  assertTrue(result.tradingCost >= 4 && result.tradingCost <= 5,
+    `Expected ~£4.50 blended trade cost, got ${result.tradingCost}`);
 });
 
 test('Tiered fee with invalid above tier rate — breaks safely', () => {

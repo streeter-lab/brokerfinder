@@ -119,7 +119,7 @@ function calculateAllCosts(portfolioValue) {
   return CHECK_BROKERS
     .filter(b => {
       const hasAccount = b.accounts.includes(accountFilter);
-      const hasInvest = investFilter.every(t => b.investmentTypes.includes(t));
+      const hasInvest = investFilter.some(t => b.investmentTypes.includes(t));
       return hasAccount && hasInvest;
     })
     .map(b => ({
@@ -153,7 +153,7 @@ function runCheck() {
 
   const allCosts = calculateAllCosts(portfolioValue);
   if (allCosts.length === 0) {
-    showToast('No brokers matched the default criteria. Try the full comparison tool for more options.');
+    showToast('No brokers matched your selected criteria. Try adjusting account or investment type, or use the full comparison tool.');
     return;
   }
 
