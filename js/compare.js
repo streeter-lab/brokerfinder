@@ -518,12 +518,12 @@ function recalculateAndRender(userAnswers) {
   });
 
   // Sort: eligible first, then by lowest total cost
-  const eligibleBrokers = rankedBrokers.filter(b => b.eligible);
-  const maxCost = Math.max(...eligibleBrokers.map(b => b.costResult.totalCost), 1);
   rankedBrokers.sort((a, b) => {
     if (a.eligible !== b.eligible) return a.eligible ? -1 : 1;
     return a.costResult.totalCost - b.costResult.totalCost;
   });
+  const eligibleBrokers = rankedBrokers.filter(b => b.eligible);
+  const maxCost = Math.max(...eligibleBrokers.map(b => b.costResult.totalCost), 1);
 
   // Summary
   const invTypeLabels = {
