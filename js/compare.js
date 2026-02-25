@@ -662,7 +662,7 @@ function showResults() {
   document.getElementById('whatifValue').textContent = formatCurrency(pv);
   let sliderTimeout;
   slider.oninput = function() {
-    const val = parseInt(this.value);
+    const val = parseInt(this.value, 10);
     document.getElementById('whatifValue').textContent = formatCurrency(val);
     clearTimeout(sliderTimeout);
     sliderTimeout = setTimeout(() => {
@@ -1274,7 +1274,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const rawValue = optBtn.dataset.value;
       const valueType = optBtn.dataset.type;
       const multi = optBtn.dataset.multi === 'true';
-      const maxSelect = parseInt(optBtn.dataset.max) || 99;
+      const maxSelect = parseInt(optBtn.dataset.max, 10) || 99;
       const value = valueType === 'number' ? Number(rawValue) : rawValue;
       selectOption(qid, value, multi, maxSelect);
     });

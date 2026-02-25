@@ -143,8 +143,6 @@ function ratingDots(value, max = 5) {
 
 function generateBrokerPage(broker) {
   const slug = slugify(broker.name);
-  const feePercent = broker.platformFee && broker.platformFee.rate
-    ? (broker.platformFee.rate * 100).toFixed(2) : '0';
 
   const accountTags = broker.accounts.map(a =>
     `<span class="tag tag-accent">${ACCOUNT_LABELS[a] || a}</span>`

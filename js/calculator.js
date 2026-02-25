@@ -29,7 +29,7 @@ function getInputs() {
     growthRate: Math.min(30, Math.max(0, parseFloat(document.getElementById('growthRate').value) || 0)),
     platformFee: Math.min(5, Math.max(0, parseFloat(document.getElementById('platformFee').value) || 0)),
     fundOCF: Math.min(5, Math.max(0, parseFloat(document.getElementById('fundOCF').value) || 0)),
-    years: Math.min(40, Math.max(1, parseInt(document.getElementById('yearsSlider').value) || 20))
+    years: Math.min(40, Math.max(1, parseInt(document.getElementById('yearsSlider').value, 10) || 20))
   };
 
   const inflationOn = document.getElementById('inflationToggle')?.checked;
@@ -411,7 +411,7 @@ function encodeCalcParamsToURL() {
     growth: parseFloat(document.getElementById('growthRate').value) || 0,
     fee: parseFloat(document.getElementById('platformFee').value) || 0,
     ocf: parseFloat(document.getElementById('fundOCF').value) || 0,
-    years: parseInt(document.getElementById('yearsSlider').value) || 20
+    years: parseInt(document.getElementById('yearsSlider').value, 10) || 20
   });
   const inflationOn = document.getElementById('inflationToggle')?.checked;
   if (inflationOn) {

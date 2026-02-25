@@ -113,7 +113,10 @@ function runCheck() {
   }
 
   const allCosts = calculateAllCosts(portfolioValue);
-  if (allCosts.length === 0) return;
+  if (allCosts.length === 0) {
+    showToast('No brokers matched the default criteria. Try the full comparison tool for more options.');
+    return;
+  }
 
   const pvLabel = portfolioValue >= 1000
     ? '£' + Math.round(portfolioValue).toLocaleString('en-GB')
