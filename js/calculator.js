@@ -75,7 +75,13 @@ function calculate() {
       const monthlyFixedFee = fixedAnnualFee / 12;
       const monthlyFee = monthlyPercentFee + monthlyFixedFee;
       balanceWithFees -= monthlyFee;
-      totalFeesAccumulated += monthlyFee;
+      if (balanceWithFees < 0) {
+        // Can't collect more fees than the balance holds
+        totalFeesAccumulated += monthlyFee + balanceWithFees;
+        balanceWithFees = 0;
+      } else {
+        totalFeesAccumulated += monthlyFee;
+      }
 
       // Add contribution
       balanceWithFees += monthlyContribution;
@@ -375,6 +381,8 @@ async function loadCalcBrokers() {
     populateCalcBrokerDropdown();
   } catch (err) {
     console.error('Failed to load broker data for calculator:', err);
+    const hint = document.getElementById('calcBrokerHint');
+    if (hint) hint.textContent = 'Could not load broker list \u2014 enter fees manually';
   }
 }
 

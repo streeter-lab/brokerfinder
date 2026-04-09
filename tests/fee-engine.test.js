@@ -1268,6 +1268,73 @@ test('Breakeven with SIPP account type', () => {
 
 console.log('');
 
+// ─────────────────────────────────────────────────
+// Bug Fix Regression Tests
+// ─────────────────────────────────────────────────
+console.log('Bug Fix Regression Tests');
+
+test('SIPP percentage fee uses SIPP balance, not total portfolio', () => {
+  // Lloyds has sippFee: { type: "percentage", rate: 0.0025, cap: 198 }
+  const broker = getBroker('Lloyds Bank');
+  const result = calculateCost(broker, 100000, makeAnswers({
+    accounts: ['isa', 'sipp'],
+    portfolioSize: 100000,
+    balances: { isa: 80000, sipp: 20000 }
+  }));
+  // SIPP fee should be on £20k: 20000 * 0.0025 = £50 (not £250 capped to £198)
+  assertEqual(result.sippCost, 50);
+});
+
+test('SIPP percentage fee without balances uses full PV', () => {
+  const broker = getBroker('Lloyds Bank');
+  const result = calculateCost(broker, 100000, makeAnswers({
+    accounts: ['sipp'],
+    portfolioSize: 100000,
+    balances: undefined
+  }));
+  // Without balances, sippBalance = pv = 100000; fee = 100000 * 0.0025 = £250, capped at £198
+  assertEqual(result.sippCost, 198);
+});
+
+test('SIPP percentage fee capped correctly on SIPP balance', () => {
+  const broker = getBroker('Halifax / BoS');
+  const result = calculateCost(broker, 200000, makeAnswers({
+    accounts: ['isa', 'sipp'],
+    portfolioSize: 200000,
+    balances: { isa: 100000, sipp: 100000 }
+  }));
+  // SIPP fee on £100k: 100000 * 0.0025 = £250, capped at £198
+  assertEqual(result.sippCost, 198);
+});
+
+test('describeTieredFee labels second tier as Next, not First', () => {
+  const tiers = [
+    { upTo: 250000, rate: 0.0025 },
+    { upTo: 500000, rate: 0.001 },
+    { above: 500000, rate: 0 }
+  ];
+  const fmtK = (v) => v >= 1000 ? '£' + (v / 1000) + 'k' : '£' + v;
+  const fmtPct = (r) => (r * 100).toFixed(r * 100 % 1 === 0 ? 0 : 2) + '%';
+  const fmtAmt = (v) => '£' + v.toLocaleString('en-GB', { minimumFractionDigits: v % 1 === 0 ? 0 : 2, maximumFractionDigits: 2 });
+  const desc = describeTieredFee(tiers, 400000, fmtK, fmtPct, fmtAmt);
+  assertTrue(desc.includes('First £250k'), 'Should include "First £250k"');
+  assertTrue(desc.includes('Next £250k'), 'Should include "Next £250k" for second tier');
+  assertTrue(!desc.includes('First £500k'), 'Should NOT include "First £500k"');
+});
+
+test('describeTieredFee single tier still says First', () => {
+  const tiers = [
+    { upTo: 250000, rate: 0.0025 }
+  ];
+  const fmtK = (v) => v >= 1000 ? '£' + (v / 1000) + 'k' : '£' + v;
+  const fmtPct = (r) => (r * 100).toFixed(r * 100 % 1 === 0 ? 0 : 2) + '%';
+  const fmtAmt = (v) => '£' + v.toLocaleString('en-GB', { minimumFractionDigits: v % 1 === 0 ? 0 : 2, maximumFractionDigits: 2 });
+  const desc = describeTieredFee(tiers, 100000, fmtK, fmtPct, fmtAmt);
+  assertTrue(desc.includes('First £250k'), 'Single tier should say "First £250k"');
+});
+
+console.log('');
+
 // ═══════════════════════════════════════════════════
 // Summary
 // ═══════════════════════════════════════════════════

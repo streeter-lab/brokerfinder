@@ -346,6 +346,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  // Clear quick-amount highlights when user types manually
+  document.getElementById('checkPortfolio').addEventListener('input', () => {
+    highlightQuickAmount(getPortfolioValue());
+  });
+
   // Enter key triggers check
   document.getElementById('checkPortfolio').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') runCheck();

@@ -120,7 +120,8 @@ function describeTieredFee(tiers, portfolioValue, fmtK, fmtPct, fmtAmt) {
     const inThisTier = Math.min(remaining, tierSize);
     if (inThisTier > 0) {
       const amt = inThisTier * tier.rate;
-      parts.push('First ' + fmtK(tier.upTo) + ' × ' + fmtPct(tier.rate) + ' = ' + fmtAmt(Math.round(amt * 100) / 100));
+      const label = prevLimit === 0 ? 'First ' + fmtK(tier.upTo) : 'Next ' + fmtK(tierSize);
+      parts.push(label + ' × ' + fmtPct(tier.rate) + ' = ' + fmtAmt(Math.round(amt * 100) / 100));
     }
     remaining -= inThisTier;
     prevLimit = tier.upTo;
@@ -340,7 +341,7 @@ function calculateCost(broker, portfolioValue, userAnswers) {
   const sippBalance = balances ? (balances.sipp || 0) : (needsSIPP ? pv : 0);
   if (needsSIPP && sippBalance > 0) {
     if (broker.sippFee) {
-      const sippFeeVal = calculatePlatformFee(broker.sippFee, pv);
+      const sippFeeVal = calculatePlatformFee(broker.sippFee, sippBalance);
       sippCost = sippFeeVal;
     }
     if (broker.sippExtra) sippCost += broker.sippExtra;
@@ -565,7 +566,7 @@ function calculateCost(broker, portfolioValue, userAnswers) {
   // SIPP cost breakdown
   if (sc > 0) {
     const parts = [];
-    if (broker.sippFee) parts.push(describePlatformFee(broker.sippFee, pv));
+    if (broker.sippFee) parts.push(describePlatformFee(broker.sippFee, sippBalance));
     if (broker.sippExtra) parts.push(fmtAmt(broker.sippExtra) + ' SIPP surcharge');
     if (broker.sippSurcharge && pv < broker.sippSurcharge.belowThreshold) parts.push(fmtAmt(broker.sippSurcharge.amount) + ' (below ' + fmtAmt(broker.sippSurcharge.belowThreshold) + ')');
     breakdown.sippCost.formula = parts.length > 0 ? parts.join(' + ') : fmtAmt(sc);

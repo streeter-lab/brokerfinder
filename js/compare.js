@@ -455,16 +455,18 @@ function checkEligibility(broker, userAnswers) {
 
 function buildCalcLink(broker, costResult, userAnswers) {
   const pv = userAnswers.portfolioSize || 30000;
-  const feePercent = pv > 0 ? ((costResult.totalCost / pv) * 100).toFixed(2) : 0;
+  const platformFeePercent = pv > 0 ? ((costResult.platformFee / pv) * 100).toFixed(2) : 0;
+  const fixedCosts = costResult.sippCost + costResult.tradingCost + costResult.fxCost + costResult.drawdownCost;
   const params = new URLSearchParams({
     start: pv,
     monthly: 500,
     growth: 7,
-    fee: feePercent,
+    fee: platformFeePercent,
     ocf: 0.15,
     years: 20,
     broker: broker.name
   });
+  if (fixedCosts > 0) params.set('fixedFee', fixedCosts.toFixed(2));
   return `/calculator/#${params.toString()}`;
 }
 
